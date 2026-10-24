@@ -1,24 +1,22 @@
 package com.example.demo.entity;
 
-import com.example.demo.enums.Frequency;
-import com.example.demo.enums.TransactionType;
+import com.example.demo.entity.enums.RecurringFrequency;
+import com.example.demo.entity.enums.TransactionType;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "recurring_transactions")
-@Getter
-@Setter
-@NoArgsConstructor
-@SuperBuilder
-public class RecurringTransaction extends BaseEntity {
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Builder
+public class RecurringTransaction {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
@@ -28,14 +26,14 @@ public class RecurringTransaction extends BaseEntity {
     @JoinColumn(name = "wallet_id", nullable = false)
     private Wallet wallet;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
-    // Chỉ dùng INCOME hoặc EXPENSE
+    // chỉ dùng INCOME hoặc EXPENSE
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private TransactionType type;
@@ -45,16 +43,15 @@ public class RecurringTransaction extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
-    private Frequency frequency;
+    private RecurringFrequency frequency;
 
     @Column(name = "next_run_date", nullable = false)
     private LocalDate nextRunDate;
 
-    // null = lặp vô thời hạn
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @Builder.Default
     @Column(name = "is_active", nullable = false)
+    @Builder.Default
     private boolean active = true;
 }

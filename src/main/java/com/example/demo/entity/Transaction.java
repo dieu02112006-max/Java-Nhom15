@@ -1,36 +1,23 @@
 package com.example.demo.entity;
 
-import com.example.demo.enums.TransactionType;
+import com.example.demo.entity.enums.TransactionType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
-@Table(
-    name = "transactions",
-    indexes = {
-        @Index(name = "idx_transactions_user_date", columnList = "user_id, transaction_date"),
-        @Index(name = "idx_transactions_wallet", columnList = "wallet_id")
-    }
-)
-@Getter
-@Setter
-@NoArgsConstructor
-@SuperBuilder
-public class Transaction extends BaseEntity {
+@Table(name = "transactions", indexes = {
+        @Index(name = "idx_tx_user_date", columnList = "user_id, transaction_date")
+})
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Builder
+public class Transaction {
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
@@ -40,7 +27,7 @@ public class Transaction extends BaseEntity {
     @JoinColumn(name = "wallet_id", nullable = false)
     private Wallet wallet;
 
-    // Giao dịch chuyển ví (TRANSFER) có thể không có danh mục
+    // null khi type = TRANSFER
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
@@ -58,21 +45,15 @@ public class Transaction extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String note;
 
-    // Ví nhận tiền, chỉ dùng khi type = TRANSFER
+    // chỉ dùng khi type = TRANSFER
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "to_wallet_id")
     private Wallet toWallet;
 
-    // Ảnh hóa đơn
     @Column(name = "receipt_url")
     private String receiptUrl;
 
-    // Liên kết với to-do
-    // Optional reference to the To-do module; kept as an ID in this expense-only scope.
-    @Column(name = "task_id")
-    private Long taskId;
-
-    // Sinh ra từ giao dịch định kỳ
+    // null nếu không sinh từ giao dịch định kỳ
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recurring_id")
     private RecurringTransaction recurring;

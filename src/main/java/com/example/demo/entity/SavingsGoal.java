@@ -1,42 +1,40 @@
 package com.example.demo.entity;
 
-import com.example.demo.enums.SavingsGoalStatus;
+import com.example.demo.entity.enums.GoalStatus;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "savings_goals")
-@Getter
-@Setter
-@NoArgsConstructor
-@SuperBuilder
-public class SavingsGoal extends BaseEntity {
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Builder
+public class SavingsGoal {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, length = 150)
+    @Column(nullable = false)
     private String name;
 
     @Column(name = "target_amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal targetAmount;
 
-    @Builder.Default
     @Column(name = "current_amount", nullable = false, precision = 15, scale = 2)
+    @Builder.Default
     private BigDecimal currentAmount = BigDecimal.ZERO;
 
     private LocalDate deadline;
 
-    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 15)
-    private SavingsGoalStatus status = SavingsGoalStatus.ACTIVE;
+    @Builder.Default
+    private GoalStatus status = GoalStatus.ACTIVE;
 }

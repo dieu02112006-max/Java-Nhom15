@@ -1,46 +1,36 @@
 package com.example.demo.entity;
 
-import com.example.demo.enums.CategoryType;
+import com.example.demo.entity.enums.CategoryType;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
+import lombok.*;
 
 @Entity
 @Table(name = "categories")
-@Getter
-@Setter
-@NoArgsConstructor
-@SuperBuilder
-public class Category extends BaseEntity {
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Builder
+public class Category {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     // null = danh mục mặc định của hệ thống
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    // Danh mục cha (null = danh mục gốc)
+    // danh mục cha (null = danh mục gốc)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "parent")
-    private List<Category> children = new ArrayList<>();
-
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private String name;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private CategoryType type;
 
-    @Column(length = 50)
     private String icon;
 
     @Column(length = 20)

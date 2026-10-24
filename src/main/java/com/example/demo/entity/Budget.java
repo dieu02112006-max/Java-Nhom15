@@ -1,34 +1,31 @@
 package com.example.demo.entity;
 
-import com.example.demo.enums.BudgetPeriod;
+import com.example.demo.entity.enums.BudgetPeriod;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "budgets")
-@Getter
-@Setter
-@NoArgsConstructor
-@SuperBuilder
-public class Budget extends BaseEntity {
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Builder
+public class Budget {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // null = ngân sách tổng (không gắn danh mục nào)
+    // null = ngân sách tổng
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
 
-    // Hạn mức
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
@@ -39,11 +36,11 @@ public class Budget extends BaseEntity {
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
-    @Column(name = "end_date", nullable = false)
+    @Column(name = "end_date")
     private LocalDate endDate;
 
-    // Phần trăm cảnh báo, ví dụ 80
+    // phần trăm cảnh báo, ví dụ 80
+    @Column(name = "alert_threshold")
     @Builder.Default
-    @Column(name = "alert_threshold", nullable = false)
     private Integer alertThreshold = 80;
 }
