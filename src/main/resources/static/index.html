@@ -3,10 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quản lý công việc và chi tiêu</title>
+    <meta name="theme-color" content="#f7f8fc">
+    <title>Dayflow — Sống chủ động mỗi ngày</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #17211f;
+            --muted: #6e7976;
+            --blue: #4663c8;
+            --blue-dark: #344ba8;
+            --blue-pale: #edf0ff;
+            --pink: #e9aeca;
+            --paper: #f7f8fc;
+            --line: #e7eaf2;
+        }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        a { color: inherit; text-decoration: none; }
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            height: 76px;
+            background: rgb(255 255 255 / 92%);
+            border-bottom: 1px solid rgb(23 33 31 / 7%);
+            backdrop-filter: blur(16px);
+        }
+        .nav-wrap {
+            width: min(1160px, calc(100% - 48px));
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+        .brand { display: inline-flex; align-items: center; gap: 11px; font-weight: 760; letter-spacing: -.04em; font-size: 20px; }
+        .brand-mark {
+            display: grid;
+            place-items: center;
+            width: 37px;
+            height: 37px;
+            color: white;
+            background: var(--blue);
+            border-radius: 12px;
+            box-shadow: 0 7px 16px rgb(70 99 200 / 19%);
+        }
+        .brand-mark svg { width: 21px; height: 21px; }
+        .nav-links { display: flex; align-items: center; gap: 7px; }
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 11px 15px;
+            border-radius: 11px;
+            color: #53615d;
+            font-size: 14px;
+            font-weight: 620;
+            transition: background .18s ease, color .18s ease;
+        }
+        .nav-link:hover, .nav-link:focus-visible { color: var(--blue-dark); background: var(--blue-pale); outline: none; }
+        .nav-link svg { width: 17px; height: 17px; }
+        .nav-cta { padding: 11px 17px; color: white; background: var(--blue); border-radius: 11px; font-size: 13px; font-weight: 680; }
+        .nav-cta:hover { background: var(--blue-dark); }
+        main { overflow: hidden; }
+        .hero {
+            position: relative;
+            width: min(1160px, calc(100% - 48px));
+            min-height: 590px;
+            margin: 0 auto;
+            padding: 86px 0 76px;
+            display: grid;
+            grid-template-columns: 1.02fr .98fr;
+            align-items: center;
+            gap: 58px;
+        }
+        .hero::before {
+            position: absolute;
+            z-index: -1;
+            top: 25px;
+            right: -260px;
+            width: 700px;
+            height: 600px;
+            content: "";
+            background: radial-gradient(ellipse, #eef1ff 0, rgb(238 241 255 / 0%) 68%);
+        }
+        .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--blue); font-size: 12px; font-weight: 760; letter-spacing: .12em; text-transform: uppercase; }
+        .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 0 4px #f6eaf1; }
+        h1 { max-width: 580px; margin: 22px 0 18px; font-size: clamp(43px, 5.2vw, 66px); line-height: 1.03; letter-spacing: -.065em; font-weight: 730; }
+        h1 span { color: var(--blue); }
+        .hero-copy { max-width: 500px; color: var(--muted); font-size: 17px; line-height: 1.75; }
+        .hero-actions { display: flex; align-items: center; gap: 13px; margin-top: 30px; flex-wrap: wrap; }
+        .button { display: inline-flex; justify-content: center; align-items: center; gap: 10px; min-height: 48px; padding: 0 19px; border-radius: 12px; font-size: 14px; font-weight: 680; transition: transform .18s ease, background .18s ease; }
+        .button:hover { transform: translateY(-2px); }
+        .button-primary { color: white; background: var(--blue); box-shadow: 0 10px 20px rgb(70 99 200 / 16%); }
+        .button-primary:hover { background: var(--blue-dark); }
+        .button-quiet { color: var(--ink); background: white; border: 1px solid var(--line); }
+        .button svg { width: 17px; height: 17px; }
+        .hero-note { margin-top: 24px; color: #7b8582; font-size: 12px; }
+        .preview-area { position: relative; min-height: 410px; display: grid; place-items: center; }
+        .preview-glow { position: absolute; width: 355px; height: 355px; border-radius: 50%; background: #f8eaf1; }
+        .preview-card { position: relative; width: min(100%, 420px); padding: 23px; background: white; border: 1px solid rgb(23 33 31 / 6%); border-radius: 22px; box-shadow: 0 27px 80px rgb(49 63 125 / 13%); transform: rotate(1.8deg); }
+        .preview-head { display: flex; align-items: center; justify-content: space-between; padding-bottom: 19px; border-bottom: 1px solid #edf0f5; }
+        .preview-title { font-size: 14px; font-weight: 730; }
+        .preview-date { margin-top: 4px; color: #8a9591; font-size: 11px; }
+        .avatar-stack { display: flex; align-items: center; }
+        .avatar { width: 27px; height: 27px; display: grid; place-items: center; margin-left: -6px; border: 2px solid white; border-radius: 50%; color: #fff; background: #e5a884; font-size: 9px; font-weight: 700; }
+        .avatar:first-child { margin-left: 0; background: #7587ce; }
+        .avatar:last-child { background: #d5a85f; }
+        .balance { display: flex; align-items: center; justify-content: space-between; padding: 19px 0 17px; }
+        .balance-label { color: #808b87; font-size: 11px; }
+        .balance-number { margin-top: 5px; font-size: 25px; font-weight: 750; letter-spacing: -.05em; }
+        .balance-change { padding: 6px 8px; color: #4864c7; background: #eef0ff; border-radius: 8px; font-size: 10px; font-weight: 700; }
+        .preview-section-title { margin: 3px 0 11px; color: #89928f; font-size: 10px; font-weight: 720; letter-spacing: .09em; text-transform: uppercase; }
+        .task-row { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-top: 1px solid #edf0f5; }
+        .check { width: 17px; height: 17px; display: grid; place-items: center; flex: none; border: 1.5px solid #cdd2e3; border-radius: 6px; }
+        .check.done { color: white; border-color: var(--blue); background: var(--blue); }
+        .check svg { width: 11px; height: 11px; }
+        .task-name { font-size: 11px; font-weight: 630; }
+        .task-tag { margin-left: auto; padding: 5px 7px; color: #a25f8b; background: #f9edf3; border-radius: 6px; font-size: 9px; }
+        .task-tag.green { color: #596cc4; background: #eff0ff; }
+        .float-note { position: absolute; right: -23px; bottom: 18px; display: flex; align-items: center; gap: 10px; padding: 13px 15px; background: white; border: 1px solid #edf0f5; border-radius: 14px; box-shadow: 0 14px 36px rgb(49 63 125 / 12%); transform: rotate(-2deg); }
+        .float-icon { width: 30px; height: 30px; display: grid; place-items: center; color: #b37a31; background: #fbf0de; border-radius: 9px; }
+        .float-icon svg { width: 16px; height: 16px; }
+        .float-label { color: #89928f; font-size: 9px; }
+        .float-value { margin-top: 3px; font-size: 11px; font-weight: 720; }
+        .trust-row { width: min(1160px, calc(100% - 48px)); margin: 0 auto; padding: 0 0 40px; display: flex; align-items: center; gap: 13px; color: #858f8c; font-size: 12px; }
+        .trust-avatars { display: flex; }
+        .trust-avatars span { width: 24px; height: 24px; display: grid; place-items: center; margin-left: -5px; border: 2px solid var(--paper); border-radius: 50%; color: white; background: #7d8bd0; font-size: 8px; }
+        .trust-avatars span:nth-child(2) { background: #db9b77; }
+        .trust-avatars span:nth-child(3) { background: #8582aa; }
+        .trust-avatars span:first-child { margin-left: 0; }
+        .modules { padding: 76px 24px 92px; background: white; }
+        .section-inner { width: min(1050px, 100%); margin: 0 auto; }
+        .section-heading { max-width: 570px; margin: 0 auto 42px; text-align: center; }
+        .section-heading h2 { margin: 13px 0 10px; font-size: clamp(30px, 4vw, 42px); letter-spacing: -.055em; }
+        .section-heading p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.7; }
+        .module-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 19px; }
+        .module-card { scroll-margin-top: 100px; padding: 28px; border: 1px solid #e7eaf2; border-radius: 20px; background: #fbfcfb; transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease; }
+        .module-card:hover { transform: translateY(-4px); border-color: #d9def7; box-shadow: 0 18px 45px rgb(49 63 125 / 8%); }
+        .module-icon { width: 45px; height: 45px; display: grid; place-items: center; color: var(--blue); background: #edf0ff; border-radius: 14px; }
+        .module-card:nth-child(2) .module-icon { color: #a25f8b; background: #faedf4; }
+        .module-icon svg { width: 22px; height: 22px; }
+        .module-card h3 { margin: 22px 0 9px; font-size: 21px; letter-spacing: -.035em; }
+        .module-card p { min-height: 48px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+        .module-points { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 24px; }
+        .module-points span { padding: 7px 9px; color: #66716d; background: white; border: 1px solid #e7eaf2; border-radius: 8px; font-size: 10px; }
+        .module-link { display: inline-flex; align-items: center; gap: 8px; color: var(--blue); font-size: 13px; font-weight: 720; }
+        .module-card:nth-child(2) .module-link { color: #a25f8b; }
+        .module-link svg { width: 15px; height: 15px; transition: transform .18s ease; }
+        .module-link:hover svg { transform: translateX(3px); }
+        .bottom-cta { padding: 62px 24px; background: #f7edf3; text-align: center; }
+        .bottom-cta h2 { margin: 0 0 10px; font-size: 30px; letter-spacing: -.05em; }
+        .bottom-cta p { margin: 0 0 23px; color: var(--muted); font-size: 14px; }
+        footer { padding: 25px 24px; color: #89938f; background: white; text-align: center; font-size: 11px; }
+        /* A crisp, calm workspace finish with blue and pastel pink accents. */
+        :root { --ink: #171a2b; --muted: #707487; --blue: #4568df; --blue-dark: #3452bf; --blue-pale: #eef1ff; --pink: #efa9c8; --paper: #f7f8fd; --line: #e7eaf3; }
+        .topbar { background: rgb(255 255 255 / 86%); backdrop-filter: blur(20px) saturate(150%); }
+        .nav-link { border-radius: 12px; }
+        .hero::before { background: radial-gradient(ellipse at 55% 45%, #f9eaf2 0, #eef1ff 35%, rgb(238 241 255 / 0%) 72%); }
+        h1 { font-size: clamp(46px, 5.5vw, 72px); line-height: .99; letter-spacing: -.072em; font-weight: 760; }
+        h1 span { color: var(--blue); background: linear-gradient(100deg, #4568df 3%, #7180e9 63%, #c982b1 100%); background-clip: text; -webkit-text-fill-color: transparent; }
+        .button { min-height: 49px; padding: 0 20px; border-radius: 13px; transition: transform .2s ease, background .2s ease, box-shadow .2s ease; }
+        .button-primary { background: linear-gradient(110deg, #4568df, #526ce0); box-shadow: 0 10px 25px rgb(69 104 223 / 24%); }
+        .button-primary:hover { background: linear-gradient(110deg, #3452bf, #445bc9); box-shadow: 0 13px 29px rgb(69 104 223 / 31%); }
+        .preview-card { background: rgb(255 255 255 / 93%); border: 1px solid rgb(94 105 159 / 12%); border-radius: 25px; box-shadow: 0 34px 90px rgb(54 65 125 / 16%), 0 5px 18px rgb(54 65 125 / 5%); transform: rotate(1.2deg); backdrop-filter: blur(16px); }
+        .module-card { position: relative; overflow: hidden; padding: 30px; border-radius: 22px; background: linear-gradient(145deg, #fff 0%, #fcfcff 100%); transition: border-color .22s ease, transform .22s ease, box-shadow .22s ease; }
+        .module-card::after { position: absolute; top: -52px; right: -50px; width: 145px; height: 145px; border-radius: 50%; content: ""; background: radial-gradient(circle, rgb(239 169 200 / 18%), rgb(239 169 200 / 0%) 72%); pointer-events: none; }
+        .module-card:hover { transform: translateY(-5px); border-color: #d4daf7; box-shadow: 0 22px 52px rgb(49 63 125 / 11%); }
+        .module-icon { width: 47px; height: 47px; border: 1px solid #e7eaff; border-radius: 15px; background: linear-gradient(145deg, #edf0ff, #f5f4ff); }
+        .module-card:nth-child(2) .module-icon { border-color: #f6e5ee; background: linear-gradient(145deg, #faedf4, #fff3f7); }
+        .bottom-cta { background: linear-gradient(110deg, #eef1ff 0%, #f8edf4 100%); }
+        @media (max-width: 800px) {
+            .hero { min-height: 0; padding-top: 67px; grid-template-columns: 1fr; gap: 25px; }
+            .hero-copy { max-width: 590px; }
+            .preview-area { min-height: 390px; }
+            .preview-card { max-width: 460px; }
+        }
+        @media (max-width: 560px) {
+            .topbar { height: 66px; }
+            .nav-wrap { width: calc(100% - 28px); gap: 8px; }
+            .brand { gap: 8px; font-size: 17px; }
+            .brand-mark { width: 33px; height: 33px; }
+            .nav-links { gap: 0; }
+            .nav-link { gap: 6px; padding: 9px 8px; font-size: 11px; }
+            .nav-link svg { width: 15px; height: 15px; }
+            .nav-cta { display: none; }
+            .hero { width: calc(100% - 36px); padding-top: 54px; }
+            h1 { font-size: 46px; }
+            .hero-copy { font-size: 15px; }
+            .hero-actions { align-items: stretch; }
+            .button { min-height: 45px; padding: 0 13px; font-size: 12px; }
+            .preview-area { min-height: 340px; }
+            .preview-glow { width: 280px; height: 280px; }
+            .preview-card { padding: 18px; }
+            .float-note { right: -4px; bottom: 0; }
+            .trust-row { width: calc(100% - 36px); padding-bottom: 30px; }
+            .modules { padding: 58px 18px 68px; }
+            .module-grid { grid-template-columns: 1fr; }
+            .module-card { padding: 23px; }
+            .bottom-cta h2 { font-size: 25px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+        }
+    </style>
 </head>
 <body>
-    <h1>Quản lý công việc và chi tiêu</h1>
-    <p>Ứng dụng đã chạy thành công.</p>
+<header class="topbar">
+    <nav class="nav-wrap" aria-label="Điều hướng chính">
+        <a class="brand" href="#home" aria-label="Dayflow - Trang chủ">
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.3 4.2L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2.8a9.2 9.2 0 1 0 9.2 9.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </span>
+            <span>dayflow</span>
+        </a>
+        <div class="nav-links">
+            <a class="nav-link" href="#todo-list">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m3 6 .8.8L5.5 5M3 12l.8.8 1.7-1.8M3 18l.8.8 1.7-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                To-do list
+            </a>
+            <a class="nav-link" href="#expense-management">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M7 14h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                Quản lí chi tiêu
+            </a>
+        </div>
+        <a class="nav-cta" href="#modules">Khám phá ứng dụng</a>
+    </nav>
+</header>
+
+<main id="home">
+    <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-content">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> Một ngày nhẹ nhàng hơn</div>
+            <h1 id="hero-title">Sắp xếp ngày.<br><span>Sống chủ động.</span></h1>
+            <p class="hero-copy">Tập trung vào điều quan trọng, hoàn thành việc cần làm và hiểu rõ dòng tiền của bạn — tất cả trong một không gian gọn gàng.</p>
+            <div class="hero-actions">
+                <a class="button button-primary" href="#todo-list">Bắt đầu với công việc <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                <a class="button button-quiet" href="#expense-management">Xem quản lí chi tiêu</a>
+            </div>
+            <p class="hero-note">Hai công cụ cần thiết. Một nhịp sống cân bằng hơn.</p>
+        </div>
+
+        <div class="preview-area" aria-label="Minh họa bảng công việc và thu chi">
+            <div class="preview-glow"></div>
+            <div class="preview-card">
+                <div class="preview-head">
+                    <div><div class="preview-title">Tổng quan hôm nay</div><div class="preview-date">Thứ Hai, ngày mới của bạn</div></div>
+                    <div class="avatar-stack" aria-hidden="true"><span class="avatar">A</span><span class="avatar">M</span><span class="avatar">+</span></div>
+                </div>
+                <div class="balance">
+                    <div><div class="balance-label">Chi tiêu trong tháng</div><div class="balance-number">4.250.000 ₫</div></div>
+                    <div class="balance-change">↓ 12% tháng trước</div>
+                </div>
+                <div class="preview-section-title">Việc cần ưu tiên</div>
+                <div class="task-row"><span class="check done"><svg viewBox="0 0 16 16" fill="none"><path d="m3.5 8 3 3 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="task-name">Lên kế hoạch tuần mới</span><span class="task-tag green">Hoàn thành</span></div>
+                <div class="task-row"><span class="check"></span><span class="task-name">Thanh toán hóa đơn điện</span><span class="task-tag">Hôm nay</span></div>
+                <div class="task-row"><span class="check"></span><span class="task-name">Chuẩn bị bài thuyết trình</span><span class="task-tag green">Công việc</span></div>
+            </div>
+            <div class="float-note"><span class="float-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17 9 12l3 3 7-8M14 7h5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><span class="float-label">Bạn đang đi đúng hướng</span><br><span class="float-value">Tiến độ tuần +18%</span></span></div>
+        </div>
+    </section>
+
+    <div class="trust-row"><span class="trust-avatars" aria-hidden="true"><span>L</span><span>H</span><span>N</span></span><span>Dành cho những ngày bận rộn, nhưng vẫn muốn sống có kế hoạch.</span></div>
+
+    <section class="modules" id="modules" aria-labelledby="modules-title">
+        <div class="section-inner">
+            <div class="section-heading">
+                <div class="eyebrow"><span class="eyebrow-dot"></span> Hai không gian của bạn</div>
+                <h2 id="modules-title">Mọi thứ quan trọng, ở đúng chỗ</h2>
+                <p>Chọn công cụ bạn cần ngay hôm nay. Dayflow giúp kế hoạch rõ ràng và những quyết định tài chính dễ hiểu hơn.</p>
+            </div>
+            <div class="module-grid">
+                <article class="module-card" id="todo-list">
+                    <div class="module-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m3 6 .8.8L5.5 5M3 12l.8.8 1.7-1.8M3 18l.8.8 1.7-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <h3>To-do list</h3>
+                    <p>Gom công việc vào một nơi, ưu tiên việc quan trọng và theo dõi tiến độ mỗi ngày.</p>
+                    <div class="module-points"><span>Danh sách công việc</span><span>Nhắc hạn</span><span>Theo dõi tiến độ</span></div>
+                    <a class="module-link" href="#todo-list">Khám phá To-do list <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                </article>
+                <article class="module-card" id="expense-management">
+                    <div class="module-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M7 14h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+                    <h3>Quản lí chi tiêu</h3>
+                    <p>Ghi lại thu chi, theo dõi ngân sách và biết tiền của bạn đang được sử dụng ra sao.</p>
+                    <div class="module-points"><span>Ghi chép thu chi</span><span>Ngân sách</span><span>Mục tiêu tiết kiệm</span></div>
+                    <a class="module-link" href="#expense-management">Khám phá quản lí chi tiêu <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="bottom-cta">
+        <h2>Bắt đầu từ một việc nhỏ</h2>
+        <p>Một kế hoạch rõ ràng có thể làm ngày hôm nay nhẹ nhàng hơn.</p>
+        <a class="button button-primary" href="#todo-list">Xem các công cụ của bạn <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </section>
+</main>
+<footer>© 2026 Dayflow · Sống chủ động mỗi ngày</footer>
 </body>
 </html>
