@@ -1,8 +1,8 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Tag;
-import com.example.demo.model.Task;
-import com.example.demo.model.TaskTag;
+import com.example.demo.entity.Tag;
+import com.example.demo.entity.Task;
+import com.example.demo.entity.TaskTag;
 import com.example.demo.repository.TagRepository;
 import com.example.demo.repository.TaskRepository;
 import com.example.demo.repository.TaskTagRepository;

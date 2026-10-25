@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Reminder;
-import com.example.demo.model.Task;
+import com.example.demo.entity.Reminder;
+import com.example.demo.entity.Task;
 import com.example.demo.repository.ReminderRepository;
 import com.example.demo.repository.TaskRepository;
 import java.util.List;

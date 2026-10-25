@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.Reminder;
+import com.example.demo.entity.Reminder;
 import com.example.demo.service.ReminderService;
 import java.util.List;
 import org.springframework.http.HttpStatus;

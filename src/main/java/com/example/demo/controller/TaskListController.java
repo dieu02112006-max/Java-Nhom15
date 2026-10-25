@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.TaskList;
+import com.example.demo.entity.TaskList;
 import com.example.demo.service.TaskListService;
 import java.util.List;
 import org.springframework.http.HttpStatus;

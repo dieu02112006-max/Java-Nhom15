@@ -1,6 +1,6 @@
 package com.example.demo.repository;
 
-import com.example.demo.model.Task;
+import com.example.demo.entity.Task;
 import org.springframework.stereotype.Repository;
 
 @Repository

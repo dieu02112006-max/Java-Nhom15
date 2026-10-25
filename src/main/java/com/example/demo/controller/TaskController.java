@@ -3,7 +3,7 @@ package com.example.demo.controller;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import com.example.demo.model.Task;
+import com.example.demo.entity.Task;
 import com.example.demo.service.TaskService;
 import java.util.List;
 import org.springframework.hateoas.EntityModel;

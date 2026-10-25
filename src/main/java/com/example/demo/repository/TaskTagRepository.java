@@ -1,6 +1,6 @@
 package com.example.demo.repository;
 
-import com.example.demo.model.TaskTag;
+import com.example.demo.entity.TaskTag;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

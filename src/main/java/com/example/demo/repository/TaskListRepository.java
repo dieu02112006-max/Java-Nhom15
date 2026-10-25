@@ -1,6 +1,6 @@
 package com.example.demo.repository;
 
-import com.example.demo.model.TaskList;
+import com.example.demo.entity.TaskList;
 import org.springframework.stereotype.Repository;
 
 @Repository

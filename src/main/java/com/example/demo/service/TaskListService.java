@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.model.TaskList;
+import com.example.demo.entity.TaskList;
 import com.example.demo.repository.TaskListRepository;
 import com.example.demo.repository.TaskRepository;
 import java.util.List;

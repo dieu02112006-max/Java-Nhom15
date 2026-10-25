@@ -1,6 +1,6 @@
 package com.example.demo.repository;
 
-import com.example.demo.model.Reminder;
+import com.example.demo.entity.Reminder;
 import org.springframework.stereotype.Repository;
 
 @Repository

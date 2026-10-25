@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.Tag;
+import com.example.demo.entity.Tag;
 import com.example.demo.service.TagService;
 import java.util.List;
 import org.springframework.http.HttpStatus;

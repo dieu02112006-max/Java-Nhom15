@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Tag;
+import com.example.demo.entity.Tag;
 import com.example.demo.repository.TagRepository;
 import com.example.demo.repository.TaskTagRepository;
 import java.util.List;
