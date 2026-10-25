@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.SkinModel;
+import com.example.demo.entity.Skin;
 import com.example.demo.service.SkinService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +13,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 public class SkinController {
     private final SkinService service;
     public SkinController(SkinService service) { this.service = service; }
-    @GetMapping public List<SkinModel> findAll() { return service.findAll(); }
-    @GetMapping("/{id}") public SkinModel findById(@PathVariable Long id) { return service.findById(id); }
-    @PostMapping public ResponseEntity<SkinModel> create(@RequestBody SkinModel model) { SkinModel saved = service.create(model); return ResponseEntity.created(linkTo(methodOn(SkinController.class).findById(saved.id())).toUri()).body(saved); }
-    @PutMapping("/{id}") public SkinModel update(@PathVariable Long id, @RequestBody SkinModel model) { return service.update(id, model); }
+    @GetMapping public List<Skin> findAll() { return service.findAll(); }
+    @GetMapping("/{id}") public Skin findById(@PathVariable Long id) { return service.findById(id); }
+    @PostMapping public ResponseEntity<Skin> create(@RequestBody Skin skin) { Skin saved = service.create(skin); return ResponseEntity.created(linkTo(methodOn(SkinController.class).findById(saved.getId())).toUri()).body(saved); }
+    @PutMapping("/{id}") public Skin update(@PathVariable Long id, @RequestBody Skin skin) { return service.update(id, skin); }
     @DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void delete(@PathVariable Long id) { service.delete(id); }
 }
