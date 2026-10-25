@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.UserModel;
+import com.example.demo.entity.User;
 import com.example.demo.service.UserService;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
@@ -14,9 +14,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 public class UserController {
     private final UserService service;
     public UserController(UserService service) { this.service = service; }
-    @GetMapping public List<UserModel> findAll() { return service.findAll(); }
-    @GetMapping("/{id}") public EntityModel<UserModel> findById(@PathVariable Long id) { return EntityModel.of(service.findById(id), linkTo(methodOn(UserController.class).findById(id)).withSelfRel(), linkTo(methodOn(UserController.class).findAll()).withRel("users")); }
-    @PostMapping public ResponseEntity<UserModel> create(@RequestBody UserModel model) { UserModel saved = service.create(model); return ResponseEntity.created(linkTo(methodOn(UserController.class).findById(saved.id())).toUri()).body(saved); }
-    @PutMapping("/{id}") public UserModel update(@PathVariable Long id, @RequestBody UserModel model) { return service.update(id, model); }
+    @GetMapping public List<User> findAll() { return service.findAll(); }
+    @GetMapping("/{id}") public EntityModel<User> findById(@PathVariable Long id) { return EntityModel.of(service.findById(id), linkTo(methodOn(UserController.class).findById(id)).withSelfRel(), linkTo(methodOn(UserController.class).findAll()).withRel("users")); }
+    @PostMapping public ResponseEntity<User> create(@RequestBody User user) { User saved = service.create(user); return ResponseEntity.created(linkTo(methodOn(UserController.class).findById(saved.getId())).toUri()).body(saved); }
+    @PutMapping("/{id}") public User update(@PathVariable Long id, @RequestBody User user) { return service.update(id, user); }
     @DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void delete(@PathVariable Long id) { service.delete(id); }
 }

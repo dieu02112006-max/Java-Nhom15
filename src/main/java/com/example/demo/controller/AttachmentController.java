@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.AttachmentModel;
+import com.example.demo.entity.Attachment;
 import com.example.demo.service.AttachmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +13,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 public class AttachmentController {
     private final AttachmentService service;
     public AttachmentController(AttachmentService service) { this.service = service; }
-    @GetMapping public List<AttachmentModel> findAll() { return service.findAll(); }
-    @GetMapping("/{id}") public AttachmentModel findById(@PathVariable Long id) { return service.findById(id); }
-    @PostMapping public ResponseEntity<AttachmentModel> create(@RequestBody AttachmentModel model) { AttachmentModel saved = service.create(model); return ResponseEntity.created(linkTo(methodOn(AttachmentController.class).findById(saved.id())).toUri()).body(saved); }
-    @PutMapping("/{id}") public AttachmentModel update(@PathVariable Long id, @RequestBody AttachmentModel model) { return service.update(id, model); }
+    @GetMapping public List<Attachment> findAll() { return service.findAll(); }
+    @GetMapping("/{id}") public Attachment findById(@PathVariable Long id) { return service.findById(id); }
+    @PostMapping public ResponseEntity<Attachment> create(@RequestBody Attachment attachment) { Attachment saved = service.create(attachment); return ResponseEntity.created(linkTo(methodOn(AttachmentController.class).findById(saved.getId())).toUri()).body(saved); }
+    @PutMapping("/{id}") public Attachment update(@PathVariable Long id, @RequestBody Attachment attachment) { return service.update(id, attachment); }
     @DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void delete(@PathVariable Long id) { service.delete(id); }
 }

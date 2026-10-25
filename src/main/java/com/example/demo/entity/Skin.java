@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -25,8 +26,10 @@ public class Skin {
     @Column(name = "preview_url", length = 500)
     private String previewUrl;
     @Column(name = "is_default", nullable = false)
+    @JsonProperty("isDefault")
     private boolean isDefault;
     @Column(name = "is_active", nullable = false)
+    @JsonProperty("isActive")
     private boolean isActive;
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
