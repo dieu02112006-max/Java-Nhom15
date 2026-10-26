@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "app.admin.email",
+      "type": "java.lang.String",
+      "description": "Email của tài khoản quản trị viên khởi tạo qua biến DAYFLOW_ADMIN_EMAIL."
+    },
+    {
+      "name": "app.admin.password",
+      "type": "java.lang.String",
+      "description": "Mật khẩu khởi tạo quản trị viên qua biến DAYFLOW_ADMIN_PASSWORD; không lưu giá trị mật khẩu trong tệp cấu hình."
+    }
+  ]
+}
