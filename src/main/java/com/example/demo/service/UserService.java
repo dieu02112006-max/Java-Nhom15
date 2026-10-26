@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.request.UserRequest;
 import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.User;
+import com.example.demo.entity.enums.UserRole;
 import com.example.demo.exception.BusinessException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.UserRepository;
@@ -25,12 +26,13 @@ public class UserService {
         if (req.password() == null || req.password().isBlank()) {
             throw new BusinessException("Mật khẩu không được để trống");
         }
-        if (userRepo.existsByEmail(req.email())) {
+        String email = req.email().trim().toLowerCase();
+        if (userRepo.existsByEmail(email)) {
             throw new BusinessException("Email đã được sử dụng");
         }
 
         User user = User.builder()
-                .email(req.email())
+                .email(email)
                 .passwordHash(passwordEncoder.encode(req.password()))
                 .fullName(req.fullName())
                 .avatarUrl(req.avatarUrl())
@@ -54,10 +56,11 @@ public class UserService {
 
     public UserResponse update(Long id, UserRequest req) {
         User user = find(id);
-        if (!user.getEmail().equals(req.email()) && userRepo.existsByEmail(req.email())) {
+        String email = req.email().trim().toLowerCase();
+        if (!user.getEmail().equals(email) && userRepo.existsByEmail(email)) {
             throw new BusinessException("Email đã được sử dụng");
         }
-        user.setEmail(req.email());
+        user.setEmail(email);
         user.setFullName(req.fullName());
         user.setAvatarUrl(req.avatarUrl());
         if (req.timezone() != null) {
@@ -73,7 +76,21 @@ public class UserService {
     }
 
     public void delete(Long id) {
-        userRepo.delete(find(id));
+        User user = find(id);
+        if (user.getRole() == UserRole.ADMIN && userRepo.countByRole(UserRole.ADMIN) <= 1) {
+            throw new BusinessException("Không thể xóa quản trị viên cuối cùng");
+        }
+        userRepo.delete(user);
+    }
+
+    public UserResponse changeRole(Long id, UserRole role) {
+        User user = find(id);
+        if (user.getRole() == UserRole.ADMIN && role != UserRole.ADMIN
+                && userRepo.countByRole(UserRole.ADMIN) <= 1) {
+            throw new BusinessException("Hệ thống phải luôn có ít nhất một quản trị viên");
+        }
+        user.setRole(role);
+        return toResponse(userRepo.save(user));
     }
 
     private User find(Long id) {
@@ -82,6 +99,6 @@ public class UserService {
 
     private UserResponse toResponse(User user) {
         return new UserResponse(user.getId(), user.getEmail(), user.getFullName(), user.getAvatarUrl(),
-                user.getCurrencyDefault(), user.getTimezone(), user.getCreatedAt());
+                user.getCurrencyDefault(), user.getTimezone(), user.getCreatedAt(), user.getRole().name());
     }
 }

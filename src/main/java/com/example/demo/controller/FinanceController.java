@@ -5,6 +5,7 @@ import com.example.demo.service.FinanceService.CategoryOption;
 import com.example.demo.service.FinanceService.FinanceSummary;
 import com.example.demo.service.FinanceService.TransactionRow;
 import com.example.demo.service.FinanceService.WalletOption;
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.time.YearMonth;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ public class FinanceController {
     }
 
     @GetMapping("/summary")
+    @PreAuthorize("@authz.canAccessUser(#userId)")
     public FinanceSummary summary(
             @RequestParam(defaultValue = "1") long userId,
             @RequestParam(required = false) String month) {
@@ -36,6 +38,7 @@ public class FinanceController {
     }
 
     @GetMapping("/transactions")
+    @PreAuthorize("@authz.canAccessUser(#userId)")
     public List<TransactionRow> transactions(
             @RequestParam(defaultValue = "1") long userId,
             @RequestParam(required = false) String month) {
@@ -43,6 +46,7 @@ public class FinanceController {
     }
 
     @GetMapping("/categories")
+    @PreAuthorize("@authz.canAccessUser(#userId)")
     public List<CategoryOption> categories(
             @RequestParam(defaultValue = "1") long userId,
             @RequestParam(defaultValue = "expense") String type) {
@@ -50,17 +54,20 @@ public class FinanceController {
     }
 
     @GetMapping("/wallets")
+    @PreAuthorize("@authz.canAccessUser(#userId)")
     public List<WalletOption> wallets(@RequestParam(defaultValue = "1") long userId) {
         return service.wallets(userId);
     }
 
     @PostMapping("/transactions")
+    @PreAuthorize("@authz.canAccessUser(#transaction.userId)")
     @ResponseStatus(HttpStatus.CREATED)
     public TransactionRow create(@RequestBody FinanceService.NewTransaction transaction) {
         return service.create(transaction);
     }
 
     @DeleteMapping("/transactions/{id}")
+    @PreAuthorize("@authz.canAccessUser(#userId)")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(
             @PathVariable long id,

@@ -371,6 +371,7 @@ CREATE TABLE `users` (
   `currency_default` varchar(3) NOT NULL DEFAULT 'VND',
   `timezone` varchar(60) NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
   `skin_id` bigint DEFAULT NULL,
+  `role` varchar(20) NOT NULL DEFAULT 'USER',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -379,9 +380,9 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `password_hash`, `full_name`, `avatar_url`, `currency_default`, `timezone`, `skin_id`, `created_at`, `updated_at`) VALUES
-(1, 'demo@example.com', 'REPLACE_WITH_BCRYPT_HASH', 'Nguyen Van An', NULL, 'VND', 'Asia/Ho_Chi_Minh', 1, '2026-10-23 17:36:21', '2026-10-23 17:36:21'),
-(2, 'binh@example.com', 'REPLACE_WITH_BCRYPT_HASH', 'Tran Thi Binh', NULL, 'VND', 'Asia/Ho_Chi_Minh', 2, '2026-10-23 17:36:21', '2026-10-23 17:36:21');
+INSERT INTO `users` (`id`, `email`, `password_hash`, `full_name`, `avatar_url`, `currency_default`, `timezone`, `skin_id`, `role`, `created_at`, `updated_at`) VALUES
+(1, 'demo@example.com', 'REPLACE_WITH_BCRYPT_HASH', 'Nguyen Van An', NULL, 'VND', 'Asia/Ho_Chi_Minh', 1, 'USER', '2026-10-23 17:36:21', '2026-10-23 17:36:21'),
+(2, 'binh@example.com', 'REPLACE_WITH_BCRYPT_HASH', 'Tran Thi Binh', NULL, 'VND', 'Asia/Ho_Chi_Minh', 2, 'USER', '2026-10-23 17:36:21', '2026-10-23 17:36:21');
 
 -- --------------------------------------------------------
 

@@ -1,12 +1,16 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.UserRequest;
+import com.example.demo.dto.request.UserRoleRequest;
 import com.example.demo.dto.response.UserResponse;
+import com.example.demo.exception.BusinessException;
+import com.example.demo.security.AppUserPrincipal;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,8 +49,24 @@ public class UserController {
         return service.update(id, req);
     }
 
+    @PutMapping("/{id}/role")
+    public UserResponse changeRole(
+            @PathVariable Long id,
+            @Valid @RequestBody UserRoleRequest req,
+            @AuthenticationPrincipal AppUserPrincipal currentUser) {
+        if (currentUser.id().equals(id)) {
+            throw new BusinessException("Không thể tự thay đổi quyền của tài khoản đang đăng nhập");
+        }
+        return service.changeRole(id, req.role());
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AppUserPrincipal currentUser) {
+        if (currentUser.id().equals(id)) {
+            throw new BusinessException("Không thể tự xóa tài khoản đang đăng nhập");
+        }
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

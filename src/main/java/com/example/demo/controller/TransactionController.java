@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.request.TransactionRequest;
 import com.example.demo.dto.response.TransactionResponse;
 import com.example.demo.service.TransactionService;
+import com.example.demo.security.AuthorizationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,9 +20,11 @@ import java.util.List;
 public class TransactionController {
 
     private final TransactionService service;
+    private final AuthorizationService authorization;
 
     @PostMapping
     public ResponseEntity<TransactionResponse> create(@Valid @RequestBody TransactionRequest req) {
+        authorization.requireUserAccess(req.userId());
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(req));
     }
 
@@ -31,26 +34,34 @@ public class TransactionController {
             @RequestParam Long userId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        authorization.requireUserAccess(userId);
         return service.getByUser(userId, from, to);
     }
 
     @GetMapping("/wallet/{walletId}")
     public List<TransactionResponse> getByWallet(@PathVariable Long walletId) {
-        return service.getByWallet(walletId);
+        List<TransactionResponse> rows = service.getByWallet(walletId);
+        rows.forEach(row -> authorization.requireUserAccess(row.userId()));
+        return rows;
     }
 
     @GetMapping("/{id}")
     public TransactionResponse getById(@PathVariable Long id) {
-        return service.getById(id);
+        TransactionResponse transaction = service.getById(id);
+        authorization.requireUserAccess(transaction.userId());
+        return transaction;
     }
 
     @PutMapping("/{id}")
     public TransactionResponse update(@PathVariable Long id, @Valid @RequestBody TransactionRequest req) {
+        authorization.requireUserAccess(service.getById(id).userId());
+        authorization.requireUserAccess(req.userId());
         return service.update(id, req);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
+        authorization.requireUserAccess(service.getById(id).userId());
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
