@@ -22,18 +22,19 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public UserResponse create(UserRequest req) {
-        if (req.password() == null) {
+        if (req.password() == null || req.password().isBlank()) {
             throw new BusinessException("Mật khẩu không được để trống");
         }
         if (userRepo.existsByEmail(req.email())) {
             throw new BusinessException("Email đã được sử dụng");
         }
+
         User user = User.builder()
                 .email(req.email())
                 .passwordHash(passwordEncoder.encode(req.password()))
                 .fullName(req.fullName())
                 .avatarUrl(req.avatarUrl())
-                .timezone(req.timezone())
+                .timezone(req.timezone() == null ? "Asia/Ho_Chi_Minh" : req.timezone())
                 .build();
         if (req.currencyDefault() != null) {
             user.setCurrencyDefault(req.currencyDefault());
@@ -59,11 +60,13 @@ public class UserService {
         user.setEmail(req.email());
         user.setFullName(req.fullName());
         user.setAvatarUrl(req.avatarUrl());
-        user.setTimezone(req.timezone());
+        if (req.timezone() != null) {
+            user.setTimezone(req.timezone());
+        }
         if (req.currencyDefault() != null) {
             user.setCurrencyDefault(req.currencyDefault());
         }
-        if (req.password() != null) {
+        if (req.password() != null && !req.password().isBlank()) {
             user.setPasswordHash(passwordEncoder.encode(req.password()));
         }
         return toResponse(userRepo.save(user));
@@ -77,8 +80,8 @@ public class UserService {
         return userRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", id));
     }
 
-    private UserResponse toResponse(User u) {
-        return new UserResponse(u.getId(), u.getEmail(), u.getFullName(), u.getAvatarUrl(),
-                u.getCurrencyDefault(), u.getTimezone(), u.getCreatedAt());
+    private UserResponse toResponse(User user) {
+        return new UserResponse(user.getId(), user.getEmail(), user.getFullName(), user.getAvatarUrl(),
+                user.getCurrencyDefault(), user.getTimezone(), user.getCreatedAt());
     }
 }
