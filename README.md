@@ -15,7 +15,39 @@ Yêu cầu Java 21:
 Để dùng giao diện quản lí chi tiêu, khởi động MySQL, tạo database `java_nhom15`
 và nạp cấu trúc/dữ liệu từ `java_nhom15.sql`. Cấu hình kết nối nằm trong
 `src/main/resources/application.properties`. Giao diện mặc định dùng tài khoản
-mẫu `userId=1`, vì vậy database cần có người dùng này cùng ví và danh mục.
+mẫu để hiển thị dữ liệu chi tiêu, vì vậy database cần có người dùng cùng ví và danh mục.
+
+## Đăng nhập và phân quyền
+
+Ứng dụng dùng phiên đăng nhập trên server, mật khẩu BCrypt, CSRF token cho các
+thao tác ghi và hai vai trò `USER` / `ADMIN`. Người đăng ký mới luôn là `USER`;
+chỉ `ADMIN` được quản lí tài khoản và truy cập trang quản trị. Tác vụ To-do và
+chi tiêu được giới hạn theo tài khoản đang đăng nhập.
+
+Nếu database đã được tạo từ phiên bản trước, chạy một lần migration sau trước
+khi khởi động ứng dụng:
+
+```powershell
+Get-Content -Raw database/migrations/002-add-user-role.sql | mysql -u root java_nhom15
+```
+
+Tạo Admin đầu tiên bằng email và mật khẩu riêng của bạn trong PowerShell, rồi
+khởi động ứng dụng. Mật khẩu cần ít nhất 12 ký tự; ứng dụng chỉ tạo tài khoản
+nếu email đó chưa tồn tại.
+
+```powershell
+$env:DAYFLOW_ADMIN_EMAIL = "admin@example.com"
+$env:DAYFLOW_ADMIN_PASSWORD = "thay-bang-mat-khau-rieng-12-ky-tu"
+```
+
+Đăng nhập tại `/login/index.html`. Người dùng thường có thể tự tạo tài khoản ở
+trang này. Admin vào `/admin/index.html`; trang quản trị cho phép đổi vai trò
+người dùng. Không thể tự hạ quyền/xóa tài khoản Admin đang đăng nhập hoặc xóa
+quản trị viên cuối cùng.
+
+API xác thực: `POST /api/auth/register`, `POST /api/auth/login`,
+`GET /api/auth/me` và `POST /api/auth/logout`. Các request ghi cần gửi CSRF token
+trong header `X-XSRF-TOKEN`; lấy token trước bằng `GET /api/auth/csrf`.
 
 Các giao diện:
 
@@ -24,6 +56,8 @@ Các giao diện:
 | Trang chủ | `/` |
 | To-do list | `/todo/index.html` |
 | Quản lí chi tiêu | `/expenses/index.html` |
+| Đăng nhập / đăng ký | `/login/index.html` |
+| Quản trị | `/admin/index.html` (chỉ ADMIN) |
 
 ## REST API
 

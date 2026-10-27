@@ -1,22 +1,73 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.User;
+import com.example.demo.dto.request.UserRequest;
+import com.example.demo.dto.request.UserRoleRequest;
+import com.example.demo.dto.response.UserResponse;
+import com.example.demo.exception.BusinessException;
+import com.example.demo.security.AppUserPrincipal;
 import com.example.demo.service.UserService;
-import org.springframework.hateoas.EntityModel;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
+
     private final UserService service;
-    public UserController(UserService service) { this.service = service; }
-    @GetMapping public List<User> findAll() { return service.findAll(); }
-    @GetMapping("/{id}") public EntityModel<User> findById(@PathVariable Long id) { return EntityModel.of(service.findById(id), linkTo(methodOn(UserController.class).findById(id)).withSelfRel(), linkTo(methodOn(UserController.class).findAll()).withRel("users")); }
-    @PostMapping public ResponseEntity<User> create(@RequestBody User user) { User saved = service.create(user); return ResponseEntity.created(linkTo(methodOn(UserController.class).findById(saved.getId())).toUri()).body(saved); }
-    @PutMapping("/{id}") public User update(@PathVariable Long id, @RequestBody User user) { return service.update(id, user); }
-    @DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void delete(@PathVariable Long id) { service.delete(id); }
+
+    @PostMapping
+    public ResponseEntity<UserResponse> create(@Valid @RequestBody UserRequest req) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(req));
+    }
+
+    @GetMapping
+    public List<UserResponse> getAll() {
+        return service.getAll();
+    }
+
+    @GetMapping("/{id}")
+    public UserResponse getById(@PathVariable Long id) {
+        return service.getById(id);
+    }
+
+    @PutMapping("/{id}")
+    public UserResponse update(@PathVariable Long id, @Valid @RequestBody UserRequest req) {
+        return service.update(id, req);
+    }
+
+    @PutMapping("/{id}/role")
+    public UserResponse changeRole(
+            @PathVariable Long id,
+            @Valid @RequestBody UserRoleRequest req,
+            @AuthenticationPrincipal AppUserPrincipal currentUser) {
+        if (currentUser.id().equals(id)) {
+            throw new BusinessException("Không thể tự thay đổi quyền của tài khoản đang đăng nhập");
+        }
+        return service.changeRole(id, req.role());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AppUserPrincipal currentUser) {
+        if (currentUser.id().equals(id)) {
+            throw new BusinessException("Không thể tự xóa tài khoản đang đăng nhập");
+        }
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

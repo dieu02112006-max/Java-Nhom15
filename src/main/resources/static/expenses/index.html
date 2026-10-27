@@ -154,7 +154,7 @@
         <div class="side-bottom"><div class="side-bottom-title">Mỗi khoản chi, một quyết định ✨</div><div class="side-bottom-copy">Theo dõi dòng tiền nhẹ nhàng để dành nhiều hơn cho điều quan trọng.</div></div>
     </aside>
     <main class="main">
-        <header class="topbar"><div class="breadcrumbs"><a href="/">Không gian của tôi</a><span>›</span><strong>Quản lí chi tiêu</strong></div><span class="profile" title="Tài khoản demo">DF</span></header>
+        <header class="topbar"><div class="breadcrumbs"><a href="/">Không gian của tôi</a><span>›</span><strong>Quản lí chi tiêu</strong></div><button class="profile" id="profile-logout" type="button" title="Đăng xuất" aria-label="Đăng xuất">DF</button></header>
         <div class="content">
             <section class="page-heading">
                 <div><div class="eyebrow"><span class="eyebrow-dot"></span> Sức khỏe tài chính</div><h1>Quản lí chi tiêu</h1><p class="subheading" id="month-label">Nhìn rõ dòng tiền, chi tiêu an tâm hơn.</p></div>
@@ -204,7 +204,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 (() => {
-    const USER_ID = 1;
+    let USER_ID;
     const monthPicker = document.getElementById('month-picker');
     const list = document.getElementById('transaction-list');
     const search = document.getElementById('search');
@@ -225,10 +225,23 @@
         element.classList.toggle('visible', visible);
     }
     async function api(path, options = {}) {
+        const method = (options.method || 'GET').toUpperCase();
+        const csrfItem = () => document.cookie.split('; ').find(value => value.startsWith('XSRF-TOKEN='));
+        const headers = { ...(options.body ? {'Content-Type':'application/json'} : {}), ...(options.headers || {}) };
+        if (!['GET','HEAD','OPTIONS'].includes(method)) {
+            if (!csrfItem()) await fetch('/api/auth/csrf', { credentials:'same-origin' });
+            const tokenCookie = csrfItem();
+            if (tokenCookie) headers['X-XSRF-TOKEN'] = decodeURIComponent(tokenCookie.slice('XSRF-TOKEN='.length));
+        }
         const response = await fetch(path, {
             ...options,
-            headers: { 'Content-Type':'application/json', ...(options.headers || {}) }
+            credentials:'same-origin',
+            headers
         });
+        if (response.status === 401) {
+            location.href = `/login/index.html?next=${encodeURIComponent(location.pathname)}`;
+            throw new Error('Vui lòng đăng nhập để tiếp tục.');
+        }
         if (!response.ok) {
             const body = await response.json().catch(() => null);
             throw new Error(body?.detail || body?.message || `Yêu cầu thất bại (${response.status})`);
@@ -400,7 +413,21 @@
     const currentMonth = new Date();
     monthPicker.value = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`;
     document.getElementById('month-label').textContent = new Intl.DateTimeFormat('vi-VN', { month:'long', year:'numeric' }).format(currentMonth) + ' · Theo dõi dòng tiền của bạn.';
-    loadDashboard();
+    api('/api/auth/me').then(user => {
+        USER_ID = user.id;
+        const profileButton = document.getElementById('profile-logout');
+        profileButton.title = `Đăng xuất · ${user.email}`;
+        profileButton.textContent = user.fullName.trim().split(/\s+/).slice(-2).map(part => part[0]).join('').toUpperCase();
+        profileButton.addEventListener('click', async () => {
+            await fetch('/api/auth/csrf', {credentials:'same-origin'});
+            const cookie = document.cookie.split('; ').find(value => value.startsWith('XSRF-TOKEN='));
+            await fetch('/api/auth/logout', {method:'POST',credentials:'same-origin',headers:{'X-XSRF-TOKEN':cookie ? decodeURIComponent(cookie.slice('XSRF-TOKEN='.length)) : ''}});
+            location.href = '/login/index.html';
+        });
+        loadDashboard();
+    }).catch(() => {
+        location.href = `/login/index.html?next=${encodeURIComponent(location.pathname)}`;
+    });
 })()
 </script>
 </body>
