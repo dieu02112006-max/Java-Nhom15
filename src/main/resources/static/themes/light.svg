@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" fill="none">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1600" y2="1000" gradientUnits="userSpaceOnUse"><stop stop-color="#fff"/><stop offset="1" stop-color="#F2F7FB"/></linearGradient>
+    <radialGradient id="blue"><stop stop-color="#C6D9E9" stop-opacity=".65"/><stop offset="1" stop-color="#C6D9E9" stop-opacity="0"/></radialGradient>
+    <radialGradient id="sky"><stop stop-color="#DBF3FA" stop-opacity=".72"/><stop offset="1" stop-color="#DBF3FA" stop-opacity="0"/></radialGradient>
+  </defs>
+  <path fill="url(#base)" d="M0 0h1600v1000H0z"/>
+  <ellipse cx="1330" cy="150" fill="url(#sky)" rx="520" ry="380"/>
+  <ellipse cx="200" cy="920" fill="url(#blue)" rx="500" ry="320"/>
+  <path d="M0 805c216-78 392-69 588 1s365 82 548 13 327-87 464-39v220H0V805Z" fill="#fff" fill-opacity=".32"/>
+</svg>

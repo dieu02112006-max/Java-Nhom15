@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.LoginRequest;
 import com.example.demo.dto.request.RegisterRequest;
+import com.example.demo.dto.request.SkinSelectionRequest;
 import com.example.demo.dto.response.AuthResponse;
 import com.example.demo.entity.User;
 import com.example.demo.security.AppUserPrincipal;
@@ -22,11 +23,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.example.demo.service.UserService;
+import com.example.demo.entity.Skin;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -35,6 +40,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final SecurityContextRepository securityContextRepository;
     private final AuthService authService;
+    private final UserService userService;
 
     @GetMapping("/csrf")
     public CsrfResponse csrf(CsrfToken token) {
@@ -73,6 +79,18 @@ public class AuthController {
     @GetMapping("/me")
     public AuthResponse me(Authentication authentication) {
         return toResponse((AppUserPrincipal) authentication.getPrincipal());
+    }
+
+    @GetMapping("/me/skin")
+    public Skin mySkin(@AuthenticationPrincipal AppUserPrincipal principal) {
+        return userService.getSkin(principal.id());
+    }
+
+    @PutMapping("/me/skin")
+    public Skin selectSkin(
+            @Valid @RequestBody SkinSelectionRequest request,
+            @AuthenticationPrincipal AppUserPrincipal principal) {
+        return userService.selectSkin(principal.id(), request.skinId());
     }
 
     @PostMapping("/logout")
