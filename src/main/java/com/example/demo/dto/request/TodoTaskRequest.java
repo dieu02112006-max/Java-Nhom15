@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public record TodoTaskRequest(
         Long listId,
         Long parentTaskId,
+        Long goalId,
         @NotBlank @Size(max = 200) String title,
         @Size(max = 2000) String description,
         @Size(max = 80) String category,

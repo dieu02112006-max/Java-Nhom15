@@ -37,7 +37,9 @@
     const today = new Date();
     const dateKey = (date) => `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
     let tasks = [];
+    let goals = [];
     let currentFilter = 'all';
+    let selectedDay = null;
     const list = document.getElementById('task-list');
     const search = document.getElementById('search');
     const empty = document.getElementById('empty-state');
@@ -47,6 +49,7 @@
     const taskIdInput = document.getElementById('task-id');
     const taskTitleInput = document.getElementById('task-title-input');
     const taskCategoryInput = document.getElementById('task-category');
+    const taskGoalInput = document.getElementById('task-goal');
     const categoryPreview = document.getElementById('category-preview');
     const taskDateInput = document.getElementById('task-date-input');
     const taskLocationInput = document.getElementById('task-location');
@@ -80,12 +83,34 @@
         return time?`${label} · ${time}`:label;
     };
     const escapeHtml = (text='') => String(text).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    function renderGoalOptions() {
+        taskGoalInput.innerHTML='<option value="">Không thuộc mục tiêu</option>'+goals.map(goal=>`<option value="${goal.id}">${escapeHtml(goal.title)}</option>`).join('');
+    }
+    function renderWeek() {
+        const monday = new Date(today);
+        monday.setHours(0, 0, 0, 0);
+        monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+        const dayNames = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+        document.getElementById('week-days').innerHTML = Array.from({length:7}, (_, index) => {
+            const day = new Date(monday);
+            day.setDate(monday.getDate() + index);
+            const key = dateKey(day);
+            const count = tasks.filter(task => task.dueDate?.slice(0,10) === key).length;
+            const active = selectedDay === key || (!selectedDay && key === dateKey(today));
+            return `<button class="week-day ${active?'active':''} ${key===dateKey(today)?'is-today':''}" type="button" data-day="${key}" aria-pressed="${active}"><span>${dayNames[index]}</span><strong>${day.getDate()}</strong><small>${count} việc</small></button>`;
+        }).join('');
+        document.getElementById('week-days').querySelectorAll('[data-day]').forEach(button => button.addEventListener('click', () => {
+            selectedDay = button.dataset.day;
+            document.querySelectorAll('.filter-button').forEach(item => { item.classList.remove('active'); item.setAttribute('aria-selected','false'); });
+            render();
+        }));
+    }
     function render() {
         const query = search.value.trim().toLocaleLowerCase('vi');
         const filtered = tasks.filter(task => {
             const matchText = `${task.title} ${task.description||''} ${task.category} ${task.location||''} ${task.status} ${task.priority}`.toLocaleLowerCase('vi').includes(query);
             const taskDay=task.dueDate?.slice(0,10);
-            const matchFilter = currentFilter === 'all' || (currentFilter === 'today' && taskDay === dateKey(new Date()) && task.status !== 'done') || (currentFilter === 'upcoming' && taskDay > dateKey(new Date()) && task.status !== 'done') || (currentFilter === 'completed' && task.status === 'done');
+            const matchFilter = selectedDay ? taskDay === selectedDay : currentFilter === 'all' || (currentFilter === 'today' && taskDay === dateKey(new Date()) && task.status !== 'done') || (currentFilter === 'upcoming' && taskDay > dateKey(new Date()) && task.status !== 'done') || (currentFilter === 'completed' && task.status === 'done');
             return matchText && matchFilter;
         });
         const statusLabels={todo:'Cần làm',in_progress:'Đang làm',done:'Hoàn thành'};
@@ -102,6 +127,7 @@
         document.getElementById('stat-done').textContent = tasks.filter(task => task.status==='done').length;
         document.getElementById('stat-open').textContent = tasks.filter(task => task.status!=='done').length;
         document.getElementById('count-all').textContent = tasks.length;
+        renderWeek();
     }
     function showToast(message) { const toast=document.getElementById('toast'); toast.textContent=message; toast.classList.add('show'); clearTimeout(showToast.timer); showToast.timer=setTimeout(()=>toast.classList.remove('show'),2100); }
     function openTaskForm(task=null) {
@@ -109,6 +135,7 @@
         taskIdInput.value=task?.id||'';
         taskTitleInput.value=task?.title||'';
         taskCategoryInput.value=task?.category||'Cá nhân';
+        taskGoalInput.value=task?.goalId?String(task.goalId):'';
         updateCategoryPreview();
         taskDescriptionInput.value=task?.description||'';
         taskStatusInput.value=task?.status||'todo';
@@ -122,7 +149,7 @@
         updateMapsLink();
     }
     function taskPayload(task) {
-        return {listId:Number(task.listId),parentTaskId:task.parentTaskId??null,title:task.title,description:task.description||null,category:task.category||'Cá nhân',location:task.location||null,status:task.status||'todo',priority:task.priority||'medium',dueDate:task.dueDate||null,completedAt:task.completedAt||null,estimatedCost:task.estimatedCost??null,recurrenceRule:task.recurrenceRule||null,position:task.position??0};
+        return {listId:Number(task.listId),parentTaskId:task.parentTaskId??null,goalId:task.goalId??null,title:task.title,description:task.description||null,category:task.category||'Cá nhân',location:task.location||null,status:task.status||'todo',priority:task.priority||'medium',dueDate:task.dueDate||null,completedAt:task.completedAt||null,estimatedCost:task.estimatedCost??null,recurrenceRule:task.recurrenceRule||null,position:task.position??0};
     }
     function updateMapsLink() {
         const place=taskLocationInput.value.trim();
@@ -135,15 +162,17 @@
         setTimeout(()=>categoryPreview.classList.remove('pop'),220);
     }
     document.querySelectorAll('.filter-button').forEach(button => button.addEventListener('click', () => {
+        selectedDay = null;
         currentFilter = button.dataset.filter;
         document.querySelectorAll('.filter-button').forEach(item => { const active=item===button; item.classList.toggle('active',active); item.setAttribute('aria-selected',String(active)); });
         render();
     }));
+    document.getElementById('week-today').addEventListener('click', () => { selectedDay=null; currentFilter='all'; document.querySelectorAll('.filter-button').forEach(item=>{const active=item.dataset.filter==='all';item.classList.toggle('active',active);item.setAttribute('aria-selected',String(active));});render(); });
     search.addEventListener('input', render);
     list.addEventListener('click', event => {
         const button = event.target.closest('[data-action]');
         if (!button) return;
-        const task = tasks.find(item => item.id === button.dataset.id);
+        const task = tasks.find(item => String(item.id) === button.dataset.id);
         if (!task) return;
         if (button.dataset.action === 'edit') { openTaskForm(task); return; }
         if (button.dataset.action === 'delete' && !confirm(`Xóa công việc “${task.title}”?`)) return;
@@ -151,13 +180,13 @@
             try {
                 if (button.dataset.action === 'delete') {
                     await api(`/api/todo/tasks/${task.id}`,{method:'DELETE',headers:await csrfHeaders()});
-                    tasks=tasks.filter(item=>item.id!==task.id);
+                    tasks=tasks.filter(item=>String(item.id)!==String(task.id));
                     showToast('Đã xóa công việc');
                 } else {
                     const payload=taskPayload(task);
                     if(button.dataset.action==='toggle') { payload.status=task.status==='done'?'todo':'done'; if(payload.status!=='done') payload.completedAt=null; }
                     const updated=await api(`/api/todo/tasks/${task.id}`,{method:'PUT',headers:await csrfHeaders(),body:JSON.stringify(payload)});
-                    tasks=tasks.map(item=>item.id===task.id?updated:item);
+                    tasks=tasks.map(item=>String(item.id)===String(task.id)?updated:item);
                     showToast(updated.status==='done'?'Đã hoàn thành công việc':'Đã cập nhật công việc');
                 }
                 render();
@@ -170,7 +199,7 @@
         const existing=tasks.find(task=>String(task.id)===id);
         const status=taskStatusInput.value;
         const payload={
-            listId:existing?.listId??null,parentTaskId:existing?.parentTaskId??null,
+            listId:existing?.listId??null,parentTaskId:existing?.parentTaskId??null,goalId:taskGoalInput.value?Number(taskGoalInput.value):null,
             title:taskTitleInput.value.trim(),description:taskDescriptionInput.value.trim()||null,
             category:taskCategoryInput.value,location:taskLocationInput.value.trim()||null,
             status,priority:taskPriorityInput.value,dueDate:taskDateInput.value||null,
@@ -193,8 +222,7 @@
     taskDialog.addEventListener('click',event=>{if(event.target===taskDialog)taskDialog.close();});
     taskLocationInput.addEventListener('input',updateMapsLink);
     taskCategoryInput.addEventListener('change',updateCategoryPreview);
-    document.getElementById('today-label').textContent = new Intl.DateTimeFormat('vi-VN',{weekday:'long',day:'numeric',month:'long'}).format(today) + ' · Từng bước nhỏ, ngày hoàn thành hơn.';
-    try { tasks=await api('/api/todo/tasks'); }
+    try { [tasks,goals]=await Promise.all([api('/api/todo/tasks'),api('/api/todo/goals')]); renderGoalOptions(); }
     catch(error) { loadError=`Không tải được công việc từ cơ sở dữ liệu: ${error.message}`; showToast(error.message); }
     render();
 })();

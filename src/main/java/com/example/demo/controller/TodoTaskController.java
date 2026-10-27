@@ -3,6 +3,8 @@ package com.example.demo.controller;
 import com.example.demo.dto.request.TodoTaskRequest;
 import com.example.demo.dto.response.TodoTaskResponse;
 import com.example.demo.dto.response.TodoTaskListResponse;
+import com.example.demo.dto.request.TodoWorkGoalRequest;
+import com.example.demo.dto.response.TodoWorkGoalResponse;
 import com.example.demo.security.AuthorizationService;
 import com.example.demo.service.TodoTaskService;
 import jakarta.validation.Valid;
@@ -38,6 +40,22 @@ public class TodoTaskController {
     @GetMapping("/task-lists")
     public List<TodoTaskListResponse> findLists() {
         return service.findLists(authorization.currentUserId());
+    }
+
+    @GetMapping("/goals")
+    public List<TodoWorkGoalResponse> findGoals() {
+        return service.findGoals(authorization.currentUserId());
+    }
+
+    @PostMapping("/goals")
+    public ResponseEntity<TodoWorkGoalResponse> createGoal(@Valid @RequestBody TodoWorkGoalRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.createGoal(authorization.currentUserId(), request));
+    }
+
+    @DeleteMapping("/goals/{id}")
+    public ResponseEntity<Void> deleteGoal(@PathVariable Long id) {
+        service.deleteGoal(authorization.currentUserId(), id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/tasks")
