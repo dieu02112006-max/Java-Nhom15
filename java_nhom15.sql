@@ -261,6 +261,8 @@ CREATE TABLE `tasks` (
   `parent_task_id` bigint DEFAULT NULL,
   `title` varchar(200) NOT NULL,
   `description` text,
+  `category` varchar(80) NOT NULL DEFAULT 'Cá nhân',
+  `location` varchar(500) DEFAULT NULL,
   `status` enum('todo','in_progress','done') NOT NULL DEFAULT 'todo',
   `priority` enum('low','medium','high') NOT NULL DEFAULT 'medium',
   `due_date` datetime DEFAULT NULL,
@@ -276,10 +278,10 @@ CREATE TABLE `tasks` (
 -- Dumping data for table `tasks`
 --
 
-INSERT INTO `tasks` (`id`, `user_id`, `list_id`, `parent_task_id`, `title`, `description`, `status`, `priority`, `due_date`, `completed_at`, `estimated_cost`, `recurrence_rule`, `position`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, NULL, 'Mua qua sinh nhat', 'Chon va mua qua', 'todo', 'high', '2026-11-01 18:00:00', NULL, 500000.00, NULL, 1, '2026-10-23 17:36:21', '2026-10-23 17:36:21'),
-(2, 1, 2, NULL, 'Hoan thanh bai tap Java', 'Lam bai tap chuong 3', 'in_progress', 'medium', '2026-10-30 23:00:00', NULL, 0.00, NULL, 1, '2026-10-23 17:36:21', '2026-10-23 17:36:21'),
-(3, 2, 3, NULL, 'Dat lich kham', 'Kham suc khoe dinh ky', 'todo', 'low', '2026-11-05 09:00:00', NULL, 300000.00, NULL, 1, '2026-10-23 17:36:21', '2026-10-23 17:36:21');
+INSERT INTO `tasks` (`id`, `user_id`, `list_id`, `parent_task_id`, `title`, `description`, `category`, `location`, `status`, `priority`, `due_date`, `completed_at`, `estimated_cost`, `recurrence_rule`, `position`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, NULL, 'Mua qua sinh nhat', 'Chon va mua qua', 'Cá nhân', NULL, 'todo', 'high', '2026-11-01 18:00:00', NULL, 500000.00, NULL, 1, '2026-10-23 17:36:21', '2026-10-23 17:36:21'),
+(2, 1, 2, NULL, 'Hoan thanh bai tap Java', 'Lam bai tap chuong 3', 'Học tập', NULL, 'in_progress', 'medium', '2026-10-30 23:00:00', NULL, 0.00, NULL, 1, '2026-10-23 17:36:21', '2026-10-23 17:36:21'),
+(3, 2, 3, NULL, 'Dat lich kham', 'Kham suc khoe dinh ky', 'Cá nhân', NULL, 'todo', 'low', '2026-11-05 09:00:00', NULL, 300000.00, NULL, 1, '2026-10-23 17:36:21', '2026-10-23 17:36:21');
 
 -- --------------------------------------------------------
 

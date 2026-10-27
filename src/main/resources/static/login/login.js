@@ -1,0 +1,13 @@
+(() => {
+    let mode = 'login';
+    const $ = selector => document.querySelector(selector);
+    const next = new URLSearchParams(location.search).get('next');
+    const destination = role => next && next.startsWith('/') && !next.startsWith('//') ? next : role === 'ADMIN' ? '/admin/index.html' : '/todo/index.html';
+    function csrfCookie() { const item = document.cookie.split('; ').find(value => value.startsWith('XSRF-TOKEN=')); return item ? decodeURIComponent(item.slice('XSRF-TOKEN='.length)) : ''; }
+    async function prepareCsrf() { await fetch('/api/auth/csrf', {credentials:'same-origin'}); return csrfCookie(); }
+    function setMode(value) { mode = value; document.querySelectorAll('[data-mode]').forEach(button => button.classList.toggle('active', button.dataset.mode === mode)); const registering = mode === 'register'; $('#title').textContent = registering ? 'Tạo tài khoản' : 'Đăng nhập'; $('#subtitle').textContent = registering ? 'Tạo tài khoản để bắt đầu với Dayflow.' : 'Chào mừng bạn quay lại Dayflow.'; $('#name-field').hidden = !registering; $('#name').required = registering; $('#password').autocomplete = registering ? 'new-password' : 'current-password'; $('#submit').textContent = registering ? 'Tạo tài khoản' : 'Đăng nhập'; $('#error').classList.remove('show'); }
+    async function request(path, body) { const token = await prepareCsrf(); const response = await fetch(path, {method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-XSRF-TOKEN':token},body:JSON.stringify(body)}); const value = await response.json().catch(() => ({})); if (!response.ok) throw new Error(value.detail || value.message || `Yêu cầu thất bại (${response.status})`); return value; }
+    document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => setMode(button.dataset.mode)));
+    $('#auth-form').addEventListener('submit', async event => { event.preventDefault(); $('#error').classList.remove('show'); $('#submit').disabled = true; try { if (mode === 'register') await request('/api/auth/register', {email:$('#email').value.trim(),password:$('#password').value,fullName:$('#name').value.trim()}); const user = await request('/api/auth/login', {email:$('#email').value.trim(),password:$('#password').value}); await prepareCsrf(); location.href = destination(user.role); } catch (error) { $('#error').textContent = error.message; $('#error').classList.add('show'); } finally { $('#submit').disabled = false; } });
+    (async () => { try { const response = await fetch('/api/auth/me'); if (response.ok) { const user = await response.json(); location.replace(destination(user.role)); } } catch {} })();
+})();
