@@ -5,120 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f7f8fd">
     <title>To-do list — Dayflow</title>
-    <style>
-        :root { color-scheme: light; --ink:#202235; --muted:#81849a; --blue:#4568df; --blue-dark:#3452bf; --blue-pale:#eef1ff; --pink:#efa9c8; --pink-pale:#fff1f7; --line:#eaebf2; --canvas:#f7f8fd; }
-        * { box-sizing:border-box; }
-        body { margin:0; background-color:var(--canvas); background-image:var(--theme-background-image,none); background-position:center; background-size:cover; background-attachment:fixed; color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; -webkit-font-smoothing:antialiased; }
-        button,input,select { font:inherit; }
-        button,a { -webkit-tap-highlight-color:transparent; }
-        a { color:inherit; text-decoration:none; }
-        .shell { min-height:100vh; display:grid; grid-template-columns:248px minmax(0,1fr); }
-        .sidebar { position:sticky; top:0; height:100vh; padding:23px 15px; background:rgba(255,255,255,.86); border-right:1px solid var(--line); backdrop-filter:blur(18px); }
-        .brand { display:flex; align-items:center; gap:10px; margin:0 7px 33px; font-size:18px; font-weight:760; letter-spacing:-.05em; }
-        .brand-mark { width:34px; height:34px; display:grid; place-items:center; color:white; background:var(--blue); border-radius:11px; box-shadow:0 6px 14px #4568df30; }
-        .brand-mark svg { width:19px; height:19px; }
-        .workspace-label { margin:0 9px 9px; color:#a0a2b0; font-size:10px; font-weight:750; letter-spacing:.12em; text-transform:uppercase; }
-        .workspace { display:flex; align-items:center; gap:10px; padding:10px; margin-bottom:25px; border:1px solid var(--line); border-radius:12px; background:white; }
-        .workspace-icon { width:30px; height:30px; display:grid; place-items:center; color:#9a5d82; background:var(--pink-pale); border-radius:9px; font-size:15px; }
-        .workspace-name { font-size:12px; font-weight:700; }
-        .workspace-sub { margin-top:3px; color:var(--muted); font-size:10px; }
-        .side-nav { display:grid; gap:4px; }
-        .side-label { margin:14px 9px 6px; color:#a0a2b0; font-size:10px; font-weight:750; letter-spacing:.12em; text-transform:uppercase; }
-        .side-link { display:flex; align-items:center; gap:11px; padding:10px 11px; border-radius:10px; color:#6f7285; font-size:12px; font-weight:620; transition:.18s ease; }
-        button.side-link { width:100%; border:0; background:transparent; text-align:left; font-family:inherit; cursor:pointer; }
-        .side-link svg { width:17px; height:17px; }
-        .side-link:hover { color:var(--blue-dark); background:color-mix(in srgb,var(--blue-pale) 48%,transparent); }
-        .side-link.active { color:var(--blue-dark); background:var(--blue-pale); }
-        .side-spacer { height:1px; margin:13px 9px; background:var(--line); }
-        .side-bottom { position:absolute; right:15px; bottom:18px; left:15px; padding:14px; border:1px solid #f3e2ec; border-radius:14px; background:linear-gradient(140deg,#fff,#fff5f9); }
-        .side-bottom-title { font-size:11px; font-weight:720; }
-        .side-bottom-copy { margin-top:5px; color:var(--muted); font-size:10px; line-height:1.6; }
-        .main { min-width:0; }
-        .topbar { height:62px; display:flex; align-items:center; justify-content:space-between; padding:0 clamp(22px,4vw,58px); background:rgba(255,255,255,.72); border-bottom:1px solid var(--line); }
-        .topbar { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:18px; }
-        .app-switcher { display:flex; align-items:center; gap:5px; }
-        .app-switcher { justify-self:center; padding:4px; border:1px solid var(--line); border-radius:12px; background:#fff; }
-        .app-switcher a { padding:9px 12px; border-radius:9px; color:var(--muted); font-size:11px; font-weight:650; white-space:nowrap; }
-        .app-switcher a.active { color:var(--blue-dark); background:var(--blue-pale); }
-        .app-switcher a:hover { color:var(--blue-dark); background:var(--blue-pale); }
-        .top-right-nav { display:flex; align-items:center; justify-content:flex-end; gap:10px; }
-        .topbar-spacer { min-width:0; }
-        .top-actions { display:flex; align-items:center; gap:12px; }
-        .icon-button { width:34px; height:34px; display:grid; place-items:center; border:1px solid var(--line); border-radius:10px; color:#777b90; background:white; cursor:pointer; }
-        .icon-button svg { width:16px; height:16px; }
-        .profile { width:31px; height:31px; display:grid; place-items:center; border:2px solid white; border-radius:50%; color:#8c4d75; background:#f5dce9; box-shadow:0 0 0 1px #eed5e2; font-size:10px; font-weight:760; }
-        .logout-button { min-height:34px; padding:0 12px; border:1px solid var(--line); border-radius:10px; color:#6f7285; background:#fff; font-size:11px; font-weight:650; cursor:pointer; transition:color .18s ease, border-color .18s ease, background .18s ease; }
-        .logout-button:hover { color:var(--blue-dark); border-color:#d9def7; background:var(--blue-pale); }
-        .content { width:min(100%,1100px); margin:0 auto; padding:48px clamp(22px,4vw,58px) 70px; }
-        .page-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; }
-        .eyebrow { display:flex; align-items:center; gap:8px; color:var(--blue); font-size:10px; font-weight:750; letter-spacing:.11em; text-transform:uppercase; }
-        .eyebrow-dot { width:7px; height:7px; border-radius:50%; background:var(--pink); box-shadow:0 0 0 4px #fff0f6; }
-        h1 { margin:12px 0 7px; font-size:clamp(32px,4vw,43px); line-height:1.05; letter-spacing:-.065em; }
-        .subheading { margin:0; color:var(--muted); font-size:13px; }
-        .primary-button { display:inline-flex; align-items:center; justify-content:center; gap:9px; min-height:41px; padding:0 15px; border:0; border-radius:11px; color:#fff; background:linear-gradient(110deg,var(--blue),#5c79e4); box-shadow:0 8px 19px #4568df2b; font-size:11px; font-weight:700; cursor:pointer; transition:transform .18s ease,box-shadow .18s ease; }
-        .primary-button:hover { transform:translateY(-2px); box-shadow:0 12px 24px #4568df38; }
-        .primary-button svg { width:15px; height:15px; }
-        .stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:13px; margin:30px 0 31px; }
-        .stat-card { display:flex; align-items:center; gap:13px; padding:16px; border:1px solid var(--line); border-radius:15px; background:white; box-shadow:0 4px 15px #343b6810; }
-        .stat-icon { width:36px; height:36px; display:grid; place-items:center; flex:none; color:var(--blue); background:var(--blue-pale); border-radius:11px; }
-        .stat-card:nth-child(2) .stat-icon { color:#a45f85; background:var(--pink-pale); }
-        .stat-card:nth-child(3) .stat-icon { color:#7380c9; background:#f2f1ff; }
-        .stat-icon svg { width:18px; height:18px; }
-        .stat-value { font-size:20px; font-weight:760; letter-spacing:-.05em; }
-        .stat-label { margin-top:3px; color:var(--muted); font-size:10px; }
-        .list-panel { overflow:hidden; border:1px solid var(--line); border-radius:17px; background:white; box-shadow:0 8px 26px #343b680b; }
-        .panel-toolbar { min-height:66px; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 17px; border-bottom:1px solid var(--line); }
-        .filters { display:flex; align-items:center; gap:4px; overflow-x:auto; }
-        .filter-button { flex:none; padding:8px 11px; border:0; border-radius:9px; color:#85889a; background:transparent; font-size:10px; font-weight:650; cursor:pointer; }
-        .filter-button:hover { color:var(--blue); background:#f7f8ff; }
-        .filter-button.active { color:var(--blue-dark); background:var(--blue-pale); }
-        .filter-count { margin-left:5px; color:#9b9db0; font-size:9px; }
-        .search-box { width:190px; height:34px; display:flex; align-items:center; gap:8px; padding:0 10px; border:1px solid var(--line); border-radius:9px; background:#fcfcfe; }
-        .search-box svg { width:14px; height:14px; flex:none; color:#9a9cad; }
-        .search-box input { width:100%; border:0; outline:0; color:var(--ink); background:transparent; font-size:10px; }
-        .search-box input::placeholder { color:#a5a7b4; }
-        .list-head { display:grid; grid-template-columns:minmax(0,1fr) 115px 105px 30px; gap:12px; padding:12px 18px; color:#a0a2b0; font-size:9px; font-weight:730; letter-spacing:.08em; text-transform:uppercase; }
-        .task-list { padding:0 18px 9px; }
-        .task-row { min-height:58px; display:grid; grid-template-columns:minmax(0,1fr) 115px 105px 30px; align-items:center; gap:12px; border-top:1px solid #f0f1f6; }
-        .task-main { min-width:0; display:flex; align-items:center; gap:11px; }
-        .task-check { width:17px; height:17px; display:grid; place-items:center; flex:none; border:1.5px solid #c9cce0; border-radius:6px; background:white; cursor:pointer; transition:.15s ease; }
-        .task-check:hover { border-color:var(--blue); background:var(--blue-pale); }
-        .task-check.checked { border-color:var(--blue); color:white; background:var(--blue); }
-        .task-check svg { width:11px; height:11px; }
-        .task-title { overflow:hidden; color:#383a4c; font-size:11px; font-weight:620; text-overflow:ellipsis; white-space:nowrap; }
-        .task-row.is-complete .task-title { color:#a3a5b1; text-decoration:line-through; }
-        .task-tag { width:max-content; padding:5px 8px; border-radius:7px; color:#6f7bc2; background:#f0f2ff; font-size:9px; font-weight:620; }
-        .task-tag.work { color:#9a5d82; background:#fff0f6; }
-        .task-tag.personal { color:#708267; background:#f0f5eb; }
-        .task-date { color:#85889a; font-size:10px; }
-        .task-date.overdue { color:#ce668b; }
-        .row-menu { width:28px; height:28px; display:grid; place-items:center; border:0; border-radius:8px; color:#a1a3b0; background:transparent; cursor:pointer; opacity:.65; }
-        .row-menu:hover { color:#b75d83; background:#fff1f6; opacity:1; }
-        .row-menu svg { width:15px; height:15px; }
-        .empty-state { display:none; padding:46px 15px; color:var(--muted); text-align:center; font-size:12px; }
-        .empty-state.visible { display:block; }
-        .empty-icon { width:44px; height:44px; display:grid; place-items:center; margin:0 auto 12px; border-radius:14px; color:#aa6d91; background:var(--pink-pale); }
-        .empty-icon svg { width:21px; height:21px; }
-        .add-row { display:flex; align-items:center; gap:10px; padding:14px 18px; border-top:1px solid var(--line); }
-        .add-inline { width:23px; height:23px; display:grid; place-items:center; color:var(--blue); background:var(--blue-pale); border-radius:7px; }
-        .add-inline svg { width:14px; height:14px; }
-        .add-input { min-width:0; flex:1; padding:4px 0; border:0; outline:0; color:var(--ink); font-size:11px; }
-        .add-input::placeholder { color:#a5a7b4; }
-        .add-hint { color:#a3a5b1; font-size:9px; }
-        .toast { position:fixed; right:24px; bottom:24px; z-index:8; padding:12px 16px; border:1px solid #e7e9f4; border-radius:12px; color:#45485b; background:white; box-shadow:0 12px 35px #252b511a; font-size:11px; opacity:0; transform:translateY(8px); pointer-events:none; transition:.2s ease; }
-        .toast.show { opacity:1; transform:translateY(0); }
-        [data-skin="dark"] { color-scheme:dark; }
-        [data-skin="dark"] .sidebar,[data-skin="dark"] .topbar { background:rgba(26,32,44,.9); }
-        [data-skin="dark"] .workspace,[data-skin="dark"] .app-switcher,[data-skin="dark"] .icon-button,[data-skin="dark"] .logout-button,[data-skin="dark"] .stat-card,[data-skin="dark"] .list-panel,[data-skin="dark"] .toast { color:var(--ink); background:var(--card); }
-        [data-skin="dark"] .side-link,[data-skin="dark"] .task-title,[data-skin="dark"] .filter-button { color:var(--ink); }
-        [data-skin="dark"] .task-row { border-color:var(--line); }
-        [data-skin="dark"] .task-check { border-color:#65718a; background:#252d39; }
-        [data-skin="dark"] .task-check.checked { background:var(--blue); }
-        @media(max-width:850px) { .shell { grid-template-columns:70px minmax(0,1fr); } .sidebar { padding:20px 11px; } .brand { justify-content:center; margin:0 0 30px; } .brand-name,.workspace-label,.workspace-copy,.side-label,.side-link span,.side-bottom { display:none; } .workspace { justify-content:center; padding:8px 0; border:0; background:transparent; } .side-link { justify-content:center; padding:11px; } .side-spacer { margin:13px 5px; } }
-        @media(max-width:1100px) { .topbar { grid-template-columns:1fr auto; height:auto; min-height:62px; padding:8px 20px; } .topbar-spacer { display:none; } .app-switcher { grid-column:1; grid-row:1; justify-self:start; } .top-right-nav { display:contents; } .top-actions { grid-column:2; grid-row:1; } }
-        @media(max-width:620px) { .shell { display:block; } .sidebar { position:fixed; top:auto; right:0; bottom:0; left:0; z-index:6; width:100%; height:67px; display:flex; align-items:center; padding:0 8px; border-top:1px solid var(--line); border-right:0; background:rgb(255 255 255 / 96%); } .brand,.workspace,.workspace-label,.side-spacer,.side-bottom,.sidebar > nav[aria-label="Điều hướng phụ"] { display:none; } .side-nav { width:100%; display:flex; gap:2px; overflow-x:auto; } .side-label { display:none; } .side-link { flex:0 0 auto; flex-direction:column; gap:3px; padding:7px 9px; font-size:9px; } .side-link span { display:block; } button.side-link { width:auto; text-align:center; } .topbar { height:auto; min-height:52px; padding:7px 12px; grid-template-columns:1fr auto; gap:6px; } .topbar-spacer { display:none; } .app-switcher { grid-column:1; grid-row:1; justify-self:start; } .app-switcher a { padding:8px 9px; font-size:10px; } .top-right-nav { display:contents; } .top-actions { grid-column:2; grid-row:1; gap:7px; } .icon-button { display:none; } .logout-button { padding:0 9px; font-size:10px; } .content { padding:32px 16px 95px; } .page-heading { align-items:flex-start; flex-direction:column; } .primary-button { min-height:38px; } .stats { gap:7px; margin:22px 0; } .stat-card { align-items:flex-start; flex-direction:column; gap:7px; padding:11px; } .stat-icon { width:31px; height:31px; } .stat-value { font-size:17px; } .stat-label { min-height:24px; line-height:1.4; } .panel-toolbar { align-items:flex-start; flex-direction:column-reverse; gap:10px; padding:12px; } .filters { width:100%; } .search-box { width:100%; } .list-head,.task-row { grid-template-columns:minmax(0,1fr) 75px 27px; gap:6px; } .list-head { padding:11px 12px; font-size:8px; } .list-head span:nth-child(3),.task-row .task-date { display:none; } .task-list { padding:0 12px 8px; } .task-row { min-height:55px; } .task-title { font-size:10px; } .task-tag { padding:5px 6px; font-size:8px; } .add-row { padding:12px; } .add-hint { display:none; } }
-        @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition-duration:.01ms!important; } }
-    </style>
+    <link rel="stylesheet" href="todo.css">
 </head>
 <body>
 <div class="shell">
@@ -129,11 +16,11 @@
         <div class="side-label">Điều hướng</div>
         <nav class="side-nav" aria-label="Điều hướng chính">
             <a class="side-link active" href="#tasks" aria-current="page"><svg viewBox="0 0 24 24" fill="none"><path d="M8 6h12M8 12h12M8 18h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m3 6 .8.8L5.5 5M3 12l.8.8 1.7-1.8M3 18l.8.8 1.7-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Công việc</span></a>
-            <a class="side-link" href="/todo/section.html?view=calendar"><svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="16" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M7.5 3v4M16.5 3v4M3.5 10h17M8 14h3m3 0h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Lịch</span></a>
-            <a class="side-link" href="/todo/section.html?view=goals"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Mục tiêu</span></a>
-            <a class="side-link" href="/todo/section.html?view=stats"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Thống kê</span></a>
-            <a class="side-link" href="/todo/section.html?view=themes"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 0 18h1.2a2.2 2.2 0 0 0 1.7-3.6c-.8-1 .2-2.4 1.5-2.4H18a3 3 0 0 0 3-3C21 7 17 3 12 3Z" stroke="currentColor" stroke-width="1.7"/><circle cx="7.5" cy="10" r="1" fill="currentColor"/><circle cx="11" cy="7" r="1" fill="currentColor"/><circle cx="16" cy="9" r="1" fill="currentColor"/></svg><span>Chủ đề</span></a>
-            <a class="side-link" href="/todo/section.html?view=packages"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M3 9h18M7 14h4m7-1v4m-2-2h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Gói nạp</span></a>
+            <a class="side-link" href="/todo/lich/index.html"><svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="16" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M7.5 3v4M16.5 3v4M3.5 10h17M8 14h3m3 0h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Lịch</span></a>
+            <a class="side-link" href="/todo/muc-tieu/index.html"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Mục tiêu</span></a>
+            <a class="side-link" href="/todo/thong-ke/index.html"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Thống kê</span></a>
+            <a class="side-link" href="/todo/chu-de/index.html"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 0 18h1.2a2.2 2.2 0 0 0 1.7-3.6c-.8-1 .2-2.4 1.5-2.4H18a3 3 0 0 0 3-3C21 7 17 3 12 3Z" stroke="currentColor" stroke-width="1.7"/><circle cx="7.5" cy="10" r="1" fill="currentColor"/><circle cx="11" cy="7" r="1" fill="currentColor"/><circle cx="16" cy="9" r="1" fill="currentColor"/></svg><span>Chủ đề</span></a>
+            <a class="side-link" href="/todo/goi-nap/index.html"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M3 9h18M7 14h4m7-1v4m-2-2h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Gói nạp</span></a>
         </nav>
         <div class="side-spacer"></div>
         <div class="workspace-label">Không gian</div>
@@ -143,7 +30,7 @@
     <main class="main">
         <header class="topbar"><div class="topbar-spacer" aria-hidden="true"></div><nav class="app-switcher" aria-label="Chọn ứng dụng"><a class="active" href="/todo/index.html" aria-current="page">To-do list</a><a href="/expenses/index.html">Quản lí chi tiêu</a></nav><div class="top-right-nav"><div class="top-actions"><button class="icon-button" type="button" aria-label="Thông báo"><svg viewBox="0 0 24 24" fill="none"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="logout-button" id="logout-button" type="button">Đăng xuất</button><span class="profile" id="profile-logout" aria-hidden="true">DF</span></div></div></header>
         <div class="content">
-            <section class="page-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span> Kế hoạch cá nhân</div><h1>To-do list</h1><p class="subheading" id="today-label">Từng bước nhỏ, ngày hoàn thành hơn.</p></div><button class="primary-button" id="focus-add" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>Thêm công việc</button></section>
+            <section class="page-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span> Kế hoạch cá nhân</div><h1>To-do list</h1><p class="subheading" id="today-label">Từng bước nhỏ, ngày hoàn thành hơn.</p></div><button class="primary-button" id="focus-add" type="button" aria-label="Thêm công việc" title="Thêm công việc"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></button></section>
             <section class="stats" id="stats" aria-label="Tổng quan công việc">
                 <div class="stat-card"><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><div><div class="stat-value" id="stat-total">0</div><div class="stat-label">Tổng công việc</div></div></div>
                 <div class="stat-card"><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 12.2 11 14.5l4.8-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><div class="stat-value" id="stat-done">0</div><div class="stat-label">Đã hoàn thành</div></div></div>
@@ -156,126 +43,29 @@
                     <button class="filter-button" id="upcoming" data-filter="upcoming" role="tab" aria-selected="false">Sắp tới</button>
                     <button class="filter-button" data-filter="completed" role="tab" aria-selected="false">Đã xong</button>
                 </div><label class="search-box"><svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="search" type="search" placeholder="Tìm công việc..." aria-label="Tìm công việc"></label></div>
-                <div class="list-head"><span>Công việc</span><span>Danh mục</span><span>Ngày đến hạn</span><span></span></div>
-                <div class="task-list" id="task-list"></div>
+                <div class="task-table-wrap"><table class="task-table"><thead><tr><th>Công việc</th><th>Danh mục</th><th>Trạng thái</th><th>Ưu tiên</th><th>Hạn hoàn thành</th><th>Địa điểm</th><th>Thao tác</th></tr></thead><tbody class="task-list" id="task-list"></tbody></table></div>
                 <div class="empty-state" id="empty-state"><span class="empty-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M8 6h12M8 12h12M8 18h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m3 6 .8.8L5.5 5M3 12l.8.8 1.7-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Chưa có công việc ở đây. Thêm một việc mới để bắt đầu.</div>
-                <form class="add-row" id="add-form"><span class="add-inline"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></span><input class="add-input" id="new-task" type="text" maxlength="200" placeholder="Thêm một công việc mới..." autocomplete="off" aria-label="Tên công việc mới"><span class="add-hint">Nhấn Enter để thêm</span></form>
             </section>
         </div>
     </main>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script>
- (async () => {
-    const authResponse = await fetch('/api/auth/me', { credentials:'same-origin' });
-    if (!authResponse.ok) { location.href = `/login/index.html?next=${encodeURIComponent(location.pathname)}`; return; }
-    const currentUser = await authResponse.json();
-    const skinResponse = await fetch('/api/auth/me/skin', {credentials:'same-origin'});
-    if (skinResponse.ok) {
-        const skin = await skinResponse.json();
-        const root = document.documentElement;
-        const dark = skin.code === 'dark';
-        let image = 'none';
-        try { const url = new URL(skin.backgroundImageUrl, location.origin); if (url.origin === location.origin) image = `url("${url.href.replaceAll('"','%22')}")`; } catch {}
-        root.dataset.skin = skin.code;
-        root.style.setProperty('--blue', skin.primaryColor);
-        root.style.setProperty('--blue-dark', `color-mix(in srgb, ${skin.primaryColor} 78%, #111827)`);
-        root.style.setProperty('--blue-pale', `color-mix(in srgb, ${skin.primaryColor} 13%, ${skin.backgroundColor})`);
-        root.style.setProperty('--pink', skin.secondaryColor);
-        root.style.setProperty('--pink-pale', `color-mix(in srgb, ${skin.secondaryColor} 18%, ${skin.backgroundColor})`);
-        root.style.setProperty('--canvas', skin.backgroundColor);
-        root.style.setProperty('--ink', skin.textColor);
-        root.style.setProperty('--muted', dark ? '#B9C3D2' : '#73798C');
-        root.style.setProperty('--line', dark ? '#465168' : '#E4E8F0');
-        root.style.setProperty('--card', dark ? 'rgba(37,45,57,.94)' : 'rgba(255,255,255,.88)');
-        root.style.setProperty('--theme-background-image', image);
-        document.querySelector('meta[name="theme-color"]').content = skin.backgroundColor;
-    }
-    const profileButton = document.getElementById('profile-logout');
-    profileButton.title = `Đăng xuất · ${currentUser.email}`;
-    profileButton.textContent = currentUser.fullName.trim().split(/\s+/).slice(-2).map(part => part[0]).join('').toUpperCase();
-    const logout = async () => {
-        await fetch('/api/auth/csrf', {credentials:'same-origin'});
-        const cookie = document.cookie.split('; ').find(value => value.startsWith('XSRF-TOKEN='));
-        await fetch('/api/auth/logout', {method:'POST',credentials:'same-origin',headers:{'X-XSRF-TOKEN':cookie ? decodeURIComponent(cookie.slice('XSRF-TOKEN='.length)) : ''}});
-        location.href = '/login/index.html';
-    };
-    document.getElementById('logout-button').addEventListener('click', logout);
-    profileButton.addEventListener('click', logout);
-    const STORAGE_KEY = `dayflow.todo.tasks.v1.${currentUser.id}`;
-    const today = new Date();
-    const dateKey = (date) => `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-    const plusDays = (days) => { const date = new Date(); date.setDate(date.getDate()+days); return dateKey(date); };
-    const seed = [
-        { id: crypto.randomUUID(), title: 'Hoàn thành bài tập Java chương 4', category: 'Học tập', dueDate: dateKey(today), completed: false },
-        { id: crypto.randomUUID(), title: 'Gửi bản kế hoạch cho nhóm', category: 'Công việc', dueDate: dateKey(today), completed: false },
-        { id: crypto.randomUUID(), title: 'Đặt lịch khám sức khỏe định kì', category: 'Cá nhân', dueDate: plusDays(2), completed: false },
-        { id: crypto.randomUUID(), title: 'Sắp xếp lại ghi chú tuần này', category: 'Cá nhân', dueDate: plusDays(-1), completed: true, completedAt: dateKey(today) }
-    ];
-    let tasks;
-    try { tasks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || seed; } catch { tasks = seed; }
-    if (!localStorage.getItem(STORAGE_KEY)) localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-    let currentFilter = 'all';
-    const list = document.getElementById('task-list');
-    const search = document.getElementById('search');
-    const form = document.getElementById('add-form');
-    const input = document.getElementById('new-task');
-    const empty = document.getElementById('empty-state');
-    const tick = '<svg viewBox="0 0 16 16" fill="none"><path d="m3.5 8 3 3 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    const calendarLabel = (value) => {
-        if (!value) return '—';
-        if (value === dateKey(new Date())) return 'Hôm nay';
-        if (value === plusDays(1)) return 'Ngày mai';
-        const [y,m,d] = value.split('-').map(Number);
-        return new Intl.DateTimeFormat('vi-VN',{day:'numeric',month:'short'}).format(new Date(y,m-1,d));
-    };
-    const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-    const escapeHtml = (text) => text.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-    function render() {
-        const query = search.value.trim().toLocaleLowerCase('vi');
-        const filtered = tasks.filter(task => {
-            const matchText = `${task.title} ${task.category}`.toLocaleLowerCase('vi').includes(query);
-            const matchFilter = currentFilter === 'all' || (currentFilter === 'today' && task.dueDate === dateKey(new Date()) && !task.completed) || (currentFilter === 'upcoming' && task.dueDate > dateKey(new Date()) && !task.completed) || (currentFilter === 'completed' && task.completed);
-            return matchText && matchFilter;
-        });
-        list.innerHTML = filtered.map(task => {
-            const overdue = task.dueDate && task.dueDate < dateKey(new Date()) && !task.completed;
-            const categoryClass = task.category === 'Công việc' ? 'work' : task.category === 'Cá nhân' ? 'personal' : '';
-            return `<div class="task-row ${task.completed ? 'is-complete' : ''}"><div class="task-main"><button class="task-check ${task.completed ? 'checked' : ''}" data-action="toggle" data-id="${task.id}" aria-label="${task.completed ? 'Bỏ hoàn thành' : 'Đánh dấu hoàn thành'}">${task.completed ? tick : ''}</button><span class="task-title" title="${escapeHtml(task.title)}">${escapeHtml(task.title)}</span></div><span class="task-tag ${categoryClass}">${escapeHtml(task.category || 'Khác')}</span><span class="task-date ${overdue ? 'overdue' : ''}">${overdue ? 'Quá hạn · ' : ''}${calendarLabel(task.dueDate)}</span><button class="row-menu" data-action="delete" data-id="${task.id}" aria-label="Xóa công việc"><svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14M10 11v6m4-6v6M6.5 7l.8 13h9.4l.8-13M9 7V4h6v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>`;
-        }).join('');
-        empty.classList.toggle('visible', filtered.length === 0);
-        document.getElementById('stat-total').textContent = tasks.length;
-        document.getElementById('stat-done').textContent = tasks.filter(task => task.completed).length;
-        document.getElementById('stat-open').textContent = tasks.filter(task => !task.completed).length;
-        document.getElementById('count-all').textContent = tasks.length;
-    }
-    function showToast(message) { const toast=document.getElementById('toast'); toast.textContent=message; toast.classList.add('show'); clearTimeout(showToast.timer); showToast.timer=setTimeout(()=>toast.classList.remove('show'),2100); }
-    document.querySelectorAll('.filter-button').forEach(button => button.addEventListener('click', () => {
-        currentFilter = button.dataset.filter;
-        document.querySelectorAll('.filter-button').forEach(item => { const active=item===button; item.classList.toggle('active',active); item.setAttribute('aria-selected',String(active)); });
-        render();
-    }));
-    search.addEventListener('input', render);
-    list.addEventListener('click', event => {
-        const button = event.target.closest('[data-action]');
-        if (!button) return;
-        const task = tasks.find(item => item.id === button.dataset.id);
-        if (!task) return;
-        if (button.dataset.action === 'toggle') { task.completed = !task.completed; task.completedAt = task.completed ? dateKey(new Date()) : null; showToast(task.completed ? 'Đã hoàn thành công việc' : 'Đã cập nhật công việc'); }
-        if (button.dataset.action === 'delete') { tasks = tasks.filter(item => item.id !== task.id); showToast('Đã xóa công việc'); }
-        save(); render();
-    });
-    form.addEventListener('submit', event => {
-        event.preventDefault();
-        const title = input.value.trim();
-        if (!title) { input.focus(); return; }
-        tasks.unshift({ id: crypto.randomUUID(), title, category: 'Cá nhân', dueDate: dateKey(new Date()), completed: false });
-        save(); render(); input.value=''; input.focus(); showToast('Đã thêm công việc mới');
-    });
-    document.getElementById('focus-add').addEventListener('click', () => { input.focus(); document.querySelector('.list-panel').scrollIntoView({behavior:'smooth',block:'center'}); });
-    document.getElementById('today-label').textContent = new Intl.DateTimeFormat('vi-VN',{weekday:'long',day:'numeric',month:'long'}).format(today) + ' · Từng bước nhỏ, ngày hoàn thành hơn.';
-    render();
-})();
-</script>
+<dialog class="task-dialog" id="task-dialog" aria-labelledby="task-dialog-title">
+    <form class="task-form" id="task-form">
+        <div class="dialog-heading"><div class="dialog-title-wrap"><span class="dialog-title-icon" aria-hidden="true">✦</span><div><h2 id="task-dialog-title">Thêm công việc</h2><p>Lên lịch và lưu công việc vào không gian của bạn.</p></div></div><button class="dialog-close" id="close-task-dialog" type="button" aria-label="Đóng">×</button></div>
+        <input id="task-id" type="hidden">
+        <div class="task-form-fields">
+            <label class="task-field"><span class="field-label"><svg viewBox="0 0 24 24" fill="none"><path d="M5 5h14M5 12h14M5 19h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="3" cy="5" r=".7" fill="currentColor"/><circle cx="3" cy="12" r=".7" fill="currentColor"/><circle cx="3" cy="19" r=".7" fill="currentColor"/></svg>Tên công việc</span><input id="task-title-input" type="text" maxlength="200" required placeholder="Ví dụ: Họp nhóm dự án"></label>
+            <label class="task-field wide"><span class="field-label">Mô tả</span><textarea id="task-description" maxlength="2000" rows="3" placeholder="Mô tả ngắn gọn về công việc"></textarea></label>
+            <div class="task-field"><span class="field-label"><svg viewBox="0 0 24 24" fill="none"><path d="m12 3 2.2 5.3L20 10.5l-5.8 2.2L12 18l-2.2-5.3L4 10.5l5.8-2.2L12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Danh mục</span><div class="category-select-wrap"><span class="category-preview" id="category-preview" aria-hidden="true">👤</span><select id="task-category" aria-label="Danh mục công việc"><option value="Cá nhân">👤　Cá nhân</option><option value="Công việc">💼　Công việc</option><option value="Học tập">📚　Học tập</option><option value="Sức khỏe">🌿　Sức khỏe</option><option value="Khác">✨　Khác</option></select></div></div>
+            <label class="task-field"><span class="field-label">Trạng thái</span><select id="task-status"><option value="todo">Cần làm</option><option value="in_progress">Đang làm</option><option value="done">Hoàn thành</option></select></label>
+            <label class="task-field"><span class="field-label">Mức ưu tiên</span><select id="task-priority"><option value="low">Thấp</option><option value="medium" selected>Trung bình</option><option value="high">Cao</option></select></label>
+            <label class="task-field wide"><span class="field-label">Ngày và giờ</span><input id="task-date-input" type="datetime-local"></label>
+            <div class="task-field wide"><label class="field-label" for="task-location"><svg viewBox="0 0 24 24" fill="none"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.7"/></svg>Địa điểm</label><div class="maps-row"><input id="task-location" type="text" maxlength="500" placeholder="Nhập địa chỉ hoặc địa điểm"><a class="maps-link" id="maps-link" href="https://maps.google.com/" target="_blank" rel="noopener noreferrer">Mở Google Maps ↗</a></div></div>
+        </div>
+        <div class="dialog-actions"><button class="button" id="cancel-task" type="button">Hủy</button><button class="button primary" id="save-task" type="submit">Lưu công việc</button></div>
+    </form>
+</dialog>
+<script src="todo.js" defer></script>
 </body>
 </html>
