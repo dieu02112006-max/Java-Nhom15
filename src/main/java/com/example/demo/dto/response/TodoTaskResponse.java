@@ -8,6 +8,7 @@ public record TodoTaskResponse(
         Long userId,
         Long listId,
         Long parentTaskId,
+        Long goalId,
         String title,
         String description,
         String category,

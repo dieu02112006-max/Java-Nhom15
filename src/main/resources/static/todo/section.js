@@ -3,9 +3,6 @@
     if (!response.ok) { location.href = `/login/index.html?next=${encodeURIComponent(location.pathname + location.search)}`; return; }
     const user = await response.json();
     const userId = user.id;
-    const TASK_KEY = `dayflow.todo.tasks.v1.${userId}`;
-    const GOAL_KEY = `dayflow.todo.work-goals.v1.${userId}`;
-    const PACKAGE_KEY = `dayflow.todo.package.v1.${userId}`;
     const [skinListResponse,currentSkinResponse]=await Promise.all([
         fetch('/api/skins',{credentials:'same-origin'}),
         fetch('/api/auth/me/skin',{credentials:'same-origin'})
@@ -16,7 +13,6 @@
     const pad = value => String(value).padStart(2,'0');
     const dateKey = date => `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
     const today = new Date();
-    const plusDays = days => { const date = new Date(); date.setDate(date.getDate()+days); return dateKey(date); };
     const safe = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
     function safeImageUrl(value) {
         if(!value)return 'none';
@@ -40,27 +36,7 @@
         root.style.setProperty('--theme-background-image',safeImageUrl(skin.backgroundImageUrl));
         document.querySelector('meta[name="theme-color"]').content=skin.backgroundColor;
     }
-    let tasks;
-    try { tasks = JSON.parse(localStorage.getItem(TASK_KEY)); } catch { tasks = null; }
-    if (!Array.isArray(tasks)) {
-        tasks = [
-            {id:crypto.randomUUID(),title:'Hoàn thành bài tập Java chương 4',category:'Học tập',dueDate:dateKey(today),completed:false},
-            {id:crypto.randomUUID(),title:'Gửi bản kế hoạch cho nhóm',category:'Công việc',dueDate:plusDays(1),completed:false},
-            {id:crypto.randomUUID(),title:'Đặt lịch khám sức khỏe định kì',category:'Cá nhân',dueDate:plusDays(3),completed:false},
-            {id:crypto.randomUUID(),title:'Sắp xếp lại ghi chú tuần này',category:'Cá nhân',dueDate:plusDays(-1),completed:true,completedAt:dateKey(today)}
-        ];
-        localStorage.setItem(TASK_KEY,JSON.stringify(tasks));
-    }
-    let migratedTasks=false;
-    tasks=tasks.map(task=>{if(task.completed&&!task.completedAt){migratedTasks=true;return {...task,completedAt:dateKey(today)};}return task;});
-    if(migratedTasks)localStorage.setItem(TASK_KEY,JSON.stringify(tasks));
-    let goals;
-    try { goals = JSON.parse(localStorage.getItem(GOAL_KEY)); } catch { goals = null; }
-    if (!Array.isArray(goals)) {
-        const due = new Date(); due.setDate(due.getDate()+14);
-        goals = [{id:crypto.randomUUID(),title:'Hoàn thành 10 công việc',target:10,deadline:dateKey(due),createdAt:dateKey(today)}];
-        localStorage.setItem(GOAL_KEY,JSON.stringify(goals));
-    }
+    let tasks=[], goals=[], dataError='';
     const viewNames = {calendar:'Lịch',goals:'Mục tiêu',stats:'Thống kê',themes:'Chủ đề',packages:'Gói nạp'};
     const requestedView = document.body.dataset.view || new URLSearchParams(location.search).get('view');
     const view = viewNames[requestedView] ? requestedView : 'calendar';
@@ -76,9 +52,19 @@
     });
     const content=document.getElementById('page-content');
     const showMessage=message=>{const node=document.getElementById('message');node.textContent=message;node.classList.add('show');clearTimeout(showMessage.timer);showMessage.timer=setTimeout(()=>node.classList.remove('show'),2600);};
-    const heading=(eyebrow,title,subtitle)=>`<section class="heading"><div><div class="eyebrow"><span class="dot"></span>${eyebrow}</div><h1>${title}</h1><p class="subtitle">${subtitle}</p></div></section>`;
+    const csrfHeaders=async()=>{await fetch('/api/auth/csrf',{credentials:'same-origin'});const cookie=document.cookie.split('; ').find(value=>value.startsWith('XSRF-TOKEN='));return {'Content-Type':'application/json','X-XSRF-TOKEN':cookie?decodeURIComponent(cookie.slice('XSRF-TOKEN='.length)):''};};
+    const heading=()=>'';
     const fmtDate=value=>value?new Intl.DateTimeFormat('vi-VN',{day:'numeric',month:'long',year:'numeric'}).format(new Date(`${value}T00:00:00`)):'Chưa chọn hạn';
-    const saveTasks=()=>localStorage.setItem(TASK_KEY,JSON.stringify(tasks));
+    try {
+        const [taskResponse,goalResponse]=await Promise.all([
+            fetch('/api/todo/tasks',{credentials:'same-origin'}),
+            fetch('/api/todo/goals',{credentials:'same-origin'})
+        ]);
+        if(!taskResponse.ok)throw new Error(`Không thể tải công việc (HTTP ${taskResponse.status})`);
+        tasks=(await taskResponse.json()).map(task=>({...task,dueDate:task.dueDate?.slice(0,10)||null,completed:task.status==='done',completedAt:task.completedAt?.slice(0,10)||null}));
+        if(!goalResponse.ok)throw new Error(`Không thể tải mục tiêu (HTTP ${goalResponse.status})`);
+        goals=await goalResponse.json();
+    } catch(error) { dataError=error.message; showMessage(dataError); }
     function renderCalendar() {
         let cursor=new Date(today.getFullYear(),today.getMonth(),1),selected=dateKey(today),mode='month';
         content.innerHTML=heading('KẾ HOẠCH CỦA BẠN','Lịch công việc','Xem hạn công việc theo tháng hoặc tuần và chọn một ngày để xem lịch trình.')+
@@ -110,14 +96,19 @@
         draw();
     }
     function renderGoals() {
-        content.innerHTML=heading('KẾ HOẠCH CÁ NHÂN','Mục tiêu công việc','Đặt mục tiêu rõ ràng, chọn số lượng công việc và thời hạn hoàn thành.')+
-            `<form class="card goal-form" id="goal-form"><div class="field"><label for="goal-title">Mục tiêu</label><input id="goal-title" required maxlength="120" placeholder="Ví dụ: Hoàn thành đồ án Java"></div><div class="field"><label for="goal-target">Số việc cần xong</label><input id="goal-target" type="number" min="1" max="999" value="10" required></div><div class="field"><label for="goal-deadline">Hoàn thành trước</label><input id="goal-deadline" type="date" min="${dateKey(today)}" required></div><button class="button primary" type="submit">Tạo mục tiêu</button></form><div class="goal-list" id="goal-list"></div>`;
-        const due=new Date();due.setDate(due.getDate()+14);document.getElementById('goal-deadline').value=dateKey(due);
+        content.innerHTML=`<div class="goal-actions-only"><button class="primary-button goal-add-button" id="focus-add-goal" type="button" aria-label="Thêm mục tiêu" title="Thêm mục tiêu"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></button></div>`+
+            `<div class="goal-list" id="goal-list"></div><dialog class="goal-dialog" id="goal-dialog" aria-labelledby="goal-dialog-title"><form class="card goal-form goal-dialog-form" id="goal-form"><div class="dialog-heading"><div><h2 id="goal-dialog-title">Thêm mục tiêu</h2><p>Tạo nhóm để gắn công việc vào.</p></div><button class="dialog-close" id="close-goal-dialog" type="button" aria-label="Đóng">×</button></div><div class="field"><label for="goal-title">Tên mục tiêu</label><input id="goal-title" required maxlength="120" placeholder="Ví dụ: Sức khỏe"></div><div class="dialog-actions"><button class="button" id="cancel-goal" type="button">Hủy</button><button class="button primary" id="save-goal" type="submit">Lưu mục tiêu</button></div></form></dialog>`;
+        const goalDialog=document.getElementById('goal-dialog');
+        const openGoalForm=()=>{document.getElementById('goal-form').reset();goalDialog.showModal();document.getElementById('goal-title').focus();};
+        document.getElementById('focus-add-goal').addEventListener('click',openGoalForm);
+        document.getElementById('close-goal-dialog').addEventListener('click',()=>goalDialog.close());
+        document.getElementById('cancel-goal').addEventListener('click',()=>goalDialog.close());
+        goalDialog.addEventListener('click',event=>{if(event.target===goalDialog)goalDialog.close();});
         function drawGoals(){
-            document.getElementById('goal-list').innerHTML=goals.length?goals.map(goal=>{const done=tasks.filter(task=>task.completed&&task.completedAt&&task.completedAt>=goal.createdAt&&task.completedAt<=goal.deadline).length;const progress=Math.min(100,Math.round(done/goal.target*100));const remaining=Math.round((new Date(`${goal.deadline}T00:00:00`)-new Date(`${dateKey(today)}T00:00:00`))/86400000);const timeLabel=remaining<0?`Quá hạn ${Math.abs(remaining)} ngày`:remaining===0?'Hạn hôm nay':`Còn ${remaining} ngày`;return `<article class="card goal-card"><h2>${safe(goal.title)}</h2><div class="goal-meta"><span>${done} / ${goal.target} công việc hoàn thành</span><strong>${progress}%</strong></div><div class="progress"><span style="width:${progress}%"></span></div><div class="goal-footer"><span>Hạn: ${fmtDate(goal.deadline)} · ${timeLabel}</span><button class="delete-goal" data-delete-goal="${goal.id}" type="button">Xóa mục tiêu</button></div></article>`;}).join(''):'<div class="card goal-card">Chưa có mục tiêu. Hãy tạo mục tiêu đầu tiên ở phía trên.</div>';
+            document.getElementById('goal-list').innerHTML=goals.length?goals.map(goal=>{const linked=tasks.filter(task=>String(task.goalId)===String(goal.id));const done=linked.filter(task=>task.status==='done').length;const progress=linked.length?Math.round(done/linked.length*100):0;const icon=/sức khỏe|suc khoe/i.test(goal.title)?'🌿':/sự kiện|su kien/i.test(goal.title)?'🎉':/máy tính|may tinh|computer/i.test(goal.title)?'💻':'🎯';const taskRows=linked.length?linked.map(task=>`<li class="goal-task ${task.status==='done'?'done':''}"><span class="goal-task-pin" aria-hidden="true">📌</span><span>${safe(task.title)}</span><small>${task.status==='done'?'Hoàn thành':'Cần làm'}</small></li>`).join(''):'<li class="goal-empty">Chưa có công việc trong mục tiêu này.</li>';return `<article class="card goal-card"><div class="goal-art"><span aria-hidden="true">${icon}</span></div><h2>${safe(goal.title)}</h2><div class="goal-meta"><span>${done}/${linked.length} công việc hoàn thành</span><strong>${progress}%</strong></div><div class="progress"><span style="width:${progress}%"></span></div><ul class="goal-tasks">${taskRows}</ul><div class="goal-footer"><span>${linked.length} công việc</span><button class="delete-goal" data-delete-goal="${goal.id}" type="button">Xóa mục tiêu</button></div></article>`;}).join(''):'<div class="card goal-card">Chưa có mục tiêu. Bấm dấu + để tạo nhóm mục tiêu đầu tiên.</div>';
         }
-        document.getElementById('goal-form').addEventListener('submit',event=>{event.preventDefault();const title=document.getElementById('goal-title').value.trim(),target=Number(document.getElementById('goal-target').value),deadline=document.getElementById('goal-deadline').value;if(!title||!target||!deadline)return;goals.unshift({id:crypto.randomUUID(),title,target,deadline,createdAt:dateKey(today)});localStorage.setItem(GOAL_KEY,JSON.stringify(goals));event.target.reset();document.getElementById('goal-deadline').value=deadline;drawGoals();showMessage('Đã tạo mục tiêu công việc.');});
-        document.getElementById('goal-list').addEventListener('click',event=>{const button=event.target.closest('[data-delete-goal]');if(!button)return;goals=goals.filter(goal=>goal.id!==button.dataset.deleteGoal);localStorage.setItem(GOAL_KEY,JSON.stringify(goals));drawGoals();});
+        document.getElementById('goal-form').addEventListener('submit',async event=>{event.preventDefault();const title=document.getElementById('goal-title').value.trim();if(!title)return;const saveButton=document.getElementById('save-goal');saveButton.disabled=true;try{const headers=await csrfHeaders();const response=await fetch('/api/todo/goals',{method:'POST',credentials:'same-origin',headers,body:JSON.stringify({title})});if(!response.ok)throw new Error('Không thể lưu mục tiêu. Hãy thử lại.');goals.unshift(await response.json());goalDialog.close();drawGoals();showMessage('Đã lưu mục tiêu vào cơ sở dữ liệu.');}catch(error){showMessage(error.message);}finally{saveButton.disabled=false;}});
+        document.getElementById('goal-list').addEventListener('click',async event=>{const button=event.target.closest('[data-delete-goal]');if(!button)return;try{const headers=await csrfHeaders();const response=await fetch(`/api/todo/goals/${button.dataset.deleteGoal}`,{method:'DELETE',credentials:'same-origin',headers});if(!response.ok)throw new Error('Không thể xóa mục tiêu. Hãy thử lại.');goals=goals.filter(goal=>String(goal.id)!==button.dataset.deleteGoal);tasks=tasks.map(task=>String(task.goalId)===button.dataset.deleteGoal?{...task,goalId:null}:task);drawGoals();showMessage('Đã xóa mục tiêu.');}catch(error){showMessage(error.message);}});
         drawGoals();
     }
     function renderStats() {
@@ -141,16 +132,19 @@
             currentSkin=await response.json();applySkin(currentSkin);renderThemes();showMessage(`Đã lưu chủ đề ${currentSkin.name} cho tài khoản của bạn.`);
         }));
     }
-    function renderPackages() {
-        const packages=[
-            {id:'starter',name:'Gói nhỏ',credits:100,price:19000,description:'Dùng thử các tiện ích mở rộng.',items:['100 điểm Dayflow','Dùng cho các tiện ích trong ứng dụng','Không tự động gia hạn']},
-            {id:'popular',name:'Gói phổ biến',credits:500,price:79000,description:'Phù hợp với kế hoạch đều đặn.',items:['500 điểm Dayflow','Tiết kiệm hơn 17% so với gói nhỏ','Không tự động gia hạn'],featured:true},
-            {id:'value',name:'Gói tiết kiệm',credits:1200,price:149000,description:'Nhiều điểm hơn cho kế hoạch dài hạn.',items:['1.200 điểm Dayflow','Tiết kiệm hơn 34% so với gói nhỏ','Không tự động gia hạn']}
-        ];
-        const selected=localStorage.getItem(PACKAGE_KEY)||'';
-        content.innerHTML=heading('GÓI DỊCH VỤ','Gói nạp','Tham khảo các gói điểm để mở rộng trải nghiệm Dayflow.')+
-            `<div class="package-note"><strong>Dữ liệu minh họa.</strong> Giá và số điểm bên dưới là mẫu để xem giao diện. Ứng dụng chưa kết nối thanh toán hoặc ví điểm, nên chọn gói chỉ lưu lựa chọn trên trình duyệt.</div><div class="package-grid">${packages.map(plan=>`<article class="card package-card ${plan.featured?'featured':''}">${plan.featured?'<span class="package-badge">Phổ biến</span>':''}<h2>${plan.name}</h2><div class="package-description">${plan.description}</div><div class="package-credits">${plan.credits.toLocaleString('vi-VN')} <small>điểm</small></div><div class="package-price">${plan.price.toLocaleString('vi-VN')} ₫ · thanh toán một lần</div><ul>${plan.items.map(item=>`<li>${item}</li>`).join('')}</ul><button class="button ${plan.featured?'primary':''}" data-package="${plan.id}" type="button">${selected===plan.id?'Đang chọn':'Chọn gói'}</button></article>`).join('')}</div>`;
-        document.querySelectorAll('[data-package]').forEach(button=>button.addEventListener('click',()=>{localStorage.setItem(PACKAGE_KEY,button.dataset.package);renderPackages();showMessage('Đã lưu lựa chọn gói mẫu. Chưa phát sinh thanh toán.');}));
+    async function renderPackages() {
+        content.innerHTML=heading('SỐ DƯ TÀI KHOẢN','Ví của bạn','Số dư và danh sách ví được tải trực tiếp từ cơ sở dữ liệu.')+'<div class="card panel">Đang tải dữ liệu ví…</div>';
+        try {
+            const [walletResponse,summaryResponse]=await Promise.all([
+                fetch(`/api/finance/wallets?userId=${encodeURIComponent(userId)}`,{credentials:'same-origin'}),
+                fetch(`/api/finance/summary?userId=${encodeURIComponent(userId)}`,{credentials:'same-origin'})
+            ]);
+            if(!walletResponse.ok||!summaryResponse.ok)throw new Error('Không thể tải dữ liệu ví từ máy chủ.');
+            const [wallets,summary]=await Promise.all([walletResponse.json(),summaryResponse.json()]);
+            const money=value=>`${Number(value||0).toLocaleString('vi-VN')} ₫`;
+            content.innerHTML=heading('SỐ DƯ TÀI KHOẢN','Ví của bạn','Số dư và danh sách ví được tải trực tiếp từ cơ sở dữ liệu.')+
+                `<div class="stats-grid"><article class="card stat-card"><div class="stat-label">Tổng số dư</div><div class="stat-value">${money(summary.walletBalance)}</div></article></div><div class="package-note"><strong>Gói nạp chưa khả dụng.</strong> Ứng dụng hiện chưa có danh mục gói nạp hoặc kết nối thanh toán. Số liệu bên dưới là số dư thật trong các ví của bạn.</div><div class="package-grid">${wallets.length?wallets.map(wallet=>`<article class="card package-card"><h2>${safe(wallet.name)}</h2><div class="package-description">Số dư hiện tại</div><div class="package-credits">${money(wallet.balance)}</div></article>`).join(''):'<div class="card package-card">Chưa có ví đang hoạt động trong tài khoản.</div>'}</div>`;
+        } catch(error) { content.innerHTML=heading('SỐ DƯ TÀI KHOẢN','Ví của bạn','Không tải được dữ liệu ví.')+`<div class="card package-note">${safe(error.message)}</div>`; }
     }
     if(view==='calendar')renderCalendar();
     if(view==='goals')renderGoals();

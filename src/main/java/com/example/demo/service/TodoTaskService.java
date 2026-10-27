@@ -3,9 +3,12 @@ package com.example.demo.service;
 import com.example.demo.dto.request.TodoTaskRequest;
 import com.example.demo.dto.response.TodoTaskListResponse;
 import com.example.demo.dto.response.TodoTaskResponse;
+import com.example.demo.dto.request.TodoWorkGoalRequest;
+import com.example.demo.dto.response.TodoWorkGoalResponse;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,7 +31,7 @@ public class TodoTaskService {
     @Transactional(readOnly = true)
     public List<TodoTaskResponse> findAll(Long userId) {
         return jdbc.query("""
-                SELECT id, user_id, list_id, parent_task_id, title, description, category, location,
+                SELECT id, user_id, list_id, parent_task_id, goal_id, title, description, category, location,
                     status, priority, due_date, completed_at, estimated_cost, recurrence_rule,
                     position, created_at, updated_at
                 FROM tasks WHERE user_id = ?
@@ -45,33 +48,75 @@ public class TodoTaskService {
                 rs.getLong("id"), rs.getString("name"), rs.getString("color"), rs.getInt("position")), userId);
     }
 
+    @Transactional(readOnly = true)
+    public List<TodoWorkGoalResponse> findGoals(Long userId) {
+        return jdbc.query("""
+                SELECT id, title, created_at FROM todo_work_goals
+                WHERE user_id = ? ORDER BY created_at, id
+                """, (rs, rowNum) -> new TodoWorkGoalResponse(rs.getLong("id"), rs.getString("title"),
+                rs.getDate("created_at").toLocalDate()), userId);
+    }
+
+    public TodoWorkGoalResponse createGoal(Long userId, TodoWorkGoalRequest request) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbc.update(connection -> {
+            var statement = connection.prepareStatement("""
+                    INSERT INTO todo_work_goals (user_id, title, created_at)
+                    VALUES (?, ?, ?)
+                    """, new String[] {"id"});
+            statement.setLong(1, userId);
+            statement.setString(2, request.title().trim());
+            statement.setDate(3, java.sql.Date.valueOf(LocalDate.now()));
+            return statement;
+        }, keyHolder);
+        return findGoal(userId, keyHolder.getKey().longValue());
+    }
+
+    public void deleteGoal(Long userId, Long id) {
+        jdbc.update("UPDATE tasks SET goal_id = NULL WHERE goal_id = ? AND user_id = ?", id, userId);
+        if (jdbc.update("DELETE FROM todo_work_goals WHERE id = ? AND user_id = ?", id, userId) == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy mục tiêu công việc");
+        }
+    }
+
+    private TodoWorkGoalResponse findGoal(Long userId, Long id) {
+        return jdbc.query("""
+                SELECT id, title, created_at FROM todo_work_goals WHERE id = ? AND user_id = ?
+                """, rs -> {
+            if (!rs.next()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy mục tiêu công việc");
+            return new TodoWorkGoalResponse(rs.getLong("id"), rs.getString("title"), rs.getDate("created_at").toLocalDate());
+        }, id, userId);
+    }
+
     public TodoTaskResponse create(Long userId, TodoTaskRequest request) {
         String status = normalizeStatus(request.status());
         String priority = normalizePriority(request.priority());
         Long listId = request.listId() == null ? findOrCreateList(userId) : requireList(userId, request.listId());
+        requireGoal(userId, request.goalId());
         requireParent(userId, listId, request.parentTaskId(), null);
         validateCost(request.estimatedCost());
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(connection -> {
             var statement = connection.prepareStatement("""
-                    INSERT INTO tasks (user_id, list_id, parent_task_id, title, description, category, location,
+                    INSERT INTO tasks (user_id, list_id, parent_task_id, goal_id, title, description, category, location,
                         status, priority, due_date, completed_at, estimated_cost, recurrence_rule, position)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """, new String[] {"id"});
             statement.setLong(1, userId);
             statement.setLong(2, listId);
             if (request.parentTaskId() == null) statement.setNull(3, java.sql.Types.BIGINT); else statement.setLong(3, request.parentTaskId());
-            statement.setString(4, request.title().trim());
-            statement.setString(5, normalizeText(request.description()));
-            statement.setString(6, normalizeCategory(request.category()));
-            statement.setString(7, normalizeText(request.location()));
-            statement.setString(8, status);
-            statement.setString(9, priority);
-            statement.setTimestamp(10, toTimestamp(request.dueDate()));
-            statement.setTimestamp(11, toTimestamp(resolveCompletedAt(status, request.completedAt())));
-            if (request.estimatedCost() == null) statement.setObject(12, null); else statement.setBigDecimal(12, request.estimatedCost());
-            statement.setString(13, normalizeText(request.recurrenceRule()));
-            statement.setInt(14, request.position() == null ? 0 : request.position());
+            if (request.goalId() == null) statement.setNull(4, java.sql.Types.BIGINT); else statement.setLong(4, request.goalId());
+            statement.setString(5, request.title().trim());
+            statement.setString(6, normalizeText(request.description()));
+            statement.setString(7, normalizeCategory(request.category()));
+            statement.setString(8, normalizeText(request.location()));
+            statement.setString(9, status);
+            statement.setString(10, priority);
+            statement.setTimestamp(11, toTimestamp(request.dueDate()));
+            statement.setTimestamp(12, toTimestamp(resolveCompletedAt(status, request.completedAt())));
+            if (request.estimatedCost() == null) statement.setObject(13, null); else statement.setBigDecimal(13, request.estimatedCost());
+            statement.setString(14, normalizeText(request.recurrenceRule()));
+            statement.setInt(15, request.position() == null ? 0 : request.position());
             return statement;
         }, keyHolder);
         return findById(userId, keyHolder.getKey().longValue());
@@ -81,14 +126,15 @@ public class TodoTaskService {
         String status = normalizeStatus(request.status());
         String priority = normalizePriority(request.priority());
         Long listId = request.listId() == null ? requireExistingListId(userId, id) : requireList(userId, request.listId());
+        requireGoal(userId, request.goalId());
         requireParent(userId, listId, request.parentTaskId(), id);
         validateCost(request.estimatedCost());
         int updated = jdbc.update("""
-                UPDATE tasks SET list_id = ?, parent_task_id = ?, title = ?, description = ?, category = ?, location = ?,
+                UPDATE tasks SET list_id = ?, parent_task_id = ?, goal_id = ?, title = ?, description = ?, category = ?, location = ?,
                     status = ?, priority = ?, due_date = ?, completed_at = ?, estimated_cost = ?, recurrence_rule = ?,
                     position = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ? AND user_id = ?
-                """, listId, request.parentTaskId(), request.title().trim(), normalizeText(request.description()),
+                """, listId, request.parentTaskId(), request.goalId(), request.title().trim(), normalizeText(request.description()),
                 normalizeCategory(request.category()), normalizeText(request.location()), status, priority,
                 toTimestamp(request.dueDate()), toTimestamp(resolveCompletedAt(status, request.completedAt())),
                 request.estimatedCost(), normalizeText(request.recurrenceRule()), request.position() == null ? 0 : request.position(), id, userId);
@@ -104,7 +150,7 @@ public class TodoTaskService {
 
     private TodoTaskResponse findById(Long userId, Long id) {
         return jdbc.query("""
-                SELECT id, user_id, list_id, parent_task_id, title, description, category, location,
+                SELECT id, user_id, list_id, parent_task_id, goal_id, title, description, category, location,
                     status, priority, due_date, completed_at, estimated_cost, recurrence_rule,
                     position, created_at, updated_at
                 FROM tasks WHERE id = ? AND user_id = ?
@@ -116,7 +162,7 @@ public class TodoTaskService {
 
     private TodoTaskResponse mapTask(java.sql.ResultSet rs) throws java.sql.SQLException {
         return new TodoTaskResponse(rs.getLong("id"), rs.getLong("user_id"), rs.getLong("list_id"),
-                rs.getObject("parent_task_id", Long.class), rs.getString("title"), rs.getString("description"),
+                rs.getObject("parent_task_id", Long.class), rs.getObject("goal_id", Long.class), rs.getString("title"), rs.getString("description"),
                 rs.getString("category"), rs.getString("location"), rs.getString("status"), rs.getString("priority"),
                 localDateTime(rs.getTimestamp("due_date")), localDateTime(rs.getTimestamp("completed_at")),
                 rs.getBigDecimal("estimated_cost"), rs.getString("recurrence_rule"), rs.getInt("position"),
@@ -130,6 +176,15 @@ public class TodoTaskService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Danh sách công việc không hợp lệ");
         }
         return listId;
+    }
+
+    private void requireGoal(Long userId, Long goalId) {
+        if (goalId == null) return;
+        Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM todo_work_goals WHERE id = ? AND user_id = ?",
+                Integer.class, goalId, userId);
+        if (count == null || count == 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mục tiêu không hợp lệ");
+        }
     }
 
     private Long requireExistingListId(Long userId, Long taskId) {
