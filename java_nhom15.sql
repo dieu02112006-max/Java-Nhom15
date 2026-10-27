@@ -210,6 +210,7 @@ CREATE TABLE `skins` (
   `background_color` varchar(7) NOT NULL,
   `text_color` varchar(7) NOT NULL,
   `preview_url` varchar(500) DEFAULT NULL,
+  `background_image_url` varchar(500) DEFAULT NULL,
   `is_default` tinyint(1) NOT NULL DEFAULT '0',
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -219,10 +220,11 @@ CREATE TABLE `skins` (
 -- Dumping data for table `skins`
 --
 
-INSERT INTO `skins` (`id`, `name`, `code`, `primary_color`, `secondary_color`, `background_color`, `text_color`, `preview_url`, `is_default`, `is_active`, `created_at`) VALUES
-(1, 'Sang', 'light', '#1F4E79', '#5B9BD5', '#FFFFFF', '#222222', NULL, 1, 1, '2026-10-23 17:36:21'),
-(2, 'Toi', 'dark', '#2D3748', '#718096', '#1A202C', '#F7FAFC', NULL, 0, 1, '2026-10-23 17:36:21'),
-(3, 'Dai duong', 'ocean', '#0077B6', '#48CAE4', '#CAF0F8', '#03045E', NULL, 0, 1, '2026-10-23 17:36:21');
+INSERT INTO `skins` (`id`, `name`, `code`, `primary_color`, `secondary_color`, `background_color`, `text_color`, `preview_url`, `background_image_url`, `is_default`, `is_active`, `created_at`) VALUES
+(1, 'Mặc định', 'default', '#4568DF', '#EFA9C8', '#F7F8FD', '#202235', '/themes/default.svg', '/themes/default.svg', 1, 1, '2026-10-23 17:36:21'),
+(2, 'Tối', 'dark', '#718096', '#4A5568', '#1A202C', '#F7FAFC', '/themes/dark.svg', '/themes/dark.svg', 0, 1, '2026-10-23 17:36:21'),
+(3, 'Đại dương', 'ocean', '#0077B6', '#48CAE4', '#CAF0F8', '#03045E', '/themes/ocean.svg', '/themes/ocean.svg', 0, 1, '2026-10-23 17:36:21'),
+(4, 'Sáng', 'light', '#1F4E79', '#5B9BD5', '#FFFFFF', '#222222', '/themes/light.svg', '/themes/light.svg', 0, 1, '2026-10-23 17:36:21');
 
 -- --------------------------------------------------------
 
@@ -591,7 +593,7 @@ ALTER TABLE `savings_goals`
 -- AUTO_INCREMENT for table `skins`
 --
 ALTER TABLE `skins`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `tags`

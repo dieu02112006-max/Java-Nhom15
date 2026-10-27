@@ -3,9 +3,11 @@ package com.example.demo.service;
 import com.example.demo.dto.request.UserRequest;
 import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.User;
+import com.example.demo.entity.Skin;
 import com.example.demo.entity.enums.UserRole;
 import com.example.demo.exception.BusinessException;
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.repository.SkinRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +22,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepo;
+    private final SkinRepository skinRepo;
     private final PasswordEncoder passwordEncoder;
 
     public UserResponse create(UserRequest req) {
@@ -91,6 +94,28 @@ public class UserService {
         }
         user.setRole(role);
         return toResponse(userRepo.save(user));
+    }
+
+    @Transactional(readOnly = true)
+    public Skin getSkin(Long userId) {
+        User user = find(userId);
+        Skin selected = user.getSkinId() == null ? null : skinRepo.findById(user.getSkinId()).orElse(null);
+        if (selected != null && selected.isActive()) return selected;
+        return skinRepo.findAll().stream()
+                .filter(Skin::isActive)
+                .filter(Skin::isDefault)
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Default skin", 0L));
+    }
+
+    public Skin selectSkin(Long userId, Long skinId) {
+        Skin skin = skinRepo.findById(skinId)
+                .orElseThrow(() -> new ResourceNotFoundException("Skin", skinId));
+        if (!skin.isActive()) throw new BusinessException("Chủ đề này hiện không khả dụng");
+        User user = find(userId);
+        user.setSkinId(skin.getId());
+        userRepo.save(user);
+        return skin;
     }
 
     private User find(Long id) {

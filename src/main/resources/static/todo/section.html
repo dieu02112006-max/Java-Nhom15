@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f8fd">
+    <title>Không gian cá nhân — Dayflow</title>
+    <style>
+        :root { color-scheme:light; --ink:#202235; --muted:#81849a; --blue:#4568df; --blue-dark:#3452bf; --blue-pale:#eef1ff; --pink:#efa9c8; --pink-pale:#fff1f7; --line:#eaebf2; --canvas:#f7f8fd; --card:#fff; }
+        * { box-sizing:border-box; }
+        body { margin:0; background-color:var(--canvas); background-image:var(--theme-background-image); background-position:center; background-size:cover; background-attachment:fixed; color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; -webkit-font-smoothing:antialiased; }
+        button,input { font:inherit; }
+        a { color:inherit; text-decoration:none; }
+        .shell { min-height:100vh; display:grid; grid-template-columns:248px minmax(0,1fr); }
+        .sidebar { position:sticky; top:0; height:100vh; padding:23px 15px; background:rgba(255,255,255,.92); border-right:1px solid var(--line); }
+        .brand { display:flex; align-items:center; gap:10px; margin:0 7px 29px; font-size:18px; font-weight:760; letter-spacing:-.05em; }
+        .brand-mark { width:34px; height:34px; display:grid; place-items:center; color:#fff; background:var(--blue); border-radius:11px; }
+        .brand-mark svg { width:19px; }
+        .workspace { display:flex; align-items:center; gap:10px; padding:10px; margin-bottom:22px; border:1px solid var(--line); border-radius:12px; background:var(--card); }
+        .workspace-icon { width:30px; height:30px; display:grid; place-items:center; color:#9a5d82; background:var(--pink-pale); border-radius:9px; }
+        .workspace strong { display:block; font-size:12px; }
+        .workspace small { display:block; margin-top:3px; color:var(--muted); font-size:10px; }
+        .nav-label { margin:0 9px 8px; color:#a0a2b0; font-size:10px; font-weight:750; letter-spacing:.12em; text-transform:uppercase; }
+        .side-nav { display:grid; gap:4px; }
+        .side-link { min-height:41px; display:flex; align-items:center; gap:11px; padding:9px 11px; border:0; border-radius:10px; color:#6f7285; background:transparent; font-size:12px; font-weight:620; text-align:left; cursor:pointer; }
+        .side-link svg { width:17px; height:17px; flex:none; }
+        .side-link:hover,.side-link.active { color:var(--blue-dark); background:var(--blue-pale); }
+        .side-bottom { position:absolute; right:15px; bottom:18px; left:15px; padding:14px; border:1px solid #f3e2ec; border-radius:14px; background:linear-gradient(140deg,var(--card),var(--pink-pale)); }
+        .side-bottom strong { font-size:11px; }
+        .side-bottom p { margin:5px 0 0; color:var(--muted); font-size:10px; line-height:1.6; }
+        .main { min-width:0; }
+        .topbar { position:sticky; top:0; z-index:4; height:66px; display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:18px; padding:0 clamp(20px,4vw,52px); border-bottom:1px solid var(--line); background:rgba(255,255,255,.88); backdrop-filter:blur(16px); }
+        .crumb { color:var(--muted); font-size:11px; }
+        .app-switcher { display:flex; align-items:center; gap:4px; justify-self:center; padding:4px; border:1px solid var(--line); border-radius:12px; background:var(--card); }
+        .app-switcher a { padding:8px 12px; border-radius:9px; color:var(--muted); font-size:11px; font-weight:650; white-space:nowrap; }
+        .app-switcher a.active { color:var(--blue-dark); background:var(--blue-pale); }
+        .user-actions { display:flex; align-items:center; justify-self:end; gap:9px; }
+        .logout { min-height:34px; padding:0 12px; border:1px solid var(--line); border-radius:10px; color:var(--muted); background:var(--card); font-size:11px; font-weight:650; cursor:pointer; }
+        .avatar { width:32px; height:32px; display:grid; place-items:center; border:2px solid var(--card); border-radius:50%; color:#8c4d75; background:var(--pink-pale); font-size:10px; font-weight:760; }
+        .content { width:min(1180px,100%); margin:0 auto; padding:38px clamp(20px,4vw,52px) 70px; }
+        .heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:24px; }
+        .eyebrow { display:flex; align-items:center; gap:8px; color:var(--blue); font-size:10px; font-weight:750; letter-spacing:.11em; text-transform:uppercase; }
+        .dot { width:7px; height:7px; border-radius:50%; background:var(--pink); box-shadow:0 0 0 4px var(--pink-pale); }
+        h1 { margin:10px 0 6px; font-size:clamp(28px,4vw,38px); line-height:1.05; letter-spacing:-.06em; }
+        .subtitle { margin:0; color:var(--muted); font-size:13px; line-height:1.6; }
+        .card { border:1px solid var(--line); border-radius:16px; background:var(--card); box-shadow:0 7px 24px #343b680a; }
+        .toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:15px; }
+        .toolbar-title { font-size:13px; font-weight:700; }
+        .control-row { display:flex; align-items:center; gap:8px; }
+        .button { min-height:36px; padding:0 12px; border:1px solid var(--line); border-radius:9px; color:var(--ink); background:var(--card); font-size:11px; font-weight:650; cursor:pointer; }
+        .button:hover { border-color:#cdd5f5; background:var(--blue-pale); }
+        .button.primary { color:#fff; border-color:var(--blue); background:var(--blue); }
+        .button.primary:hover { background:var(--blue-dark); }
+        .calendar-controls { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+        .calendar-title { min-width:185px; text-align:center; font-size:17px; font-weight:730; letter-spacing:-.03em; }
+        .calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); overflow:hidden; border:1px solid var(--line); border-radius:14px; background:var(--card); }
+        .weekday { min-height:36px; display:grid; place-items:center; border-bottom:1px solid var(--line); color:var(--muted); font-size:10px; font-weight:700; }
+        .day-cell { min-height:103px; padding:7px; border:0; border-right:1px solid var(--line); border-bottom:1px solid var(--line); color:var(--ink); background:var(--card); text-align:left; cursor:pointer; }
+        .day-cell:nth-child(7n) { border-right:0; }
+        .day-cell:hover { background:var(--blue-pale); }
+        .day-cell.outside { color:#b6b8c3; background:#fafbfe; }
+        .day-cell.selected { box-shadow:inset 0 0 0 2px var(--blue); }
+        .day-cell.today .day-number { color:#fff; background:var(--blue); }
+        .day-number { width:24px; height:24px; display:grid; place-items:center; border-radius:50%; font-size:10px; font-weight:650; }
+        .event-chip { overflow:hidden; margin-top:4px; padding:4px 5px; border-radius:5px; color:var(--blue-dark); background:var(--blue-pale); font-size:9px; text-overflow:ellipsis; white-space:nowrap; }
+        .event-chip.done { color:#767989; background:#f0f1f5; text-decoration:line-through; }
+        .more-events { margin:4px 0 0 3px; color:var(--muted); font-size:9px; }
+        .agenda { margin-top:18px; padding:16px; }
+        .agenda h2 { margin:0 0 12px; font-size:14px; }
+        .agenda-item { display:flex; align-items:center; gap:10px; padding:11px 0; border-top:1px solid var(--line); font-size:12px; }
+        .agenda-time { width:8px; height:8px; flex:none; border-radius:50%; background:var(--blue); }
+        .agenda-item.done { color:#999baa; text-decoration:line-through; }
+        .agenda-empty { padding:14px 0; color:var(--muted); font-size:12px; }
+        .goal-form { display:grid; grid-template-columns:minmax(0,1.5fr) 130px 170px auto; gap:10px; align-items:end; padding:16px; margin-bottom:18px; }
+        .field label { display:block; margin:0 0 6px; color:var(--muted); font-size:10px; font-weight:650; }
+        .field input { width:100%; min-height:37px; padding:0 10px; border:1px solid var(--line); border-radius:9px; color:var(--ink); background:var(--card); font-size:11px; }
+        .goal-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+        .goal-card { padding:17px; }
+        .goal-card h2 { margin:0; font-size:14px; }
+        .goal-meta { display:flex; justify-content:space-between; gap:10px; margin:11px 0 8px; color:var(--muted); font-size:10px; }
+        .progress { height:8px; overflow:hidden; border-radius:99px; background:#eef0f5; }
+        .progress span { height:100%; display:block; border-radius:inherit; background:linear-gradient(90deg,var(--blue),var(--pink)); }
+        .goal-footer { display:flex; justify-content:space-between; gap:10px; margin-top:10px; color:var(--muted); font-size:10px; }
+        .delete-goal { border:0; color:#b75d83; background:none; font-size:10px; cursor:pointer; }
+        .stats-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+        .stat-card { padding:16px; }
+        .stat-label { color:var(--muted); font-size:10px; }
+        .stat-value { margin-top:8px; font-size:25px; font-weight:760; letter-spacing:-.05em; }
+        .stats-panels { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .panel { padding:18px; }
+        .panel h2 { margin:0 0 15px; font-size:14px; }
+        .bar-row { display:grid; grid-template-columns:105px minmax(0,1fr) 35px; align-items:center; gap:10px; margin:13px 0; font-size:10px; }
+        .bar-track { height:8px; overflow:hidden; border-radius:99px; background:#f0f1f6; }
+        .bar-fill { height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--blue),var(--pink)); }
+        .bar-number { color:var(--muted); text-align:right; }
+        .theme-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+        .theme-card { overflow:hidden; padding:0; text-align:left; cursor:pointer; }
+        .theme-preview { height:132px; padding:14px; background-color:var(--preview-bg); background-image:linear-gradient(#ffffff25,#ffffff25),var(--preview-image); background-position:center; background-size:cover; }
+        .preview-bar { height:18px; margin-bottom:9px; border-radius:6px; background:var(--preview-primary); }
+        .preview-line { width:72%; height:8px; margin:8px 0; border-radius:99px; background:var(--preview-secondary); }
+        .preview-line.short { width:46%; }
+        .preview-chip { width:39%; height:16px; margin-top:13px; border-radius:6px; background:var(--preview-accent); }
+        .theme-info { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:13px 14px; }
+        .theme-info strong { font-size:12px; }
+        .theme-info small { color:var(--muted); font-size:10px; }
+        .theme-card.selected { border-color:var(--blue); box-shadow:0 0 0 2px color-mix(in srgb,var(--blue) 16%,transparent); }
+        .package-note { padding:12px 14px; margin-bottom:15px; border:1px solid #f1dfba; border-radius:11px; color:#755a24; background:#fff8e8; font-size:11px; line-height:1.6; }
+        .package-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+        .package-card { position:relative; padding:20px; }
+        .package-card.featured { border-color:var(--blue); box-shadow:0 12px 32px #4568df1c; }
+        .package-badge { position:absolute; top:13px; right:13px; padding:5px 8px; border-radius:99px; color:var(--blue-dark); background:var(--blue-pale); font-size:9px; font-weight:700; }
+        .package-card h2 { margin:2px 0 5px; font-size:15px; }
+        .package-description { min-height:34px; color:var(--muted); font-size:10px; line-height:1.6; }
+        .package-credits { margin:20px 0 4px; font-size:26px; font-weight:780; letter-spacing:-.05em; }
+        .package-credits small { color:var(--muted); font-size:11px; font-weight:600; letter-spacing:0; }
+        .package-price { margin-bottom:17px; color:var(--muted); font-size:11px; }
+        .package-card ul { min-height:85px; padding-left:17px; color:#686b7d; font-size:10px; line-height:1.9; }
+        .package-card .button { width:100%; margin-top:8px; }
+        .message { position:fixed; right:22px; bottom:22px; z-index:9; max-width:360px; padding:12px 16px; border:1px solid var(--line); border-radius:11px; color:var(--ink); background:var(--card); box-shadow:0 10px 30px #2022351a; font-size:11px; opacity:0; pointer-events:none; transform:translateY(8px); transition:.2s; }
+        .message.show { opacity:1; transform:translateY(0); }
+        @media(max-width:1050px) { .shell { grid-template-columns:210px minmax(0,1fr); } .goal-form { grid-template-columns:1fr 1fr; } .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+        @media(max-width:760px) { .shell { display:block; } .sidebar { position:fixed; top:auto; right:0; bottom:0; left:0; z-index:6; width:100%; height:70px; display:flex; align-items:center; padding:0 7px; border-top:1px solid var(--line); border-right:0; background:rgba(255,255,255,.96); } .brand,.workspace,.nav-label,.side-bottom { display:none; } .side-nav { width:100%; display:flex; gap:2px; overflow-x:auto; } .side-link { min-width:69px; flex:1 0 auto; flex-direction:column; justify-content:center; gap:3px; padding:6px 5px; font-size:9px; } .side-link svg { width:16px; height:16px; } .topbar { position:sticky; height:54px; grid-template-columns:1fr auto; padding:0 12px; gap:8px; } .crumb { display:none; } .app-switcher { grid-column:1; justify-self:start; } .app-switcher a { padding:7px 9px; font-size:10px; } .user-actions { grid-column:2; gap:6px; } .logout { min-height:31px; padding:0 8px; font-size:10px; } .content { padding:28px 14px 92px; } .heading { align-items:flex-start; flex-direction:column; } .calendar-controls { align-items:flex-start; flex-wrap:wrap; } .calendar-title { min-width:0; order:-1; width:100%; text-align:left; } .day-cell { min-height:70px; padding:4px; } .event-chip { font-size:8px; } .goal-list,.stats-panels,.theme-grid,.package-grid { grid-template-columns:1fr; } }
+        @media(max-width:480px) { .goal-form { grid-template-columns:1fr 1fr; } .goal-form .field:first-child { grid-column:1 / -1; } .stats-grid { gap:8px; } .stat-card { padding:12px; } .stat-value { font-size:21px; } .day-cell { min-height:53px; } .weekday { font-size:9px; } .event-chip { max-width:100%; height:6px; padding:0; font-size:0; } .more-events { font-size:8px; } .bar-row { grid-template-columns:85px minmax(0,1fr) 25px; gap:7px; } }
+        /* Keep the shared Dayflow sidebar and header consistent on every To-do page. */
+        .sidebar { padding:23px 15px; background:rgba(255,255,255,.86); backdrop-filter:blur(18px); }
+        .brand { margin:0 7px 33px; }
+        .brand-mark { width:34px; height:34px; box-shadow:0 6px 14px #4568df30; }
+        .workspace-label,.side-label { margin:0 9px 9px; color:#a0a2b0; font-size:10px; font-weight:750; letter-spacing:.12em; text-transform:uppercase; }
+        .workspace { margin-bottom:25px; }
+        .side-label { margin:14px 9px 6px; }
+        .side-link { min-height:0; padding:10px 11px; border-radius:10px; color:#6f7285; font-size:12px; font-weight:620; transition:.18s ease; }
+        .side-link:hover { color:var(--blue-dark); background:color-mix(in srgb,var(--blue-pale) 48%,transparent); }
+        .side-link.active { color:var(--blue-dark); background:var(--blue-pale); }
+        .side-spacer { height:1px; margin:13px 9px; background:var(--line); }
+        .side-bottom { right:15px; bottom:18px; left:15px; border-color:#f3e2ec; }
+        .side-bottom-title { font-size:11px; font-weight:720; }
+        .side-bottom-copy { margin-top:5px; color:var(--muted); font-size:10px; line-height:1.6; }
+        .topbar { position:static; height:62px; padding:0 clamp(22px,4vw,58px); background:rgba(255,255,255,.72); }
+        .topbar-spacer { min-width:0; }
+        .user-actions { justify-self:stretch; justify-content:flex-end; gap:12px; }
+        .icon-button { width:34px; height:34px; display:grid; place-items:center; border:1px solid var(--line); border-radius:10px; color:#777b90; background:var(--card); cursor:pointer; }
+        .icon-button svg { width:16px; height:16px; }
+        .logout { min-height:34px; padding:0 12px; }
+        @media(max-width:1100px) { .topbar { grid-template-columns:1fr auto; height:auto; min-height:62px; padding:8px 20px; } .topbar-spacer { display:none; } .app-switcher { grid-column:1; grid-row:1; justify-self:start; } .user-actions { grid-column:2; grid-row:1; } }
+        @media(max-width:850px) { .shell { grid-template-columns:70px minmax(0,1fr); } .sidebar { padding:20px 11px; } .brand { justify-content:center; margin:0 7px 30px; } .brand-name,.workspace-label,.workspace-copy,.side-label,.side-link span,.side-bottom { display:none; } .workspace { justify-content:center; padding:8px 0; border:0; background:transparent; } .side-link { justify-content:center; padding:11px; } .side-spacer { margin:13px 5px; } }
+        @media(max-width:760px) { .shell { display:grid; grid-template-columns:70px minmax(0,1fr); } .sidebar { position:sticky; top:0; right:auto; bottom:auto; left:auto; width:auto; height:100vh; display:block; border-top:0; } .side-nav { display:grid; gap:4px; overflow:visible; } .side-link { min-width:0; flex:initial; flex-direction:row; justify-content:flex-start; gap:11px; padding:11px; font-size:12px; } .side-link svg { width:17px; height:17px; } }
+        @media(max-width:620px) { .shell { display:block; } .sidebar { position:fixed; top:auto; right:0; bottom:0; left:0; z-index:6; width:100%; height:67px; display:flex; align-items:center; padding:0 8px; border-top:1px solid var(--line); border-right:0; background:rgb(255 255 255 / 96%); } .brand,.workspace,.workspace-label,.side-spacer,.side-bottom,.sidebar > nav[aria-label="Điều hướng phụ"] { display:none; } .sidebar > .side-label { display:none; } .side-nav { width:100%; display:flex; gap:2px; overflow-x:auto; } .side-link { flex:0 0 auto; flex-direction:column; gap:3px; padding:7px 9px; font-size:9px; } .side-link span { display:block; } .topbar { height:auto; min-height:52px; padding:7px 12px; grid-template-columns:1fr auto; gap:6px; } .topbar-spacer { display:none; } .app-switcher { grid-column:1; grid-row:1; justify-self:start; } .app-switcher a { padding:8px 9px; font-size:10px; } .user-actions { grid-column:2; grid-row:1; gap:7px; } .icon-button { display:none; } .logout { padding:0 9px; font-size:10px; } }
+        @media(prefers-reduced-motion:reduce) { *,*::before,*::after { transition-duration:.01ms!important; } }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <aside class="sidebar">
+        <a class="brand" href="/todo/index.html" aria-label="Dayflow - Trang chủ"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.3 4.2L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2.8a9.2 9.2 0 1 0 9.2 9.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="brand-name">dayflow</span></a>
+        <div class="workspace-label">Không gian làm việc</div>
+        <div class="workspace"><span class="workspace-icon">✳</span><div class="workspace-copy"><strong>Không gian của tôi</strong><small>Cá nhân · Gói miễn phí</small></div></div>
+        <div class="side-label">Điều hướng</div>
+        <nav class="side-nav" aria-label="Điều hướng công việc">
+            <a class="side-link" data-nav="tasks" href="/todo/index.html"><svg viewBox="0 0 24 24" fill="none"><path d="M8 6h12M8 12h12M8 18h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m3 6 .8.8L5.5 5M3 12l.8.8 1.7-1.8M3 18l.8.8 1.7-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Công việc</span></a>
+            <a class="side-link" data-nav="calendar" href="/todo/section.html?view=calendar"><svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="16" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M7.5 3v4M16.5 3v4M3.5 10h17M8 14h3m3 0h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Lịch</span></a>
+            <a class="side-link" data-nav="goals" href="/todo/section.html?view=goals"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Mục tiêu</span></a>
+            <a class="side-link" data-nav="stats" href="/todo/section.html?view=stats"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Thống kê</span></a>
+            <a class="side-link" data-nav="themes" href="/todo/section.html?view=themes"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 0 18h1.2a2.2 2.2 0 0 0 1.7-3.6c-.8-1 .2-2.4 1.5-2.4H18a3 3 0 0 0 3-3C21 7 17 3 12 3Z" stroke="currentColor" stroke-width="1.7"/><circle cx="7.5" cy="10" r="1" fill="currentColor"/><circle cx="11" cy="7" r="1" fill="currentColor"/><circle cx="16" cy="9" r="1" fill="currentColor"/></svg><span>Chủ đề</span></a>
+            <a class="side-link" data-nav="packages" href="/todo/section.html?view=packages"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M3 9h18M7 14h4m7-1v4m-2-2h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Gói nạp</span></a>
+        </nav>
+        <div class="side-spacer"></div>
+        <div class="workspace-label">Không gian</div>
+        <nav class="side-nav" aria-label="Điều hướng phụ"><a class="side-link" href="/"><svg viewBox="0 0 24 24" fill="none"><path d="m4 10 8-6 8 6v9a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span>Trang giới thiệu</span></a></nav>
+        <div class="side-bottom"><div class="side-bottom-title">Một việc tại một thời điểm ✨</div><div class="side-bottom-copy">Chia nhỏ kế hoạch để mỗi ngày đều có một bước tiến.</div></div>
+    </aside>
+    <main class="main">
+        <header class="topbar"><div class="topbar-spacer" aria-hidden="true"></div><nav class="app-switcher" aria-label="Chọn ứng dụng"><a class="active" href="/todo/index.html">To-do list</a><a href="/expenses/index.html">Quản lí chi tiêu</a></nav><div class="user-actions"><button class="icon-button" type="button" aria-label="Thông báo"><svg viewBox="0 0 24 24" fill="none"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="logout" id="logout" type="button">Đăng xuất</button><span class="avatar" id="avatar">DF</span></div></header>
+        <div class="content"><div id="page-content"></div></div>
+    </main>
+</div>
+<div class="message" id="message" role="status" aria-live="polite"></div>
+<script>
+(async () => {
+    const response = await fetch('/api/auth/me', {credentials:'same-origin'});
+    if (!response.ok) { location.href = `/login/index.html?next=${encodeURIComponent(location.pathname + location.search)}`; return; }
+    const user = await response.json();
+    const userId = user.id;
+    const TASK_KEY = `dayflow.todo.tasks.v1.${userId}`;
+    const GOAL_KEY = `dayflow.todo.work-goals.v1.${userId}`;
+    const PACKAGE_KEY = `dayflow.todo.package.v1.${userId}`;
+    const [skinListResponse,currentSkinResponse]=await Promise.all([
+        fetch('/api/skins',{credentials:'same-origin'}),
+        fetch('/api/auth/me/skin',{credentials:'same-origin'})
+    ]);
+    if(!skinListResponse.ok||!currentSkinResponse.ok){location.href='/todo/index.html';return;}
+    const skins=(await skinListResponse.json()).filter(skin=>skin.isActive);
+    let currentSkin=await currentSkinResponse.json();
+    const pad = value => String(value).padStart(2,'0');
+    const dateKey = date => `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
+    const today = new Date();
+    const plusDays = days => { const date = new Date(); date.setDate(date.getDate()+days); return dateKey(date); };
+    const safe = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    function safeImageUrl(value) {
+        if(!value)return 'none';
+        try { const url=new URL(value,location.origin);return url.origin===location.origin?`url("${url.href.replaceAll('"','%22')}")`:'none'; } catch { return 'none'; }
+    }
+    function applySkin(skin) {
+        if(!skin)return;
+        const root=document.documentElement;
+        const dark=skin.code==='dark';
+        root.dataset.skin=skin.code;
+        root.style.setProperty('--blue',skin.primaryColor);
+        root.style.setProperty('--blue-dark',`color-mix(in srgb, ${skin.primaryColor} 78%, #111827)`);
+        root.style.setProperty('--blue-pale',`color-mix(in srgb, ${skin.primaryColor} 13%, ${skin.backgroundColor})`);
+        root.style.setProperty('--pink',skin.secondaryColor);
+        root.style.setProperty('--pink-pale',`color-mix(in srgb, ${skin.secondaryColor} 18%, ${skin.backgroundColor})`);
+        root.style.setProperty('--canvas',skin.backgroundColor);
+        root.style.setProperty('--ink',skin.textColor);
+        root.style.setProperty('--muted',dark?'#B9C3D2':'#73798C');
+        root.style.setProperty('--line',dark?'#465168':'#E4E8F0');
+        root.style.setProperty('--card',dark?'rgba(37,45,57,.94)':'rgba(255,255,255,.88)');
+        root.style.setProperty('--theme-background-image',safeImageUrl(skin.backgroundImageUrl));
+        document.querySelector('meta[name="theme-color"]').content=skin.backgroundColor;
+    }
+    let tasks;
+    try { tasks = JSON.parse(localStorage.getItem(TASK_KEY)); } catch { tasks = null; }
+    if (!Array.isArray(tasks)) {
+        tasks = [
+            {id:crypto.randomUUID(),title:'Hoàn thành bài tập Java chương 4',category:'Học tập',dueDate:dateKey(today),completed:false},
+            {id:crypto.randomUUID(),title:'Gửi bản kế hoạch cho nhóm',category:'Công việc',dueDate:plusDays(1),completed:false},
+            {id:crypto.randomUUID(),title:'Đặt lịch khám sức khỏe định kì',category:'Cá nhân',dueDate:plusDays(3),completed:false},
+            {id:crypto.randomUUID(),title:'Sắp xếp lại ghi chú tuần này',category:'Cá nhân',dueDate:plusDays(-1),completed:true,completedAt:dateKey(today)}
+        ];
+        localStorage.setItem(TASK_KEY,JSON.stringify(tasks));
+    }
+    let migratedTasks=false;
+    tasks=tasks.map(task=>{if(task.completed&&!task.completedAt){migratedTasks=true;return {...task,completedAt:dateKey(today)};}return task;});
+    if(migratedTasks)localStorage.setItem(TASK_KEY,JSON.stringify(tasks));
+    let goals;
+    try { goals = JSON.parse(localStorage.getItem(GOAL_KEY)); } catch { goals = null; }
+    if (!Array.isArray(goals)) {
+        const due = new Date(); due.setDate(due.getDate()+14);
+        goals = [{id:crypto.randomUUID(),title:'Hoàn thành 10 công việc',target:10,deadline:dateKey(due),createdAt:dateKey(today)}];
+        localStorage.setItem(GOAL_KEY,JSON.stringify(goals));
+    }
+    const viewNames = {calendar:'Lịch',goals:'Mục tiêu',stats:'Thống kê',themes:'Chủ đề',packages:'Gói nạp'};
+    const requestedView = new URLSearchParams(location.search).get('view');
+    const view = viewNames[requestedView] ? requestedView : 'calendar';
+    document.title = `${viewNames[view]} — Dayflow`;
+    document.getElementById('avatar').textContent = user.fullName.trim().split(/\s+/).slice(-2).map(part=>part[0]).join('').toUpperCase();
+    document.querySelector(`[data-nav="${view}"]`).classList.add('active');
+    applySkin(currentSkin);
+    document.getElementById('logout').addEventListener('click',async()=>{
+        await fetch('/api/auth/csrf',{credentials:'same-origin'});
+        const cookie=document.cookie.split('; ').find(value=>value.startsWith('XSRF-TOKEN='));
+        await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin',headers:{'X-XSRF-TOKEN':cookie?decodeURIComponent(cookie.slice('XSRF-TOKEN='.length)):''}});
+        location.href='/login/index.html';
+    });
+    const content=document.getElementById('page-content');
+    const showMessage=message=>{const node=document.getElementById('message');node.textContent=message;node.classList.add('show');clearTimeout(showMessage.timer);showMessage.timer=setTimeout(()=>node.classList.remove('show'),2600);};
+    const heading=(eyebrow,title,subtitle)=>`<section class="heading"><div><div class="eyebrow"><span class="dot"></span>${eyebrow}</div><h1>${title}</h1><p class="subtitle">${subtitle}</p></div></section>`;
+    const fmtDate=value=>value?new Intl.DateTimeFormat('vi-VN',{day:'numeric',month:'long',year:'numeric'}).format(new Date(`${value}T00:00:00`)):'Chưa chọn hạn';
+    const saveTasks=()=>localStorage.setItem(TASK_KEY,JSON.stringify(tasks));
+    function renderCalendar() {
+        let cursor=new Date(today.getFullYear(),today.getMonth(),1),selected=dateKey(today),mode='month';
+        content.innerHTML=heading('KẾ HOẠCH CỦA BẠN','Lịch công việc','Xem hạn công việc theo tháng hoặc tuần và chọn một ngày để xem lịch trình.')+
+            `<div class="calendar-controls"><div class="control-row"><button class="button" id="prev-period" aria-label="Kì trước">‹</button><button class="button" id="today-button">Hôm nay</button><button class="button" id="next-period" aria-label="Kì tiếp theo">›</button></div><div class="calendar-title" id="calendar-title"></div><div class="control-row"><button class="button" id="month-mode">Tháng</button><button class="button" id="week-mode">Tuần</button></div></div><div class="calendar-grid" id="calendar-grid"></div><section class="card agenda"><h2 id="agenda-title"></h2><div id="agenda-list"></div></section>`;
+        const grid=document.getElementById('calendar-grid');
+        function draw() {
+            const base=mode==='month'?new Date(cursor.getFullYear(),cursor.getMonth(),1):new Date(`${selected}T00:00:00`);
+            const first=mode==='month'?base:new Date(base.getFullYear(),base.getMonth(),base.getDate()-((base.getDay()+6)%7));
+            const count=mode==='month'?42:7;
+            document.getElementById('calendar-title').textContent=new Intl.DateTimeFormat('vi-VN',{month:'long',year:'numeric'}).format(base);
+            document.getElementById('month-mode').classList.toggle('primary',mode==='month');
+            document.getElementById('week-mode').classList.toggle('primary',mode==='week');
+            grid.innerHTML=['T2','T3','T4','T5','T6','T7','CN'].map(day=>`<div class="weekday">${day}</div>`).join('');
+            for(let index=0;index<count;index++) {
+                const date=new Date(first.getFullYear(),first.getMonth(),first.getDate()+index),key=dateKey(date),items=tasks.filter(task=>task.dueDate===key);
+                const outside=mode==='month'&&date.getMonth()!==cursor.getMonth();
+                grid.insertAdjacentHTML('beforeend',`<button class="day-cell ${outside?'outside':''} ${key===selected?'selected':''} ${key===dateKey(today)?'today':''}" data-day="${key}"><span class="day-number">${date.getDate()}</span>${items.slice(0,2).map(task=>`<div class="event-chip ${task.completed?'done':''}" title="${safe(task.title)}">${safe(task.title)}</div>`).join('')}${items.length>2?`<div class="more-events">+${items.length-2} việc</div>`:''}</button>`);
+            }
+            document.getElementById('agenda-title').textContent=new Intl.DateTimeFormat('vi-VN',{weekday:'long',day:'numeric',month:'long'}).format(new Date(`${selected}T00:00:00`));
+            const dayTasks=tasks.filter(task=>task.dueDate===selected);
+            document.getElementById('agenda-list').innerHTML=dayTasks.length?dayTasks.map(task=>`<div class="agenda-item ${task.completed?'done':''}"><span class="agenda-time"></span><span>${safe(task.title)}</span><span style="margin-left:auto;color:var(--muted)">${safe(task.category||'Cá nhân')}</span></div>`).join(''):'<div class="agenda-empty">Không có công việc đến hạn trong ngày này.</div>';
+        }
+        grid.addEventListener('click',event=>{const cell=event.target.closest('[data-day]');if(!cell)return;selected=cell.dataset.day;if(mode==='month'&&new Date(`${selected}T00:00:00`).getMonth()!==cursor.getMonth())cursor=new Date(new Date(`${selected}T00:00:00`).getFullYear(),new Date(`${selected}T00:00:00`).getMonth(),1);draw();});
+        document.getElementById('prev-period').addEventListener('click',()=>{if(mode==='month')cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);else selected=dateKey(new Date(new Date(`${selected}T00:00:00`).getFullYear(),new Date(`${selected}T00:00:00`).getMonth(),new Date(`${selected}T00:00:00`).getDate()-7));draw();});
+        document.getElementById('next-period').addEventListener('click',()=>{if(mode==='month')cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);else selected=dateKey(new Date(new Date(`${selected}T00:00:00`).getFullYear(),new Date(`${selected}T00:00:00`).getMonth(),new Date(`${selected}T00:00:00`).getDate()+7));draw();});
+        document.getElementById('today-button').addEventListener('click',()=>{selected=dateKey(today);cursor=new Date(today.getFullYear(),today.getMonth(),1);draw();});
+        document.getElementById('month-mode').addEventListener('click',()=>{mode='month';cursor=new Date(new Date(`${selected}T00:00:00`).getFullYear(),new Date(`${selected}T00:00:00`).getMonth(),1);draw();});
+        document.getElementById('week-mode').addEventListener('click',()=>{mode='week';draw();});
+        draw();
+    }
+    function renderGoals() {
+        content.innerHTML=heading('KẾ HOẠCH CÁ NHÂN','Mục tiêu công việc','Đặt mục tiêu rõ ràng, chọn số lượng công việc và thời hạn hoàn thành.')+
+            `<form class="card goal-form" id="goal-form"><div class="field"><label for="goal-title">Mục tiêu</label><input id="goal-title" required maxlength="120" placeholder="Ví dụ: Hoàn thành đồ án Java"></div><div class="field"><label for="goal-target">Số việc cần xong</label><input id="goal-target" type="number" min="1" max="999" value="10" required></div><div class="field"><label for="goal-deadline">Hoàn thành trước</label><input id="goal-deadline" type="date" min="${dateKey(today)}" required></div><button class="button primary" type="submit">Tạo mục tiêu</button></form><div class="goal-list" id="goal-list"></div>`;
+        const due=new Date();due.setDate(due.getDate()+14);document.getElementById('goal-deadline').value=dateKey(due);
+        function drawGoals(){
+            document.getElementById('goal-list').innerHTML=goals.length?goals.map(goal=>{const done=tasks.filter(task=>task.completed&&task.completedAt&&task.completedAt>=goal.createdAt&&task.completedAt<=goal.deadline).length;const progress=Math.min(100,Math.round(done/goal.target*100));const remaining=Math.round((new Date(`${goal.deadline}T00:00:00`)-new Date(`${dateKey(today)}T00:00:00`))/86400000);const timeLabel=remaining<0?`Quá hạn ${Math.abs(remaining)} ngày`:remaining===0?'Hạn hôm nay':`Còn ${remaining} ngày`;return `<article class="card goal-card"><h2>${safe(goal.title)}</h2><div class="goal-meta"><span>${done} / ${goal.target} công việc hoàn thành</span><strong>${progress}%</strong></div><div class="progress"><span style="width:${progress}%"></span></div><div class="goal-footer"><span>Hạn: ${fmtDate(goal.deadline)} · ${timeLabel}</span><button class="delete-goal" data-delete-goal="${goal.id}" type="button">Xóa mục tiêu</button></div></article>`;}).join(''):'<div class="card goal-card">Chưa có mục tiêu. Hãy tạo mục tiêu đầu tiên ở phía trên.</div>';
+        }
+        document.getElementById('goal-form').addEventListener('submit',event=>{event.preventDefault();const title=document.getElementById('goal-title').value.trim(),target=Number(document.getElementById('goal-target').value),deadline=document.getElementById('goal-deadline').value;if(!title||!target||!deadline)return;goals.unshift({id:crypto.randomUUID(),title,target,deadline,createdAt:dateKey(today)});localStorage.setItem(GOAL_KEY,JSON.stringify(goals));event.target.reset();document.getElementById('goal-deadline').value=deadline;drawGoals();showMessage('Đã tạo mục tiêu công việc.');});
+        document.getElementById('goal-list').addEventListener('click',event=>{const button=event.target.closest('[data-delete-goal]');if(!button)return;goals=goals.filter(goal=>goal.id!==button.dataset.deleteGoal);localStorage.setItem(GOAL_KEY,JSON.stringify(goals));drawGoals();});
+        drawGoals();
+    }
+    function renderStats() {
+        const completed=tasks.filter(task=>task.completed).length,open=tasks.length-completed,overdue=tasks.filter(task=>!task.completed&&task.dueDate&&task.dueDate<dateKey(today)).length,rate=tasks.length?Math.round(completed/tasks.length*100):0;
+        const groups={};tasks.forEach(task=>{const category=task.category||'Khác';groups[category]=(groups[category]||0)+1;});
+        const nextDays=Array.from({length:7},(_,index)=>{const date=new Date();date.setDate(date.getDate()+index);const key=dateKey(date);return {label:new Intl.DateTimeFormat('vi-VN',{weekday:'short',day:'numeric'}).format(date),value:tasks.filter(task=>task.dueDate===key).length};});
+        const categoryRows=Object.entries(groups).sort((a,b)=>b[1]-a[1]).map(([name,value])=>`<div class="bar-row"><span>${safe(name)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(4,value/Math.max(1,...Object.values(groups))*100)}%"></div></div><span class="bar-number">${value}</span></div>`).join('')||'<p class="subtitle">Chưa có dữ liệu công việc.</p>';
+        const dateRows=nextDays.map(day=>`<div class="bar-row"><span>${safe(day.label)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(day.value?5:0,day.value/Math.max(1,...nextDays.map(item=>item.value))*100)}%"></div></div><span class="bar-number">${day.value}</span></div>`).join('');
+        content.innerHTML=heading('TỔNG QUAN TIẾN ĐỘ','Thống kê công việc','Tổng hợp tự động từ danh sách công việc của bạn.')+
+            `<div class="stats-grid"><article class="card stat-card"><div class="stat-label">Tổng công việc</div><div class="stat-value">${tasks.length}</div></article><article class="card stat-card"><div class="stat-label">Đã hoàn thành</div><div class="stat-value">${completed}</div></article><article class="card stat-card"><div class="stat-label">Đang thực hiện</div><div class="stat-value">${open}</div></article><article class="card stat-card"><div class="stat-label">Quá hạn</div><div class="stat-value">${overdue}</div></article></div><div class="stats-panels"><section class="card panel"><h2>Tỉ lệ hoàn thành</h2><div class="stat-value">${rate}%</div><div class="progress" style="margin:12px 0"><span style="width:${rate}%"></span></div><p class="subtitle">${completed} trên ${tasks.length} công việc đã được đánh dấu hoàn thành.</p></section><section class="card panel"><h2>Công việc theo danh mục</h2>${categoryRows}</section><section class="card panel" style="grid-column:1/-1"><h2>Lịch đến hạn trong 7 ngày tới</h2>${dateRows}</section></div>`;
+    }
+    function renderThemes() {
+        content.innerHTML=heading('CÁ NHÂN HÓA','Chủ đề','Chọn màu sắc hiển thị cho không gian công việc của bạn.')+
+            `<div class="theme-grid">${skins.map(skin=>`<button class="card theme-card ${currentSkin.id===skin.id?'selected':''}" data-theme-id="${skin.id}" type="button"><div class="theme-preview" style="--preview-bg:${safe(skin.backgroundColor)};--preview-primary:${safe(skin.primaryColor)};--preview-secondary:${safe(skin.secondaryColor)};--preview-accent:${safe(skin.secondaryColor)};--preview-image:${safeImageUrl(skin.previewUrl||skin.backgroundImageUrl)}"><div class="preview-bar"></div><div class="preview-line"></div><div class="preview-line short"></div><div class="preview-chip"></div></div><div class="theme-info"><span><strong>${safe(skin.name)}${skin.isDefault?' · Mặc định':''}</strong><br><small>${safe(skin.code)}</small></span><small>${currentSkin.id===skin.id?'Đang dùng':'Chọn chủ đề'}</small></div></button>`).join('')}</div>`;
+        document.querySelectorAll('[data-theme-id]').forEach(button=>button.addEventListener('click',async()=>{
+            const skinId=Number(button.dataset.themeId);
+            await fetch('/api/auth/csrf',{credentials:'same-origin'});
+            const csrfCookie=document.cookie.split('; ').find(value=>value.startsWith('XSRF-TOKEN='));
+            const response=await fetch('/api/auth/me/skin',{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json','X-XSRF-TOKEN':csrfCookie?decodeURIComponent(csrfCookie.slice('XSRF-TOKEN='.length)):''},body:JSON.stringify({skinId})});
+            if(!response.ok){showMessage('Không thể lưu chủ đề. Hãy thử lại.');return;}
+            currentSkin=await response.json();applySkin(currentSkin);renderThemes();showMessage(`Đã lưu chủ đề ${currentSkin.name} cho tài khoản của bạn.`);
+        }));
+    }
+    function renderPackages() {
+        const packages=[
+            {id:'starter',name:'Gói nhỏ',credits:100,price:19000,description:'Dùng thử các tiện ích mở rộng.',items:['100 điểm Dayflow','Dùng cho các tiện ích trong ứng dụng','Không tự động gia hạn']},
+            {id:'popular',name:'Gói phổ biến',credits:500,price:79000,description:'Phù hợp với kế hoạch đều đặn.',items:['500 điểm Dayflow','Tiết kiệm hơn 17% so với gói nhỏ','Không tự động gia hạn'],featured:true},
+            {id:'value',name:'Gói tiết kiệm',credits:1200,price:149000,description:'Nhiều điểm hơn cho kế hoạch dài hạn.',items:['1.200 điểm Dayflow','Tiết kiệm hơn 34% so với gói nhỏ','Không tự động gia hạn']}
+        ];
+        const selected=localStorage.getItem(PACKAGE_KEY)||'';
+        content.innerHTML=heading('GÓI DỊCH VỤ','Gói nạp','Tham khảo các gói điểm để mở rộng trải nghiệm Dayflow.')+
+            `<div class="package-note"><strong>Dữ liệu minh họa.</strong> Giá và số điểm bên dưới là mẫu để xem giao diện. Ứng dụng chưa kết nối thanh toán hoặc ví điểm, nên chọn gói chỉ lưu lựa chọn trên trình duyệt.</div><div class="package-grid">${packages.map(plan=>`<article class="card package-card ${plan.featured?'featured':''}">${plan.featured?'<span class="package-badge">Phổ biến</span>':''}<h2>${plan.name}</h2><div class="package-description">${plan.description}</div><div class="package-credits">${plan.credits.toLocaleString('vi-VN')} <small>điểm</small></div><div class="package-price">${plan.price.toLocaleString('vi-VN')} ₫ · thanh toán một lần</div><ul>${plan.items.map(item=>`<li>${item}</li>`).join('')}</ul><button class="button ${plan.featured?'primary':''}" data-package="${plan.id}" type="button">${selected===plan.id?'Đang chọn':'Chọn gói'}</button></article>`).join('')}</div>`;
+        document.querySelectorAll('[data-package]').forEach(button=>button.addEventListener('click',()=>{localStorage.setItem(PACKAGE_KEY,button.dataset.package);renderPackages();showMessage('Đã lưu lựa chọn gói mẫu. Chưa phát sinh thanh toán.');}));
+    }
+    if(view==='calendar')renderCalendar();
+    if(view==='goals')renderGoals();
+    if(view==='stats')renderStats();
+    if(view==='themes')renderThemes();
+    if(view==='packages')renderPackages();
+})();
+</script>
+</body>
+</html>
