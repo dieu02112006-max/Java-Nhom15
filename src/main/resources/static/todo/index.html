@@ -119,7 +119,7 @@
         <div class="side-bottom"><div class="side-bottom-title">Một việc tại một thời điểm ✨</div><div class="side-bottom-copy">Chia nhỏ kế hoạch để mỗi ngày đều có một bước tiến.</div></div>
     </aside>
     <main class="main">
-        <header class="topbar"><div class="breadcrumbs"><span>Không gian của tôi</span><span>›</span><strong>To-do list</strong></div><div class="top-actions"><button class="icon-button" type="button" aria-label="Thông báo"><svg viewBox="0 0 24 24" fill="none"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span class="profile" title="Tài khoản">DF</span></div></header>
+        <header class="topbar"><div class="breadcrumbs"><span>Không gian của tôi</span><span>›</span><strong>To-do list</strong></div><div class="top-actions"><button class="icon-button" type="button" aria-label="Thông báo"><svg viewBox="0 0 24 24" fill="none"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="profile" id="profile-logout" type="button" title="Đăng xuất" aria-label="Đăng xuất">DF</button></div></header>
         <div class="content">
             <section class="page-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span> Kế hoạch cá nhân</div><h1>To-do list</h1><p class="subheading" id="today-label">Từng bước nhỏ, ngày hoàn thành hơn.</p></div><button class="primary-button" id="focus-add" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>Thêm công việc</button></section>
             <section class="stats" aria-label="Tổng quan công việc">
@@ -144,8 +144,20 @@
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
-(() => {
-    const STORAGE_KEY = 'dayflow.todo.tasks.v1';
+ (async () => {
+    const authResponse = await fetch('/api/auth/me', { credentials:'same-origin' });
+    if (!authResponse.ok) { location.href = `/login/index.html?next=${encodeURIComponent(location.pathname)}`; return; }
+    const currentUser = await authResponse.json();
+    const profileButton = document.getElementById('profile-logout');
+    profileButton.title = `Đăng xuất · ${currentUser.email}`;
+    profileButton.textContent = currentUser.fullName.trim().split(/\s+/).slice(-2).map(part => part[0]).join('').toUpperCase();
+    profileButton.addEventListener('click', async () => {
+        await fetch('/api/auth/csrf', {credentials:'same-origin'});
+        const cookie = document.cookie.split('; ').find(value => value.startsWith('XSRF-TOKEN='));
+        await fetch('/api/auth/logout', {method:'POST',credentials:'same-origin',headers:{'X-XSRF-TOKEN':cookie ? decodeURIComponent(cookie.slice('XSRF-TOKEN='.length)) : ''}});
+        location.href = '/login/index.html';
+    });
+    const STORAGE_KEY = `dayflow.todo.tasks.v1.${currentUser.id}`;
     const today = new Date();
     const dateKey = (date) => `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
     const plusDays = (days) => { const date = new Date(); date.setDate(date.getDate()+days); return dateKey(date); };

@@ -1,19 +1,104 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.request.UserRequest;
+import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.User;
+import com.example.demo.entity.enums.UserRole;
+import com.example.demo.exception.BusinessException;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class UserService {
-    private final UserRepository repository;
-    public UserService(UserRepository repository) { this.repository = repository; }
-    @Transactional(readOnly = true) public List<User> findAll() { return repository.findAll(); }
-    @Transactional(readOnly = true) public User findById(Long id) { return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", id)); }
-    public User create(User user) { user.setId(null); if (user.getCurrencyDefault() == null) user.setCurrencyDefault("VND"); if (user.getTimezone() == null) user.setTimezone("Asia/Ho_Chi_Minh"); return repository.save(user); }
-    public User update(Long id, User input) { User user = findById(id); user.setEmail(input.getEmail()); if (input.getPasswordHash() != null) user.setPasswordHash(input.getPasswordHash()); user.setFullName(input.getFullName()); user.setAvatarUrl(input.getAvatarUrl()); user.setCurrencyDefault(input.getCurrencyDefault() == null ? "VND" : input.getCurrencyDefault()); user.setTimezone(input.getTimezone() == null ? "Asia/Ho_Chi_Minh" : input.getTimezone()); user.setSkinId(input.getSkinId()); return repository.save(user); }
-    public void delete(Long id) { if (!repository.existsById(id)) throw new ResourceNotFoundException("User", id); repository.deleteById(id); }
+
+    private final UserRepository userRepo;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserResponse create(UserRequest req) {
+        if (req.password() == null || req.password().isBlank()) {
+            throw new BusinessException("Mật khẩu không được để trống");
+        }
+        String email = req.email().trim().toLowerCase();
+        if (userRepo.existsByEmail(email)) {
+            throw new BusinessException("Email đã được sử dụng");
+        }
+
+        User user = User.builder()
+                .email(email)
+                .passwordHash(passwordEncoder.encode(req.password()))
+                .fullName(req.fullName())
+                .avatarUrl(req.avatarUrl())
+                .timezone(req.timezone() == null ? "Asia/Ho_Chi_Minh" : req.timezone())
+                .build();
+        if (req.currencyDefault() != null) {
+            user.setCurrencyDefault(req.currencyDefault());
+        }
+        return toResponse(userRepo.save(user));
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> getAll() {
+        return userRepo.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponse getById(Long id) {
+        return toResponse(find(id));
+    }
+
+    public UserResponse update(Long id, UserRequest req) {
+        User user = find(id);
+        String email = req.email().trim().toLowerCase();
+        if (!user.getEmail().equals(email) && userRepo.existsByEmail(email)) {
+            throw new BusinessException("Email đã được sử dụng");
+        }
+        user.setEmail(email);
+        user.setFullName(req.fullName());
+        user.setAvatarUrl(req.avatarUrl());
+        if (req.timezone() != null) {
+            user.setTimezone(req.timezone());
+        }
+        if (req.currencyDefault() != null) {
+            user.setCurrencyDefault(req.currencyDefault());
+        }
+        if (req.password() != null && !req.password().isBlank()) {
+            user.setPasswordHash(passwordEncoder.encode(req.password()));
+        }
+        return toResponse(userRepo.save(user));
+    }
+
+    public void delete(Long id) {
+        User user = find(id);
+        if (user.getRole() == UserRole.ADMIN && userRepo.countByRole(UserRole.ADMIN) <= 1) {
+            throw new BusinessException("Không thể xóa quản trị viên cuối cùng");
+        }
+        userRepo.delete(user);
+    }
+
+    public UserResponse changeRole(Long id, UserRole role) {
+        User user = find(id);
+        if (user.getRole() == UserRole.ADMIN && role != UserRole.ADMIN
+                && userRepo.countByRole(UserRole.ADMIN) <= 1) {
+            throw new BusinessException("Hệ thống phải luôn có ít nhất một quản trị viên");
+        }
+        user.setRole(role);
+        return toResponse(userRepo.save(user));
+    }
+
+    private User find(Long id) {
+        return userRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", id));
+    }
+
+    private UserResponse toResponse(User user) {
+        return new UserResponse(user.getId(), user.getEmail(), user.getFullName(), user.getAvatarUrl(),
+                user.getCurrencyDefault(), user.getTimezone(), user.getCreatedAt(), user.getRole().name());
+    }
 }
