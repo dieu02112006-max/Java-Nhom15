@@ -1,446 +1,1168 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f7f8fd">
-    <title>Quản lí chi tiêu — Dayflow</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f3f4f8" />
+    <title>Quản lý chi tiêu</title>
     <style>
-        :root { color-scheme:light; --ink:#202235; --muted:#81849a; --blue:#4568df; --blue-dark:#3452bf; --blue-pale:#eef1ff; --pink:#efa9c8; --pink-pale:#fff1f7; --line:#eaebf2; --canvas:#f7f8fd; --green:#23866d; --green-pale:#eaf7f2; --red:#c85f73; --red-pale:#fff0f2; }
-        * { box-sizing:border-box; }
-        body { margin:0; background:var(--canvas); color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; -webkit-font-smoothing:antialiased; }
-        button,input,select { font:inherit; }
-        button,a { -webkit-tap-highlight-color:transparent; }
-        a { color:inherit; text-decoration:none; }
-        .shell { min-height:100vh; display:grid; grid-template-columns:248px minmax(0,1fr); }
-        .sidebar { position:sticky; top:0; height:100vh; padding:23px 15px; background:rgba(255,255,255,.86); border-right:1px solid var(--line); backdrop-filter:blur(18px); }
-        .brand { display:flex; align-items:center; gap:10px; margin:0 7px 33px; font-size:18px; font-weight:760; letter-spacing:-.05em; }
-        .brand-mark { width:34px; height:34px; display:grid; place-items:center; color:white; background:var(--blue); border-radius:11px; box-shadow:0 6px 14px #4568df30; }
-        .brand-mark svg { width:19px; height:19px; }
-        .workspace-label { margin:0 9px 9px; color:#a0a2b0; font-size:10px; font-weight:750; letter-spacing:.12em; text-transform:uppercase; }
-        .workspace { display:flex; align-items:center; gap:10px; padding:10px; margin-bottom:25px; border:1px solid var(--line); border-radius:12px; background:white; }
-        .workspace-icon { width:30px; height:30px; display:grid; place-items:center; color:#9a5d82; background:var(--pink-pale); border-radius:9px; }
-        .workspace-name { font-size:12px; font-weight:700; }
-        .workspace-sub { margin-top:3px; color:var(--muted); font-size:10px; }
-        .side-nav { display:grid; gap:4px; }
-        .side-link { display:flex; align-items:center; gap:11px; padding:10px 11px; border-radius:10px; color:#6f7285; font-size:12px; font-weight:620; }
-        .side-link svg { width:17px; height:17px; }
-        .side-link:hover,.side-link.active { color:var(--blue-dark); background:var(--blue-pale); }
-        .side-spacer { height:1px; margin:13px 9px; background:var(--line); }
-        .side-bottom { position:absolute; right:15px; bottom:18px; left:15px; padding:14px; border:1px solid #f3e2ec; border-radius:14px; background:linear-gradient(140deg,#fff,#fff5f9); }
-        .side-bottom-title { font-size:11px; font-weight:720; }
-        .side-bottom-copy { margin-top:5px; color:var(--muted); font-size:10px; line-height:1.6; }
-        .main { min-width:0; }
-        .topbar { height:62px; display:flex; align-items:center; justify-content:space-between; padding:0 clamp(22px,4vw,58px); background:rgba(255,255,255,.72); border-bottom:1px solid var(--line); }
-        .topbar { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:18px; }
-        .app-switcher { display:flex; align-items:center; gap:5px; }
-        .app-switcher { justify-self:center; padding:4px; border:1px solid var(--line); border-radius:12px; background:#fff; }
-        .app-switcher a { padding:9px 12px; border-radius:9px; color:var(--muted); font-size:11px; font-weight:650; white-space:nowrap; text-decoration:none; }
-        .app-switcher a.active { color:var(--blue-dark); background:var(--blue-pale); }
-        .app-switcher a:hover { color:var(--blue-dark); background:var(--blue-pale); }
-        .top-actions { display:flex; align-items:center; gap:9px; }
-        .top-right-nav { display:flex; align-items:center; justify-content:flex-end; gap:10px; }
-        .breadcrumbs { display:flex; align-items:center; gap:9px; color:var(--muted); font-size:11px; }
-        .breadcrumbs strong { color:var(--ink); font-weight:650; }
-        .profile { width:31px; height:31px; display:grid; place-items:center; border:2px solid white; border-radius:50%; color:#8c4d75; background:#f5dce9; box-shadow:0 0 0 1px #eed5e2; font-size:10px; font-weight:760; }
-        .logout-button { min-height:34px; padding:0 12px; border:1px solid var(--line); border-radius:10px; color:#6f7285; background:#fff; font-size:11px; font-weight:650; cursor:pointer; transition:color .18s ease, border-color .18s ease, background .18s ease; }
-        .logout-button:hover { color:var(--blue-dark); border-color:#d9def7; background:var(--blue-pale); }
-        .content { width:min(100%,1100px); margin:0 auto; padding:48px clamp(22px,4vw,58px) 70px; }
-        .page-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; }
-        .eyebrow { display:flex; align-items:center; gap:8px; color:var(--blue); font-size:10px; font-weight:750; letter-spacing:.11em; text-transform:uppercase; }
-        .eyebrow-dot { width:7px; height:7px; border-radius:50%; background:var(--pink); box-shadow:0 0 0 4px #fff0f6; }
-        h1 { margin:12px 0 7px; font-size:clamp(32px,4vw,43px); line-height:1.05; letter-spacing:-.065em; }
-        .subheading { margin:0; color:var(--muted); font-size:13px; }
-        .primary-button { display:inline-flex; align-items:center; justify-content:center; gap:9px; min-height:41px; padding:0 15px; border:0; border-radius:11px; color:#fff; background:linear-gradient(110deg,var(--blue),#5c79e4); box-shadow:0 8px 19px #4568df2b; font-size:11px; font-weight:700; cursor:pointer; }
-        .primary-button:hover { background:var(--blue-dark); }
-        .primary-button svg { width:15px; height:15px; }
-        .month-picker { min-height:37px; padding:0 10px; border:1px solid var(--line); border-radius:9px; color:var(--ink); background:#fff; font-size:11px; }
-        .heading-actions { display:flex; align-items:center; gap:9px; }
-        .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:13px; margin:30px 0 20px; }
-        .stat-card { display:flex; align-items:center; gap:13px; min-width:0; padding:16px; border:1px solid var(--line); border-radius:15px; background:white; box-shadow:0 4px 15px #343b6810; }
-        .stat-icon { width:36px; height:36px; display:grid; place-items:center; flex:none; color:var(--blue); background:var(--blue-pale); border-radius:11px; }
-        .stat-card:nth-child(2) .stat-icon { color:var(--red); background:var(--red-pale); }
-        .stat-card:nth-child(3) .stat-icon { color:#a45f85; background:var(--pink-pale); }
-        .stat-card:nth-child(4) .stat-icon { color:var(--green); background:var(--green-pale); }
-        .stat-icon svg { width:18px; height:18px; }
-        .stat-value { overflow:hidden; font-size:clamp(14px,1.6vw,20px); font-weight:760; letter-spacing:-.05em; text-overflow:ellipsis; white-space:nowrap; }
-        .stat-label { margin-top:4px; color:var(--muted); font-size:10px; }
-        .overview-grid { display:grid; grid-template-columns:1.2fr .8fr; gap:14px; margin-bottom:20px; }
-        .panel { overflow:hidden; border:1px solid var(--line); border-radius:17px; background:white; box-shadow:0 8px 26px #343b680b; }
-        .panel-title { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:17px 18px 12px; }
-        .panel-title h2 { margin:0; font-size:13px; font-weight:720; }
-        .panel-title span { color:var(--muted); font-size:10px; }
-        .budget-wrap { padding:0 18px 18px; }
-        .budget-label { display:flex; justify-content:space-between; gap:12px; margin:5px 0 9px; color:var(--muted); font-size:10px; }
-        .budget-track { height:9px; overflow:hidden; border-radius:10px; background:#f0f1f7; }
-        .budget-fill { width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,#4568df,#c982b1); transition:width .25s ease; }
-        .budget-caption { margin-top:10px; color:var(--muted); font-size:10px; line-height:1.6; }
-        .category-list { display:grid; gap:13px; padding:1px 18px 18px; }
-        .category-item { display:grid; grid-template-columns:minmax(78px,105px) minmax(30px,1fr) auto; align-items:center; gap:10px; font-size:10px; }
-        .category-name { overflow:hidden; color:#62667c; text-overflow:ellipsis; white-space:nowrap; }
-        .category-track { height:7px; overflow:hidden; border-radius:8px; background:#f0f1f7; }
-        .category-fill { height:100%; border-radius:inherit; background:linear-gradient(90deg,#efa9c8,#4568df); }
-        .category-amount { color:var(--ink); font-weight:680; white-space:nowrap; }
-        .panel-toolbar { min-height:64px; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 17px; border-bottom:1px solid var(--line); }
-        .filters { display:flex; align-items:center; gap:4px; overflow-x:auto; }
-        .filter-button { flex:none; padding:8px 11px; border:0; border-radius:9px; color:#85889a; background:transparent; font-size:10px; font-weight:650; cursor:pointer; }
-        .filter-button:hover { color:var(--blue); background:#f7f8ff; }
-        .filter-button.active { color:var(--blue-dark); background:var(--blue-pale); }
-        .search-box { width:190px; height:34px; display:flex; align-items:center; gap:8px; padding:0 10px; border:1px solid var(--line); border-radius:9px; background:#fcfcfe; }
-        .search-box svg { width:14px; height:14px; flex:none; color:#9a9cad; }
-        .search-box input { width:100%; border:0; outline:0; color:var(--ink); background:transparent; font-size:10px; }
-        .table-scroll { overflow-x:auto; }
-        .list-head,.transaction-row { min-width:620px; display:grid; grid-template-columns:minmax(0,1fr) 125px 125px 135px 30px; align-items:center; gap:12px; padding:12px 18px; }
-        .list-head { color:#a0a2b0; font-size:9px; font-weight:730; letter-spacing:.08em; text-transform:uppercase; }
-        .transaction-row { min-height:62px; border-top:1px solid #f0f1f6; font-size:10px; }
-        .transaction-main { display:flex; align-items:center; gap:10px; min-width:0; }
-        .transaction-icon { width:33px; height:33px; display:grid; place-items:center; flex:none; border-radius:10px; color:#a45f85; background:var(--pink-pale); }
-        .transaction-icon.income { color:var(--green); background:var(--green-pale); }
-        .transaction-icon svg { width:16px; height:16px; }
-        .transaction-note { overflow:hidden; font-weight:680; text-overflow:ellipsis; white-space:nowrap; }
-        .transaction-category { margin-top:4px; color:var(--muted); font-size:9px; }
-        .transaction-wallet,.transaction-date { color:#777b90; white-space:nowrap; }
-        .transaction-amount { font-weight:720; text-align:right; white-space:nowrap; }
-        .transaction-amount.expense { color:var(--red); }
-        .transaction-amount.income { color:var(--green); }
-        .row-menu { width:28px; height:28px; display:grid; place-items:center; border:0; border-radius:8px; color:#a1a3b0; background:transparent; cursor:pointer; }
-        .row-menu:hover { color:var(--red); background:var(--red-pale); }
-        .row-menu svg { width:15px; height:15px; }
-        .empty-state,.message-state { display:none; padding:35px 20px; color:var(--muted); text-align:center; font-size:11px; line-height:1.7; }
-        .empty-state.visible,.message-state.visible { display:block; }
-        .message-state.error { color:var(--red); }
-        dialog { width:min(460px,calc(100% - 28px)); padding:0; border:1px solid var(--line); border-radius:18px; color:var(--ink); box-shadow:0 24px 80px #20223530; }
-        dialog::backdrop { background:#2022355c; backdrop-filter:blur(3px); }
-        .dialog-head { display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid var(--line); }
-        .dialog-head h2 { margin:0; font-size:15px; }
-        .dialog-close { width:30px; height:30px; border:0; border-radius:8px; color:var(--muted); background:#f5f6fa; cursor:pointer; }
-        .transaction-form { display:grid; gap:13px; padding:18px 20px 20px; }
-        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-        .field { display:grid; gap:6px; min-width:0; }
-        .field label { color:#65697e; font-size:10px; font-weight:680; }
-        .field input,.field select { width:100%; min-height:38px; padding:0 10px; border:1px solid var(--line); border-radius:9px; color:var(--ink); background:white; font-size:11px; }
-        .form-error { display:none; margin:0; color:var(--red); font-size:10px; line-height:1.5; }
-        .form-error.visible { display:block; }
-        .form-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:3px; }
-        .secondary-button { min-height:38px; padding:0 13px; border:1px solid var(--line); border-radius:10px; color:#65697e; background:#fff; font-size:10px; font-weight:650; cursor:pointer; }
-        .toast { position:fixed; z-index:10; right:24px; bottom:24px; padding:12px 16px; border:1px solid #e6e8f0; border-radius:12px; color:var(--ink); background:white; box-shadow:0 12px 35px #2022351a; font-size:11px; opacity:0; transform:translateY(8px); transition:.2s ease; pointer-events:none; }
-        .toast.show { opacity:1; transform:translateY(0); }
-        @media(max-width:1100px) { .topbar { grid-template-columns:1fr auto; height:auto; min-height:62px; padding:8px 20px; } .breadcrumbs { display:none; } .app-switcher { grid-column:1; grid-row:1; justify-self:start; } .top-right-nav { display:contents; } .top-actions { grid-column:2; grid-row:1; } }
-        @media(max-width:960px) { .stats { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-        @media(max-width:740px) {
-            .shell { grid-template-columns:1fr; }
-            .sidebar { display:none; }
-            .brand { margin:0 3px 10px; }
-            .workspace-label,.workspace,.side-spacer,.side-bottom { display:none; }
-            .topbar { height:auto; min-height:52px; padding:7px 12px; grid-template-columns:1fr auto; gap:6px; }
-            .breadcrumbs { display:none; }
-            .app-switcher { grid-column:1; grid-row:1; justify-self:start; }
-            .app-switcher a { padding:8px 9px; font-size:10px; }
-            .top-right-nav { display:contents; }
-            .top-actions { grid-column:2; grid-row:1; gap:7px; }
-            .logout-button { padding:0 9px; font-size:10px; }
-            .content { padding-top:30px; }
-            .overview-grid { grid-template-columns:1fr; }
+        :root {
+            color-scheme: light;
+            --bg: #f3f4f8;
+            --sidebar: rgba(255,255,255,.86);
+            --panel: #fff;
+            --panel-soft: #f5f7ff;
+            --line: #e6eaf5;
+            --primary: #4b5ec7;
+            --primary-dark: #3f4db1;
+            --primary-soft: #e9edff;
+            --yellow: #f6c34c;
+            --text: #1e2337;
+            --muted: #70768b;
+            --danger: #e85d57;
+            --danger-soft: #fee6e5;
+            --success: #1a8e5d;
+            --green-pale: #eaf7f2;
+            --shadow: 0 18px 40px rgba(30, 35, 55, 0.12);
         }
-        @media(max-width:520px) {
-            .page-heading { align-items:flex-start; flex-direction:column; }
-            .heading-actions { width:100%; justify-content:space-between; }
-            .stats { gap:8px; margin-top:22px; }
-            .stat-card { gap:9px; padding:12px 10px; }
-            .stat-icon { width:31px; height:31px; }
-            .panel-toolbar { align-items:flex-start; flex-direction:column; }
-            .search-box { width:100%; }
-            .form-row { grid-template-columns:1fr; }
+
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button, input, select {
+            font: inherit;
+        }
+
+        .app-shell {
+            display: grid;
+            grid-template-columns: 248px minmax(0, 1fr);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            background: var(--sidebar);
+            border-right: 1px solid var(--line);
+            padding: 23px 15px;
+            color: var(--text);
+            backdrop-filter: blur(18px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            font-weight: 760;
+            letter-spacing: -0.05em;
+            font-size: 18px;
+            margin: 0 7px 33px;
+            color: var(--text);
+        }
+
+        .brand { text-decoration: none; }
+
+        .brand-mark {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: #4568df;
+            color: white;
+            margin-right: 10px;
+            box-shadow: 0 6px 14px #4568df30;
+        }
+
+        .sidebar-nav {
+            display: grid;
+            gap: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            width: 100%;
+            min-height: 41px;
+            padding: 9px 11px;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: #6f7285;
+            font-size: 12px;
+            font-weight: 620;
+            text-align: left;
+            text-decoration: none;
+            cursor: pointer;
+            transition: .18s ease;
+        }
+
+        .nav-item:hover {
+            color: #3452bf;
+            background: color-mix(in srgb, #eef1ff 48%, transparent);
+        }
+
+        .nav-item.active {
+            background: #eef1ff;
+            color: #3452bf;
+        }
+
+        .nav-icon {
+            width: 17px;
+            height: 17px;
+            display: grid;
+            place-items: center;
+            flex: none;
+            font-size: 15px;
+        }
+
+        .workspace-label, .side-label {
+            margin: 0 9px 9px;
+            color: #a0a2b0;
+            font-size: 10px;
+            font-weight: 750;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .workspace {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 25px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: white;
+            color: var(--text);
+        }
+
+        .workspace-icon {
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            flex: none;
+            border-radius: 9px;
+            color: #9a5d82;
+            background: #fff1f7;
+            font-size: 15px;
+        }
+
+        .workspace-name { font-size: 12px; font-weight: 700; }
+        .workspace-sub { margin-top: 3px; color: var(--muted); font-size: 10px; }
+
+        .side-bottom {
+            position: absolute;
+            right: 15px;
+            bottom: 18px;
+            left: 15px;
+            padding: 14px;
+            border: 1px solid #f3e2ec;
+            border-radius: 14px;
+            background: linear-gradient(140deg, #fff, #fff5f9);
+            color: var(--text);
+        }
+
+        .side-bottom-title { font-size: 11px; font-weight: 720; }
+        .side-bottom-copy { margin-top: 5px; color: var(--muted); font-size: 10px; line-height: 1.6; }
+        .main { min-width: 0; }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 4;
+            height: 66px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+            align-items: center;
+            gap: 18px;
+            padding: 0 clamp(20px, 4vw, 52px);
+            border-bottom: 1px solid var(--line);
+            background: rgba(255,255,255,.88);
+            backdrop-filter: blur(16px);
+        }
+
+        .topbar-spacer { min-width: 0; }
+        .app-switcher {
+            display: flex;
+            align-items: center;
+            justify-self: center;
+            gap: 4px;
+            padding: 4px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--panel);
+        }
+
+        .app-switcher a {
+            padding: 8px 12px;
+            border-radius: 9px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 650;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .app-switcher a:hover, .app-switcher a.active {
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+        }
+
+        .top-right-nav { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+        .top-actions { display: flex; align-items: center; gap: 9px; }
+        .icon-button {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            color: #777b90;
+            background: var(--panel);
+            cursor: pointer;
+        }
+
+        .icon-button svg { width: 16px; height: 16px; }
+        .logout-button {
+            min-height: 34px;
+            padding: 0 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            color: #6f7285;
+            background: var(--panel);
+            font-size: 11px;
+            font-weight: 650;
+            cursor: pointer;
+            transition: color .18s ease, border-color .18s ease, background .18s ease;
+        }
+
+        .logout-button:hover { color: var(--primary-dark); border-color: #d9def7; background: var(--primary-soft); }
+        .profile {
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            border: 2px solid var(--panel);
+            border-radius: 50%;
+            color: #8c4d75;
+            background: #f5dce9;
+            box-shadow: 0 0 0 1px #eed5e2;
+            font-size: 10px;
+            font-weight: 760;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            bottom: 18px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .floating-action {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            border: 0;
+            background: linear-gradient(180deg, #f9e3a5 0%, var(--yellow) 100%);
+            color: #2d2d2d;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: 0 16px 28px rgba(246,196,76,.35);
+        }
+
+        .content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: min(1100px, 100%);
+            min-height: calc(100vh - 66px);
+            margin: 0 auto;
+            padding: 38px clamp(20px, 4vw, 52px) 70px;
+        }
+
+        .expense-entry { width: min(100%, 720px); }
+
+        .expense-card {
+            width: 100%;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 26px 28px 18px;
+            backdrop-filter: blur(8px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 760;
+            letter-spacing: -0.05em;
+            color: var(--text);
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 18px;
+            border-radius: 10px;
+            background: var(--primary-soft);
+            color: var(--primary-dark);
+            font-size: 13px;
+            font-weight: 700;
+            border: 1px solid rgba(75,94,199,0.12);
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .field-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        .segmented {
+            display: inline-flex;
+            width: fit-content;
+            background: var(--panel-soft);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 4px;
+            gap: 6px;
+        }
+
+        .segment {
+            border: 0;
+            background: transparent;
+            border-radius: 9px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .segment.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 8px 18px rgba(75,94,199,0.22);
+        }
+
+        .input, .date-input {
+            width: 100%;
+            height: 44px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: var(--panel-soft);
+            color: var(--text);
+            padding: 0 14px;
+            font-size: 14px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .inline-amount, .input-line {
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .date-input:hover, .inline-amount:hover, .input-line:hover {
+            border-color: rgba(75,94,199,.4);
+        }
+
+        .inline-amount:focus-within, .input-line:focus-within {
+            border-color: rgba(75,94,199,.55);
+            box-shadow: 0 0 0 4px rgba(75,94,199,.08);
+        }
+
+        .input:focus, .date-input:focus, select:focus {
+            outline: none;
+            border-color: rgba(75,94,199,.4);
+            box-shadow: 0 0 0 4px rgba(75,94,199,.08);
+        }
+
+        .date-wrap {
+            position: relative;
+        }
+
+        .date-wrap .date-input {
+            padding-right: 40px;
+        }
+
+        .calendar-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            pointer-events: none;
+            font-size: 14px;
+        }
+
+        .inline-amount {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--panel-soft);
+            padding: 0 14px;
+        }
+
+        .inline-amount .prefix {
+            color: var(--muted);
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .inline-amount input {
+            flex: 1;
+            border: 0;
+            background: transparent;
+            height: 44px;
+            font-size: 18px;
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .inline-amount input:focus, .input-line input:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .input-line {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 0 14px;
+            border-radius: 10px;
+            background: var(--panel-soft);
+            border: 1px solid var(--line);
+            min-height: 44px;
+        }
+
+        .input-line input {
+            border: 0;
+            background: transparent;
+            width: 100%;
+            color: var(--text);
+            font-size: 14px;
+            padding: 12px 0;
+        }
+
+        .input-line select {
+            width: 100%;
+            min-height: 42px;
+            border: 0;
+            outline: 0;
+            color: var(--text);
+            background: transparent;
+            font-size: 14px;
+        }
+
+        .input-line select:focus {
+            outline: none;
+            border-color: transparent;
+            box-shadow: none;
+        }
+
+        .transaction-list {
+            width: min(100%, 720px);
+            margin-top: 18px;
+            padding: 18px 22px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--panel);
+            box-shadow: var(--shadow);
+        }
+
+        .transaction-list h2 { margin: 0 0 12px; font-size: 14px; }
+        .transaction-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 0; border-top: 1px solid var(--line); }
+        .transaction-info { min-width: 0; }
+        .transaction-title { overflow: hidden; font-size: 12px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+        .transaction-meta { margin-top: 4px; color: var(--muted); font-size: 10px; }
+        .transaction-value { flex: none; font-size: 12px; font-weight: 700; }
+        .transaction-value.income { color: var(--success); }
+        .transaction-value.expense { color: var(--danger); }
+        .transaction-delete { flex: none; padding: 7px 9px; border: 1px solid #f3d9df; border-radius: 8px; color: var(--danger); background: var(--danger-soft); font-size: 10px; font-weight: 650; cursor: pointer; }
+        .transaction-empty { padding: 12px 0; color: var(--muted); font-size: 12px; }
+
+        .calendar-view[hidden], .expense-entry[hidden] { display: none; }
+        .calendar-view {
+            width: min(100%, 1000px);
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
+            gap: 16px;
+            align-items: start;
+        }
+
+        .calendar-panel, .day-details {
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--panel);
+            box-shadow: var(--shadow);
+        }
+
+        .calendar-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .calendar-heading h1, .day-details h2 { margin: 0; font-size: 17px; font-weight: 730; }
+        .calendar-controls { display: flex; align-items: center; gap: 8px; }
+        .calendar-controls button {
+            width: 34px;
+            height: 34px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            color: var(--text);
+            background: var(--panel);
+            cursor: pointer;
+        }
+
+        .calendar-controls input {
+            min-height: 34px;
+            padding: 0 8px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            color: var(--text);
+            background: var(--panel);
+        }
+
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); padding: 12px; }
+        .calendar-weekday {
+            display: grid;
+            min-height: 32px;
+            place-items: center;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .calendar-day {
+            position: relative;
+            min-width: 0;
+            min-height: 68px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 3px 5px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            color: var(--text);
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .calendar-day:hover { background: var(--primary-soft); }
+        .calendar-day.outside { color: #b6b8c3; }
+        .calendar-day.today .calendar-day-number { color: var(--primary); font-weight: 800; }
+        .calendar-day.selected { border-color: var(--primary); background: var(--primary-soft); }
+        .calendar-day-number { font-size: 12px; font-weight: 650; }
+        .calendar-day-total { overflow: hidden; max-width: 100%; color: var(--danger); font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+        .calendar-day.has-income .calendar-day-total { color: var(--success); }
+
+        .day-details { padding: 18px 20px; }
+        .day-details h2 { margin-bottom: 14px; }
+        .day-total { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 11px; }
+        .day-total strong { color: var(--danger); }
+        .day-total.income strong { color: var(--success); }
+        .day-transaction { padding: 12px 0; border-top: 1px solid var(--line); }
+        .day-transaction-top { display: flex; justify-content: space-between; gap: 10px; }
+        .day-transaction-title { font-size: 12px; font-weight: 700; }
+        .day-transaction-amount { flex: none; font-size: 12px; font-weight: 750; }
+        .day-transaction-amount.expense { color: var(--danger); }
+        .day-transaction-amount.income { color: var(--success); }
+        .day-transaction-meta { margin-top: 5px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+        .day-empty { padding: 12px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+
+        .button-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            min-width: 120px;
+            height: 42px;
+            border: 0;
+            border-radius: 11px;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(110deg, var(--primary), #5c79e4);
+            color: white;
+            box-shadow: 0 8px 19px #4568df2b;
+        }
+
+        .btn-danger {
+            background: var(--danger-soft);
+            border: 1px solid #f3d9df;
+            color: var(--danger);
+        }
+
+        .btn-neutral {
+            background: var(--panel);
+            color: var(--muted);
+            border: 1px solid var(--line);
+        }
+
+        .status {
+            min-height: 20px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .status.error {
+            color: var(--danger);
+        }
+
+        @media (max-width: 900px) {
+            .app-shell {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+            }
+
+            .sidebar-nav {
+                display: grid;
+            }
+
+            .side-bottom { display: none; }
+            .topbar { grid-template-columns: 1fr auto; gap: 10px; padding: 0 14px; }
+            .topbar-spacer { display: none; }
+            .app-switcher { justify-self: start; }
+            .top-right-nav { justify-self: end; }
+
+            .content {
+                padding: 20px 14px 24px;
+                min-height: auto;
+            }
+
+            .calendar-view { grid-template-columns: 1fr; }
+            .calendar-day { min-height: 56px; }
+
+            .expense-card, .transaction-list {
+                padding: 18px 16px 16px;
+            }
+
+            .field-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .button-row {
+                flex-wrap: wrap;
+            }
+
+            .btn {
+                flex: 1 1 120px;
+                min-width: 0;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .sidebar-nav {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
     </style>
 </head>
 <body>
-<div class="shell">
-    <aside class="sidebar">
-        <a class="brand" href="/" aria-label="Dayflow - Trang chủ"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.3 4.2L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2.8a9.2 9.2 0 1 0 9.2 9.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>dayflow</a>
-        <div class="workspace-label">Không gian</div>
-        <div class="workspace"><span class="workspace-icon">✦</span><div><div class="workspace-name">Không gian của tôi</div><div class="workspace-sub">Kế hoạch cá nhân</div></div></div>
-        <div class="side-spacer"></div>
-        <a class="side-link" href="/">Trang giới thiệu</a>
-        <div class="side-bottom"><div class="side-bottom-title">Mỗi khoản chi, một quyết định ✨</div><div class="side-bottom-copy">Theo dõi dòng tiền nhẹ nhàng để dành nhiều hơn cho điều quan trọng.</div></div>
-    </aside>
-    <main class="main">
-        <header class="topbar"><div class="breadcrumbs"><a href="/">Không gian của tôi</a><span>›</span><strong>Quản lí chi tiêu</strong></div><nav class="app-switcher" aria-label="Chọn ứng dụng"><a href="/todo/index.html">To-do list</a><a class="active" href="/expenses/index.html" aria-current="page">Quản lí chi tiêu</a></nav><div class="top-right-nav"><div class="top-actions"><button class="logout-button" id="logout-button" type="button">Đăng xuất</button><span class="profile" id="profile-logout" aria-hidden="true">DF</span></div></div></header>
-        <div class="content">
-            <section class="page-heading">
-                <div><div class="eyebrow"><span class="eyebrow-dot"></span> Sức khỏe tài chính</div><h1>Quản lí chi tiêu</h1><p class="subheading" id="month-label">Nhìn rõ dòng tiền, chi tiêu an tâm hơn.</p></div>
-                <div class="heading-actions"><input class="month-picker" id="month-picker" type="month" aria-label="Chọn tháng"><button class="primary-button" id="open-form" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>Thêm giao dịch</button></div>
-            </section>
-            <section class="stats" id="stats" aria-label="Tổng quan tài chính">
-                <article class="stat-card"><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17 10 11l4 4 6-8M14 7h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><div class="stat-value" id="stat-income">—</div><div class="stat-label">Tổng thu nhập</div></div></article>
-                <article class="stat-card"><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7 10 13l4-4 6 8M14 17h6v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><div class="stat-value" id="stat-expense">—</div><div class="stat-label">Tổng chi tiêu</div></div></article>
-                <article class="stat-card"><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M7 14h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><div><div class="stat-value" id="stat-balance">—</div><div class="stat-label">Số dư các ví</div></div></article>
-                <article class="stat-card"><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><div class="stat-value" id="stat-budget">—</div><div class="stat-label">Ngân sách tháng</div></div></article>
-            </section>
-            <section class="overview-grid" id="goals" aria-label="Phân tích ngân sách và mục tiêu">
-                <article class="panel">
-                    <div class="panel-title"><h2>Nhịp độ ngân sách</h2><span id="budget-percent">—</span></div>
-                    <div class="budget-wrap"><div class="budget-label"><span>Đã chi trong tháng</span><strong id="budget-spent">—</strong></div><div class="budget-track" role="progressbar" aria-label="Tỷ lệ sử dụng ngân sách"><div class="budget-fill" id="budget-fill"></div></div><div class="budget-caption" id="budget-caption">Dữ liệu ngân sách sẽ hiển thị tại đây.</div></div>
-                </article>
-                <article class="panel">
-                    <div class="panel-title"><h2>Chi tiêu theo danh mục</h2><span>Trong tháng</span></div>
-                    <div class="category-list" id="category-list"></div>
-                </article>
-            </section>
-            <section class="panel" aria-label="Danh sách giao dịch">
-                <div class="panel-toolbar"><div class="filters" role="tablist" aria-label="Lọc giao dịch">
-                    <button class="filter-button active" data-filter="all" role="tab" aria-selected="true">Tất cả</button>
-                    <button class="filter-button" data-filter="expense" role="tab" aria-selected="false">Chi tiêu</button>
-                    <button class="filter-button" data-filter="income" role="tab" aria-selected="false">Thu nhập</button>
-                </div><label class="search-box"><svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="search" type="search" placeholder="Tìm giao dịch..." aria-label="Tìm giao dịch"></label></div>
-                <div class="table-scroll"><div class="list-head"><span>Giao dịch</span><span>Ví</span><span>Ngày</span><span style="text-align:right">Số tiền</span><span></span></div><div id="transaction-list"></div></div>
-                <div class="empty-state" id="empty-state">Chưa có giao dịch trong tháng này. Thêm khoản thu hoặc chi để bắt đầu.</div>
-                <div class="message-state" id="loading-state">Đang tải dữ liệu từ cơ sở dữ liệu…</div>
-                <div class="message-state error" id="error-state" role="alert"></div>
-            </section>
-        </div>
-    </main>
-</div>
-<dialog id="transaction-dialog">
-    <div class="dialog-head"><h2>Thêm giao dịch</h2><button class="dialog-close" type="button" id="close-form" aria-label="Đóng">×</button></div>
-    <form class="transaction-form" id="transaction-form">
-        <div class="field"><label for="transaction-type">Loại giao dịch</label><select id="transaction-type" required><option value="expense">Chi tiêu</option><option value="income">Thu nhập</option></select></div>
-        <div class="form-row"><div class="field"><label for="transaction-amount">Số tiền (₫)</label><input id="transaction-amount" type="number" min="1" step="1" required placeholder="Ví dụ: 65000"></div><div class="field"><label for="transaction-date">Ngày giao dịch</label><input id="transaction-date" type="datetime-local" required></div></div>
-        <div class="form-row"><div class="field"><label for="transaction-category">Danh mục</label><select id="transaction-category"><option value="">Chưa phân loại</option></select></div><div class="field"><label for="transaction-wallet">Ví</label><select id="transaction-wallet" required><option value="">Đang tải ví…</option></select></div></div>
-        <div class="field"><label for="transaction-note">Ghi chú</label><input id="transaction-note" type="text" maxlength="500" placeholder="Mô tả ngắn về giao dịch"></div>
-        <p class="form-error" id="form-error" role="alert"></p>
-        <div class="form-actions"><button class="secondary-button" type="button" id="cancel-form">Để sau</button><button class="primary-button" type="submit">Lưu giao dịch</button></div>
-    </form>
-</dialog>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script>
-(() => {
-    let USER_ID;
-    const monthPicker = document.getElementById('month-picker');
-    const list = document.getElementById('transaction-list');
-    const search = document.getElementById('search');
-    const dialog = document.getElementById('transaction-dialog');
-    const form = document.getElementById('transaction-form');
-    const typeSelect = document.getElementById('transaction-type');
-    const categorySelect = document.getElementById('transaction-category');
-    const walletSelect = document.getElementById('transaction-wallet');
-    let transactions = [];
-    let categories = [];
-    let currentFilter = 'all';
-    const money = new Intl.NumberFormat('vi-VN', { style:'currency', currency:'VND', maximumFractionDigits:0 });
-    const escapeHtml = (text) => String(text ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-    const selectedMonth = () => monthPicker.value;
-    function setMessage(id, message, visible) {
-        const element = document.getElementById(id);
-        if (message !== undefined) element.textContent = message;
-        element.classList.toggle('visible', visible);
-    }
-    async function api(path, options = {}) {
-        const method = (options.method || 'GET').toUpperCase();
-        const csrfItem = () => document.cookie.split('; ').find(value => value.startsWith('XSRF-TOKEN='));
-        const headers = { ...(options.body ? {'Content-Type':'application/json'} : {}), ...(options.headers || {}) };
-        if (!['GET','HEAD','OPTIONS'].includes(method)) {
-            if (!csrfItem()) await fetch('/api/auth/csrf', { credentials:'same-origin' });
-            const tokenCookie = csrfItem();
-            if (tokenCookie) headers['X-XSRF-TOKEN'] = decodeURIComponent(tokenCookie.slice('XSRF-TOKEN='.length));
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="/" aria-label="Dayflow - Trang chủ">
+                <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.3 4.2L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2.8a9.2 9.2 0 1 0 9.2 9.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                <span class="brand-name">dayflow</span>
+            </a>
+            <div class="workspace-label">Không gian làm việc</div>
+            <div class="workspace"><span class="workspace-icon">✳</span><span class="workspace-copy"><span class="workspace-name">Không gian của tôi</span><br><span class="workspace-sub">Cá nhân · Gói miễn phí</span></span></div>
+            <div class="side-label">Điều hướng</div>
+            <nav class="sidebar-nav" aria-label="Điều hướng chính">
+                <a class="nav-item" href="/expenses/goals.html"><span class="nav-icon">◎</span><span>Mục tiêu tiết kiệm</span></a>
+                <a class="nav-item" id="calendar-nav" href="/expenses/section.html?view=calendar"><span class="nav-icon">▦</span><span>Lịch sử chi tiêu</span></a>
+                <a class="nav-item active" id="expenses-nav" href="/expenses/index.html" aria-current="page"><span class="nav-icon">◉</span><span>Quản lí chi tiêu</span></a>
+                <a class="nav-item" href="/expenses/section.html?view=stats"><span class="nav-icon">↗</span><span>Thống kê</span></a>
+            </nav>
+            <div class="workspace-label">Không gian</div>
+            <nav class="sidebar-nav" aria-label="Điều hướng không gian">
+                <a class="nav-item" href="/"><span class="nav-icon">⌂</span><span>Trang giới thiệu</span></a>
+            </nav>
+            <div class="side-bottom"><div class="side-bottom-title">Quản lí tài chính ✨</div><div class="side-bottom-copy">Theo dõi thu chi để từng mục tiêu tài chính rõ ràng hơn.</div></div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-spacer" aria-hidden="true"></div>
+                <nav class="app-switcher" aria-label="Chọn ứng dụng">
+                    <a href="/todo/index.html">To-do list</a>
+                    <a class="active" href="/expenses/index.html" aria-current="page">Quản lí chi tiêu</a>
+                </nav>
+                <div class="top-right-nav">
+                    <div class="top-actions">
+                        <button class="icon-button" type="button" aria-label="Thông báo"><svg viewBox="0 0 24 24" fill="none"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                        <button class="logout-button" id="logout-button" type="button">Đăng xuất</button>
+                        <span class="profile" id="profile-logout" aria-hidden="true">DF</span>
+                    </div>
+                </div>
+            </header>
+            <div class="content">
+                <div class="expense-entry" id="expense-entry">
+                <section class="expense-card" aria-label="Form chi tiêu">
+                    <div class="card-header">
+                        <h1 class="card-title">Chi Tiết</h1>
+                        <span class="chip">Chi tiêu</span>
+                    </div>
+
+                    <form id="expenseForm">
+                        <div class="form-grid">
+                        <div class="field-row">
+                            <div class="field-label">Loại</div>
+                            <div class="segmented" aria-label="Loại giao dịch">
+                                <button class="segment active" type="button" data-kind="expense">Chi Tiêu</button>
+                                <button class="segment" type="button" data-kind="income">Thu Vào</button>
+                            </div>
+                        </div>
+
+                        <div class="field-row">
+                            <div class="field-label">Thời Gian</div>
+                            <div class="date-wrap">
+                                <input id="expenseDate" class="date-input" type="datetime-local" required />
+                            </div>
+                        </div>
+
+                        <div class="field-row">
+                            <div class="field-label">Ghi Chú</div>
+                            <div class="input-line">
+                                <input id="expenseNote" type="text" maxlength="500" placeholder="Nhập mô tả" />
+                            </div>
+                        </div>
+
+                        <div class="field-row">
+                            <div class="field-label">Số Tiền</div>
+                            <div class="inline-amount">
+                                <span class="prefix">₫</span>
+                                <input id="expenseAmount" type="number" min="1" step="1" placeholder="Nhập số tiền" required />
+                            </div>
+                        </div>
+
+                        <div class="field-row">
+                            <div class="field-label">Danh Mục</div>
+                            <div class="input-line">
+                                <select id="expenseCategory">
+                                    <option value="">Đang tải danh mục...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="field-row">
+                            <div class="field-label">Ví</div>
+                            <div class="input-line">
+                                <select id="expenseWallet" required>
+                                    <option value="">Đang tải ví...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="button-row">
+                            <button class="btn btn-primary" type="submit">LƯU</button>
+                            <button class="btn btn-neutral" type="reset" id="clearBtn">CLEAR</button>
+                        </div>
+
+                        <div id="statusMessage" class="status" aria-live="polite"></div>
+                        </div>
+                    </form>
+                </section>
+                </div>
+                <section class="calendar-view" id="calendar-view" aria-label="Lịch sử chi tiêu" hidden>
+                    <div class="calendar-panel">
+                        <div class="calendar-heading">
+                            <h1>Lịch sử chi tiêu</h1>
+                            <div class="calendar-controls">
+                                <button type="button" id="previous-month" aria-label="Tháng trước">‹</button>
+                                <input type="month" id="calendar-month" aria-label="Chọn tháng" />
+                                <button type="button" id="next-month" aria-label="Tháng sau">›</button>
+                            </div>
+                        </div>
+                        <div class="calendar-grid" id="calendar-grid" aria-label="Lịch tháng"></div>
+                    </div>
+                    <aside class="day-details" aria-live="polite">
+                        <h2 id="selected-day-heading">Chi tiết trong ngày</h2>
+                        <div id="selected-day-transactions"><div class="day-empty">Chọn một ngày để xem lịch sử giao dịch.</div></div>
+                    </aside>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const form = document.getElementById('expenseForm');
+        const amountInput = document.getElementById('expenseAmount');
+        const dateInput = document.getElementById('expenseDate');
+        const categorySelect = document.getElementById('expenseCategory');
+        const walletSelect = document.getElementById('expenseWallet');
+        const statusMessage = document.getElementById('statusMessage');
+        const segments = document.querySelectorAll('.segment');
+        const chip = document.querySelector('.chip');
+        const calendarGrid = document.getElementById('calendar-grid');
+        const calendarMonthInput = document.getElementById('calendar-month');
+        const calendarTransactions = [];
+        let currentUserId;
+        let currentCalendarMonth;
+        let selectedCalendarDate;
+        const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 });
+
+        function showStatus(message, isError = false) {
+            statusMessage.textContent = message;
+            statusMessage.classList.toggle('error', isError);
         }
-        const response = await fetch(path, {
-            ...options,
-            credentials:'same-origin',
-            headers
-        });
-        if (response.status === 401) {
-            location.href = `/login/index.html?next=${encodeURIComponent(location.pathname)}`;
-            throw new Error('Vui lòng đăng nhập để tiếp tục.');
+
+        function selectedType() {
+            return document.querySelector('.segment.active').dataset.kind;
         }
-        if (!response.ok) {
-            const body = await response.json().catch(() => null);
-            throw new Error(body?.detail || body?.message || `Yêu cầu thất bại (${response.status})`);
+
+        function localDateString(date = new Date()) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
-        return response.status === 204 ? null : response.json();
-    }
-    function formatDate(value) {
-        return new Intl.DateTimeFormat('vi-VN', { day:'numeric', month:'short', year:'numeric' }).format(new Date(value));
-    }
-    async function loadCategories() {
-        categories = await api(`/api/finance/categories?userId=${USER_ID}&type=${typeSelect.value}`);
-        categorySelect.innerHTML = '<option value="">Chưa phân loại</option>' + categories.map(category =>
-            `<option value="${category.id}">${escapeHtml(category.name)}</option>`).join('');
-    }
-    async function loadWallets() {
-        const wallets = await api(`/api/finance/wallets?userId=${USER_ID}`);
-        walletSelect.innerHTML = '<option value="">Chọn ví</option>' + wallets.map(wallet =>
-            `<option value="${wallet.id}">${escapeHtml(wallet.name)} · ${money.format(wallet.balance)}</option>`).join('');
-        walletSelect.disabled = wallets.length === 0;
-    }
-    function renderTransactions() {
-        const query = search.value.trim().toLocaleLowerCase('vi');
-        const filtered = transactions.filter(transaction => {
-            const text = `${transaction.note || ''} ${transaction.categoryName} ${transaction.walletName}`.toLocaleLowerCase('vi');
-            return (currentFilter === 'all' || transaction.type === currentFilter) && text.includes(query);
-        });
-        list.innerHTML = filtered.map(transaction => {
-            const income = transaction.type === 'income';
-            const label = transaction.note || transaction.categoryName || (income ? 'Khoản thu' : 'Khoản chi');
-            const icon = income
-                ? '<path d="M12 19V5m-6 6 6-6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
-                : '<path d="M12 5v14m-6-6 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
-            return `<div class="transaction-row"><div class="transaction-main"><span class="transaction-icon ${income ? 'income' : ''}"><svg viewBox="0 0 24 24" fill="none">${icon}</svg></span><div style="min-width:0"><div class="transaction-note" title="${escapeHtml(label)}">${escapeHtml(label)}</div><div class="transaction-category">${escapeHtml(transaction.categoryName || 'Chưa phân loại')}</div></div></div><span class="transaction-wallet">${escapeHtml(transaction.walletName)}</span><span class="transaction-date">${formatDate(transaction.transactionDate)}</span><span class="transaction-amount ${income ? 'income' : 'expense'}">${income ? '+' : '−'}${money.format(transaction.amount)}</span><button class="row-menu" data-delete="${transaction.id}" aria-label="Xóa giao dịch" title="Xóa giao dịch"><svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14M10 11v6m4-6v6M6.5 7l.8 13h9.4l.8-13M9 7V4h6v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>`;
-        }).join('');
-        setMessage('empty-state', undefined, filtered.length === 0);
-    }
-    function renderCategories() {
-        const totals = new Map();
-        for (const transaction of transactions) {
-            if (transaction.type !== 'expense') continue;
-            const name = transaction.categoryName || 'Chưa phân loại';
-            totals.set(name, (totals.get(name) || 0) + Number(transaction.amount));
+
+        function localDateTimeString(date = new Date()) {
+            return `${localDateString(date)}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
         }
-        const values = [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
-        const highest = Math.max(...values.map(([, amount]) => amount), 1);
-        const target = document.getElementById('category-list');
-        target.innerHTML = values.length
-            ? values.map(([name, amount]) => `<div class="category-item"><span class="category-name" title="${escapeHtml(name)}">${escapeHtml(name)}</span><div class="category-track"><div class="category-fill" style="width:${Math.max(5, amount / highest * 100)}%"></div></div><span class="category-amount">${money.format(amount)}</span></div>`).join('')
-            : '<div class="budget-caption">Chưa có khoản chi nào để phân tích.</div>';
-    }
-    async function loadDashboard() {
-        setMessage('error-state', '', false);
-        setMessage('loading-state', undefined, true);
-        try {
-            const query = `userId=${USER_ID}&month=${encodeURIComponent(selectedMonth())}`;
-            const [summary, rows] = await Promise.all([
-                api(`/api/finance/summary?${query}`),
-                api(`/api/finance/transactions?${query}`)
-            ]);
-            transactions = rows;
-            document.getElementById('stat-income').textContent = money.format(summary.income);
-            document.getElementById('stat-expense').textContent = money.format(summary.expense);
-            document.getElementById('stat-balance').textContent = money.format(summary.walletBalance);
-            document.getElementById('stat-budget').textContent = money.format(summary.budget);
-            document.getElementById('budget-spent').textContent = money.format(summary.expense);
-            const percent = summary.budget > 0 ? Math.round(summary.expense / summary.budget * 100) : 0;
-            document.getElementById('budget-percent').textContent = summary.budget > 0 ? `${percent}% ngân sách` : 'Chưa đặt ngân sách';
-            document.getElementById('budget-fill').style.width = `${Math.min(percent, 100)}%`;
-            document.getElementById('budget-caption').textContent = summary.budget > 0
-                ? (summary.expense <= summary.budget
-                    ? `Bạn còn ${money.format(summary.budget - summary.expense)} trong ngân sách tháng này.`
-                    : `Bạn đã vượt ngân sách ${money.format(summary.expense - summary.budget)}. Hãy cân nhắc các khoản chi tiếp theo.`)
-                : 'Chưa có ngân sách tháng trong cơ sở dữ liệu.';
-            renderTransactions();
-            renderCategories();
-        } catch (error) {
-            setMessage('error-state', `Không tải được dữ liệu. ${error.message}`, true);
-        } finally {
-            setMessage('loading-state', undefined, false);
+
+        function monthString(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         }
-    }
-    function showToast(message) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.classList.add('show');
-        clearTimeout(showToast.timer);
-        showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
-    }
-    async function openDialog() {
-        document.getElementById('form-error').classList.remove('visible');
-        const [year, month] = selectedMonth().split('-').map(Number);
-        const now = new Date();
-        const defaultDate = year === now.getFullYear() && month === now.getMonth() + 1
-            ? now : new Date(year, month - 1, 1);
-        document.getElementById('transaction-date').value = new Date(
-            defaultDate.getTime() - defaultDate.getTimezoneOffset() * 60000
-        ).toISOString().slice(0, 16);
-        try {
-            await Promise.all([loadCategories(), loadWallets()]);
-            dialog.showModal();
-        } catch (error) {
-            showToast(`Không tải được danh mục hoặc ví: ${error.message}`);
-        }
-    }
-    document.getElementById('open-form').addEventListener('click', openDialog);
-    document.getElementById('close-form').addEventListener('click', () => dialog.close());
-    document.getElementById('cancel-form').addEventListener('click', () => dialog.close());
-    typeSelect.addEventListener('change', () => loadCategories().catch(error => {
-        const fieldError = document.getElementById('form-error');
-        fieldError.textContent = `Không tải được danh mục: ${error.message}`;
-        fieldError.classList.add('visible');
-    }));
-    form.addEventListener('submit', async event => {
-        event.preventDefault();
-        const errorElement = document.getElementById('form-error');
-        errorElement.classList.remove('visible');
-        const payload = {
-            userId: USER_ID,
-            walletId: Number(walletSelect.value),
-            categoryId: categorySelect.value ? Number(categorySelect.value) : null,
-            type: typeSelect.value,
-            amount: Number(document.getElementById('transaction-amount').value),
-            transactionDate: document.getElementById('transaction-date').value,
-            note: document.getElementById('transaction-note').value.trim() || null
-        };
-        try {
-            await api('/api/finance/transactions', { method:'POST', body:JSON.stringify(payload) });
-            dialog.close();
-            form.reset();
-            await loadDashboard();
-            await loadWallets();
-            showToast('Đã lưu giao dịch và cập nhật số dư ví');
-        } catch (error) {
-            errorElement.textContent = error.message;
-            errorElement.classList.add('visible');
-        }
-    });
-    document.querySelectorAll('.filter-button').forEach(button => button.addEventListener('click', () => {
-        currentFilter = button.dataset.filter;
-        document.querySelectorAll('.filter-button').forEach(item => {
-            const active = item === button;
-            item.classList.toggle('active', active);
-            item.setAttribute('aria-selected', String(active));
-        });
-        renderTransactions();
-    }));
-    list.addEventListener('click', async event => {
-        const button = event.target.closest('[data-delete]');
-        if (!button || !window.confirm('Xóa giao dịch này? Số dư ví sẽ được điều chỉnh lại.')) return;
-        button.disabled = true;
-        try {
-            await api(`/api/finance/transactions/${button.dataset.delete}?userId=${USER_ID}`, { method:'DELETE' });
-            await loadDashboard();
-            await loadWallets();
-            showToast('Đã xóa giao dịch');
-        } catch (error) {
-            button.disabled = false;
-            showToast(`Không xóa được giao dịch: ${error.message}`);
-        }
-    });
-    search.addEventListener('input', renderTransactions);
-    monthPicker.addEventListener('change', () => {
-        const [year, month] = selectedMonth().split('-').map(Number);
-        document.getElementById('month-label').textContent = new Intl.DateTimeFormat('vi-VN', {
-            month:'long', year:'numeric'
-        }).format(new Date(year, month - 1, 1)) + ' · Theo dõi dòng tiền của bạn.';
-        loadDashboard();
-    });
-    const currentMonth = new Date();
-    monthPicker.value = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`;
-    document.getElementById('month-label').textContent = new Intl.DateTimeFormat('vi-VN', { month:'long', year:'numeric' }).format(currentMonth) + ' · Theo dõi dòng tiền của bạn.';
-    api('/api/auth/me').then(user => {
-        USER_ID = user.id;
-        const profileButton = document.getElementById('profile-logout');
-        profileButton.title = `Đăng xuất · ${user.email}`;
-        profileButton.textContent = user.fullName.trim().split(/\s+/).slice(-2).map(part => part[0]).join('').toUpperCase();
-        const logout = async () => {
-            await fetch('/api/auth/csrf', {credentials:'same-origin'});
+
+        function getCsrfToken() {
             const cookie = document.cookie.split('; ').find(value => value.startsWith('XSRF-TOKEN='));
-            await fetch('/api/auth/logout', {method:'POST',credentials:'same-origin',headers:{'X-XSRF-TOKEN':cookie ? decodeURIComponent(cookie.slice('XSRF-TOKEN='.length)) : ''}});
-            location.href = '/login/index.html';
-        };
-        document.getElementById('logout-button').addEventListener('click', logout);
-        loadDashboard();
-    }).catch(() => {
-        location.href = `/login/index.html?next=${encodeURIComponent(location.pathname)}`;
-    });
-})()
-</script>
+            return cookie ? decodeURIComponent(cookie.slice('XSRF-TOKEN='.length)) : null;
+        }
+
+        async function api(path, options = {}) {
+            const headers = { ...(options.headers || {}) };
+            if (options.body) headers['Content-Type'] = 'application/json';
+            if (options.method && options.method !== 'GET') {
+                if (!getCsrfToken()) {
+                    const csrfResponse = await fetch('/api/auth/csrf', { credentials: 'same-origin' });
+                    if (!csrfResponse.ok) throw new Error('Không lấy được mã CSRF.');
+                }
+                const token = getCsrfToken();
+                if (!token) throw new Error('Thiếu mã CSRF; hãy tải lại trang và thử lại.');
+                headers['X-XSRF-TOKEN'] = token;
+            }
+
+            const response = await fetch(path, { ...options, headers, credentials: 'same-origin' });
+            if (response.status === 401) {
+                location.href = `/login/index.html?next=${encodeURIComponent(location.pathname)}`;
+                throw new Error('Phiên đăng nhập đã hết hạn.');
+            }
+            if (!response.ok) {
+                const body = await response.json().catch(() => null);
+                throw new Error(body?.detail || body?.message || `Yêu cầu thất bại (${response.status}).`);
+            }
+            return response.status === 204 ? null : response.json();
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[character]);
+        }
+
+        async function loadCategories() {
+            const categories = await api(`/api/finance/categories`);
+            categorySelect.innerHTML = '<option value="">Chưa phân loại</option>' +
+                categories.map(category => `<option value="${category.id}">${escapeHtml(category.name)}</option>`).join('');
+        }
+
+        
+async function loadWallets() {
+    walletSelect.disabled = true;
+    walletSelect.innerHTML = '<option value="">Đang tải ví...</option>';
+
+    try {
+        const wallets = await api('/api/finance/wallets');
+
+        if (!Array.isArray(wallets)) {
+            throw new Error('API không trả về danh sách ví dạng mảng.');
+        }
+
+        walletSelect.innerHTML = '<option value="">Chọn ví</option>';
+
+        wallets.forEach(wallet => {
+            const option = document.createElement('option');
+            option.value = wallet.id;
+            option.textContent =
+                `${wallet.name} · ${money.format(Number(wallet.balance) || 0)}`;
+            walletSelect.appendChild(option);
+        });
+
+        if (wallets.length === 0) {
+            walletSelect.innerHTML =
+                '<option value="">Không có ví nào</option>';
+        }
+    } catch (error) {
+        console.error('Lỗi tải ví:', error);
+        walletSelect.innerHTML =
+            '<option value="">Lỗi tải ví</option>';
+        showStatus(`Không tải được ví: ${error.message}`, true);
+    } finally {
+        walletSelect.disabled = false;
+    }
+}
+
+
+        async function loadTransactions() {
+            if (!currentCalendarMonth) currentCalendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+            const rows = await api(`/api/finance/transactions?userId=${currentUserId}&month=${monthString(currentCalendarMonth)}`);
+            calendarTransactions.splice(0, calendarTransactions.length, ...rows);
+            renderCalendar();
+        }
+
+        segments.forEach(segment => segment.addEventListener('click', async () => {
+            segments.forEach(item => item.classList.toggle('active', item === segment));
+            const income = segment.dataset.kind === 'income';
+            chip.textContent = income ? 'Thu vào' : 'Chi tiêu';
+            chip.style.background = income ? 'var(--green-pale, #eaf7f2)' : 'var(--primary-soft)';
+            chip.style.color = income ? 'var(--success)' : 'var(--primary-dark)';
+            try {
+                await loadCategories();
+            } catch (error) {
+                showStatus(`Không tải được danh mục: ${error.message}`, true);
+            }
+        }));
+
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            if (!form.reportValidity()) return;
+
+            const payload = {
+                userId: currentUserId,
+                walletId: Number(walletSelect.value),
+                categoryId: categorySelect.value ? Number(categorySelect.value) : null,
+                type: selectedType(),
+                amount: Number(amountInput.value),
+                transactionDate: dateInput.value,
+                note: document.getElementById('expenseNote').value.trim() || null
+            };
+
+            try {
+                await api('/api/finance/transactions', { method: 'POST', body: JSON.stringify(payload) });
+                showStatus('Giao dịch đã được lưu vào cơ sở dữ liệu.');
+                amountInput.value = '';
+                document.getElementById('expenseNote').value = '';
+                await Promise.all([loadWallets(), loadTransactions()]);
+            } catch (error) {
+                showStatus(`Không lưu được giao dịch: ${error.message}`, true);
+            }
+        });
+
+        form.addEventListener('reset', () => {
+            setTimeout(() => {
+                dateInput.value = localDateTimeString();
+                showStatus('Form đã được làm mới.');
+            }, 0);
+        });
+
+        function transactionsForDate(date) {
+            return calendarTransactions.filter(transaction => transaction.transactionDate.startsWith(date));
+        }
+
+        function renderSelectedDay() {
+            const heading = document.getElementById('selected-day-heading');
+            const target = document.getElementById('selected-day-transactions');
+            if (!selectedCalendarDate) {
+                heading.textContent = 'Chi tiết trong ngày';
+                target.innerHTML = '<div class="day-empty">Chọn một ngày để xem lịch sử giao dịch.</div>';
+                return;
+            }
+
+            const date = new Date(`${selectedCalendarDate}T00:00:00`);
+            heading.textContent = new Intl.DateTimeFormat('vi-VN', {
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+            }).format(date);
+            const rows = transactionsForDate(selectedCalendarDate);
+            if (!rows.length) {
+                target.innerHTML = '<div class="day-empty">Ngày này chưa có giao dịch.</div>';
+                return;
+            }
+
+            const expenses = rows.filter(row => row.type === 'expense').reduce((total, row) => total + Number(row.amount), 0);
+            const income = rows.filter(row => row.type === 'income').reduce((total, row) => total + Number(row.amount), 0);
+            const totals = `<div class="day-total"><span>Tổng chi</span><strong>−${money.format(expenses)}</strong></div>` +
+                `<div class="day-total income"><span>Tổng thu</span><strong>+${money.format(income)}</strong></div>`;
+            const details = rows.map(transaction => {
+                const isIncome = transaction.type === 'income';
+                const time = transaction.transactionDate.split('T')[1]?.slice(0, 5) || '--:--';
+                const label = transaction.note || transaction.categoryName || (isIncome ? 'Khoản thu' : 'Khoản chi');
+                return `<article class="day-transaction">
+                    <div class="day-transaction-top">
+                        <span class="day-transaction-title">${escapeHtml(label)}</span>
+                        <span class="day-transaction-amount ${isIncome ? 'income' : 'expense'}">${isIncome ? '+' : '−'}${money.format(transaction.amount)}</span>
+                    </div>
+                    <div class="day-transaction-meta">${time} · ${escapeHtml(transaction.categoryName || 'Chưa phân loại')} · Ví ${escapeHtml(transaction.walletName)}</div>
+                </article>`;
+            }).join('');
+            target.innerHTML = totals + details;
+        }
+
+        function renderCalendar() {
+            if (!currentCalendarMonth) return;
+            calendarMonthInput.value = monthString(currentCalendarMonth);
+            const year = currentCalendarMonth.getFullYear();
+            const month = currentCalendarMonth.getMonth();
+            const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = localDateString();
+            const weekdays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+            const cells = weekdays.map(day => `<div class="calendar-weekday">${day}</div>`);
+            const cellCount = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
+
+            for (let index = 0; index < cellCount; index += 1) {
+                const dayNumber = index - firstWeekday + 1;
+                const date = new Date(year, month, dayNumber);
+                const dateKey = localDateString(date);
+                const inCurrentMonth = dayNumber > 0 && dayNumber <= daysInMonth;
+                const rows = inCurrentMonth ? transactionsForDate(dateKey) : [];
+                const expenseTotal = rows.filter(row => row.type === 'expense').reduce((total, row) => total + Number(row.amount), 0);
+                const incomeTotal = rows.filter(row => row.type === 'income').reduce((total, row) => total + Number(row.amount), 0);
+                const summary = expenseTotal > 0
+                    ? `−${money.format(expenseTotal)}`
+                    : incomeTotal > 0 ? `+${money.format(incomeTotal)}` : '';
+                cells.push(`<button type="button" class="calendar-day${inCurrentMonth ? '' : ' outside'}${dateKey === today ? ' today' : ''}${dateKey === selectedCalendarDate ? ' selected' : ''}${expenseTotal === 0 && incomeTotal > 0 ? ' has-income' : ''}" data-calendar-date="${dateKey}" ${inCurrentMonth ? '' : 'disabled'}>
+                    <span class="calendar-day-number">${date.getDate()}</span>
+                    ${summary ? `<span class="calendar-day-total">${summary}</span>` : ''}
+                </button>`);
+            }
+            calendarGrid.innerHTML = cells.join('');
+            calendarGrid.querySelectorAll('[data-calendar-date]').forEach(button => button.addEventListener('click', () => {
+                selectedCalendarDate = button.dataset.calendarDate;
+                renderCalendar();
+                renderSelectedDay();
+            }));
+            renderSelectedDay();
+        }
+
+        async function showCalendarMonth(date) {
+            currentCalendarMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+            calendarMonthInput.value = monthString(currentCalendarMonth);
+            selectedCalendarDate = null;
+            calendarGrid.innerHTML = '<div class="day-empty">Đang tải dữ liệu giao dịch...</div>';
+            try {
+                await loadTransactions();
+            } catch (error) {
+                calendarGrid.innerHTML = `<div class="day-empty">Không tải được lịch sử: ${escapeHtml(error.message)}</div>`;
+                showStatus(`Không tải được lịch sử chi tiêu: ${error.message}`, true);
+            }
+        }
+
+        function setExpenseView(view) {
+            const showCalendar = view === 'calendar';
+            document.getElementById('expense-entry').hidden = showCalendar;
+            document.getElementById('calendar-view').hidden = !showCalendar;
+            document.getElementById('calendar-nav').classList.toggle('active', showCalendar);
+            document.getElementById('expenses-nav').classList.toggle('active', !showCalendar);
+            if (showCalendar) {
+                document.getElementById('calendar-nav').setAttribute('aria-current', 'page');
+                document.getElementById('expenses-nav').removeAttribute('aria-current');
+            } else {
+                document.getElementById('expenses-nav').setAttribute('aria-current', 'page');
+                document.getElementById('calendar-nav').removeAttribute('aria-current');
+            }
+            if (showCalendar && currentUserId) showCalendarMonth(currentCalendarMonth || new Date());
+        }
+
+        document.getElementById('previous-month').addEventListener('click', () => {
+            if (currentCalendarMonth) showCalendarMonth(new Date(currentCalendarMonth.getFullYear(), currentCalendarMonth.getMonth() - 1, 1));
+        });
+        document.getElementById('next-month').addEventListener('click', () => {
+            if (currentCalendarMonth) showCalendarMonth(new Date(currentCalendarMonth.getFullYear(), currentCalendarMonth.getMonth() + 1, 1));
+        });
+        calendarMonthInput.addEventListener('change', () => {
+            if (!calendarMonthInput.value) return;
+            const [year, month] = calendarMonthInput.value.split('-').map(Number);
+            showCalendarMonth(new Date(year, month - 1, 1));
+        });
+
+        document.getElementById('logout-button').addEventListener('click', async () => {
+            try {
+                await api('/api/auth/logout', { method: 'POST' });
+                location.href = '/login/index.html';
+            } catch (error) {
+                showStatus(`Không đăng xuất được: ${error.message}`, true);
+            }
+        });
+
+        (async () => {
+            dateInput.value = localDateTimeString();
+            currentCalendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+            try {
+                const user = await api('/api/auth/me');
+                currentUserId = user.id;
+                const profile = document.getElementById('profile-logout');
+                profile.title = `Đăng xuất · ${user.email}`;
+                profile.textContent = user.fullName.trim().split(/\s+/).slice(-2).map(part => part[0]).join('').toUpperCase();
+                await Promise.all([loadCategories(), loadWallets(), loadTransactions()]);
+                if (location.hash === '#calendar') setExpenseView('calendar');
+            } catch (error) {
+                showStatus(`Không tải được dữ liệu: ${error.message}`, true);
+            }
+        })();
+    </script>
 </body>
 </html>

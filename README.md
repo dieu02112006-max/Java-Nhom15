@@ -56,6 +56,7 @@ Các giao diện:
 | Trang chủ | `/` |
 | To-do list | `/todo/index.html` |
 | Quản lí chi tiêu | `/expenses/index.html` |
+| Mục tiêu tiết kiệm | `/expenses/goals.html` |
 | Đăng nhập / đăng ký | `/login/index.html` |
 | Quản trị | `/admin/index.html` (chỉ ADMIN) |
 

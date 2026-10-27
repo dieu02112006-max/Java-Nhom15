@@ -1,13 +1,15 @@
 package com.example.demo.controller;
 
+import com.example.demo.security.AppUserPrincipal;
 import com.example.demo.service.FinanceService;
 import com.example.demo.service.FinanceService.CategoryOption;
 import com.example.demo.service.FinanceService.FinanceSummary;
 import com.example.demo.service.FinanceService.TransactionRow;
 import com.example.demo.service.FinanceService.WalletOption;
-import org.springframework.security.access.prepost.PreAuthorize;
 import java.time.YearMonth;
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,17 +48,15 @@ public class FinanceController {
     }
 
     @GetMapping("/categories")
-    @PreAuthorize("@authz.canAccessUser(#userId)")
     public List<CategoryOption> categories(
-            @RequestParam(defaultValue = "1") long userId,
+            @AuthenticationPrincipal AppUserPrincipal principal,
             @RequestParam(defaultValue = "expense") String type) {
-        return service.categories(userId, type);
+        return service.categories(principal.id(), type);
     }
 
     @GetMapping("/wallets")
-    @PreAuthorize("@authz.canAccessUser(#userId)")
-    public List<WalletOption> wallets(@RequestParam(defaultValue = "1") long userId) {
-        return service.wallets(userId);
+    public List<WalletOption> wallets(@AuthenticationPrincipal AppUserPrincipal principal) {
+        return service.wallets(principal.id());
     }
 
     @PostMapping("/transactions")
