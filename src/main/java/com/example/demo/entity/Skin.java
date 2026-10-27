@@ -25,6 +25,8 @@ public class Skin {
     private String textColor;
     @Column(name = "preview_url", length = 500)
     private String previewUrl;
+    @Column(name = "background_image_url", length = 500)
+    private String backgroundImageUrl;
     @Column(name = "is_default", nullable = false)
     @JsonProperty("isDefault")
     private boolean isDefault;
