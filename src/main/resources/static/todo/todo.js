@@ -23,17 +23,6 @@
         root.style.setProperty('--theme-background-image', image);
         document.querySelector('meta[name="theme-color"]').content = skin.backgroundColor;
     }
-    const profileButton = document.getElementById('profile-logout');
-    profileButton.title = `Đăng xuất · ${currentUser.email}`;
-    profileButton.textContent = currentUser.fullName.trim().split(/\s+/).slice(-2).map(part => part[0]).join('').toUpperCase();
-    const logout = async () => {
-        await fetch('/api/auth/csrf', {credentials:'same-origin'});
-        const cookie = document.cookie.split('; ').find(value => value.startsWith('XSRF-TOKEN='));
-        await fetch('/api/auth/logout', {method:'POST',credentials:'same-origin',headers:{'X-XSRF-TOKEN':cookie ? decodeURIComponent(cookie.slice('XSRF-TOKEN='.length)) : ''}});
-        location.href = '/login/index.html';
-    };
-    document.getElementById('logout-button').addEventListener('click', logout);
-    profileButton.addEventListener('click', logout);
     const today = new Date();
     const dateKey = (date) => `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
     let tasks = [];

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f8fd">
+    <title>Đăng ký — Dayflow</title>
+    <link rel="stylesheet" href="login.css">
+    <link rel="preload" as="image" href="mascot-sad.png">
+</head>
+<body>
+<main class="stage">
+    <!-- Linh vật: mặc định ngồi im, nhập sai/thiếu thì chuyển sang buồn -->
+    <div class="mascot" id="mascot" role="img" aria-label="Linh vật đang ngồi chờ bạn đăng ký">
+        <img class="pose pose-sit" src="mascot-sit.png" alt="" width="569" height="640" draggable="false">
+        <img class="pose pose-sad" src="mascot-sad.png" alt="" width="569" height="640" draggable="false">
+    </div>
+
+    <form class="card" id="auth-form" data-mode="register" novalidate>
+        <div class="field">
+            <label for="name">Họ và tên</label>
+            <input id="name" type="text" autocomplete="name" maxlength="150" placeholder="Nguyễn Minh Anh">
+        </div>
+        <div class="field">
+            <label for="email">Email</label>
+            <input id="email" type="email" autocomplete="email" maxlength="255" placeholder="ban@email.com">
+        </div>
+        <div class="field">
+            <label for="password">Mật khẩu</label>
+            <input id="password" type="password" autocomplete="new-password" maxlength="100" placeholder="Ít nhất 6 ký tự">
+        </div>
+        <div class="error" id="error" role="alert"></div>
+        <button class="submit" id="submit" type="submit">Đăng ký</button>
+        <a class="alt" href="index.html">Đã có tài khoản? Đăng nhập</a>
+    </form>
+</main>
+<script src="login.js" defer></script>
+</body>
+</html>

@@ -41,15 +41,8 @@
     const requestedView = document.body.dataset.view || new URLSearchParams(location.search).get('view');
     const view = viewNames[requestedView] ? requestedView : 'calendar';
     document.title = `${viewNames[view]} — Dayflow`;
-    document.getElementById('avatar').textContent = user.fullName.trim().split(/\s+/).slice(-2).map(part=>part[0]).join('').toUpperCase();
-    document.querySelector(`[data-nav="${view}"]`).classList.add('active');
+    document.querySelector(`[data-nav="${view}"]`)?.classList.add('active');
     applySkin(currentSkin);
-    document.getElementById('logout').addEventListener('click',async()=>{
-        await fetch('/api/auth/csrf',{credentials:'same-origin'});
-        const cookie=document.cookie.split('; ').find(value=>value.startsWith('XSRF-TOKEN='));
-        await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin',headers:{'X-XSRF-TOKEN':cookie?decodeURIComponent(cookie.slice('XSRF-TOKEN='.length)):''}});
-        location.href='/login/index.html';
-    });
     const content=document.getElementById('page-content');
     const showMessage=message=>{const node=document.getElementById('message');node.textContent=message;node.classList.add('show');clearTimeout(showMessage.timer);showMessage.timer=setTimeout(()=>node.classList.remove('show'),2600);};
     const csrfHeaders=async()=>{await fetch('/api/auth/csrf',{credentials:'same-origin'});const cookie=document.cookie.split('; ').find(value=>value.startsWith('XSRF-TOKEN='));return {'Content-Type':'application/json','X-XSRF-TOKEN':cookie?decodeURIComponent(cookie.slice('XSRF-TOKEN='.length)):''};};
