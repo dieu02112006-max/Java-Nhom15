@@ -5,88 +5,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f7f8fc">
     <title>Dayflow — Sống chủ động mỗi ngày</title>
-    <link rel="stylesheet" href="/trang-chu/home.css">
+    <link rel="stylesheet" href="/home/home.css">
 </head>
 <body>
-<header class="topbar">
-    <nav class="nav-wrap" aria-label="Điều hướng chính">
-        <a class="brand" href="#home" aria-label="Dayflow - Trang chủ">
-            <span class="brand-mark" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.3 4.2L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2.8a9.2 9.2 0 1 0 9.2 9.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-            </span>
-            <span>dayflow</span>
-        </a>
-        <a class="nav-cta" href="/login/index.html">Đăng nhập</a>
-    </nav>
-</header>
-
 <main id="home">
     <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-content">
-            <div class="eyebrow"><span class="eyebrow-dot"></span> Một ngày nhẹ nhàng hơn</div>
-            <h1 id="hero-title">Sắp xếp ngày.<br><span>Sống chủ động.</span></h1>
-            <p class="hero-copy">Tập trung vào điều quan trọng, hoàn thành việc cần làm và hiểu rõ dòng tiền của bạn — tất cả trong một không gian gọn gàng.</p>
-            <div class="hero-actions">
-                <a class="button button-primary" href="/todo/index.html">Bắt đầu với công việc <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a class="button button-quiet" href="/expenses/index.html">Xem quản lí chi tiêu</a>
-            </div>
-            <p class="hero-note">Hai công cụ cần thiết. Một nhịp sống cân bằng hơn.</p>
+        <div class="banner" id="banner" aria-live="polite">
+            <div class="banner-row" id="banner-row"></div>
         </div>
 
-        <div class="preview-area" aria-label="Minh họa bảng công việc và thu chi">
-            <div class="preview-glow"></div>
-            <div class="preview-card">
-                <div class="preview-head">
-                    <div><div class="preview-title">Tổng quan hôm nay</div><div class="preview-date">Thứ Hai, ngày mới của bạn</div></div>
-                    <div class="avatar-stack" aria-hidden="true"><span class="avatar">A</span><span class="avatar">M</span><span class="avatar">+</span></div>
-                </div>
-                <div class="balance">
-                    <div><div class="balance-label">Chi tiêu trong tháng</div><div class="balance-number">4.250.000 ₫</div></div>
-                    <div class="balance-change">↓ 12% tháng trước</div>
-                </div>
-                <div class="preview-section-title">Việc cần ưu tiên</div>
-                <div class="task-row"><span class="check done"><svg viewBox="0 0 16 16" fill="none"><path d="m3.5 8 3 3 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="task-name">Lên kế hoạch tuần mới</span><span class="task-tag green">Hoàn thành</span></div>
-                <div class="task-row"><span class="check"></span><span class="task-name">Thanh toán hóa đơn điện</span><span class="task-tag">Hôm nay</span></div>
-                <div class="task-row"><span class="check"></span><span class="task-name">Chuẩn bị bài thuyết trình</span><span class="task-tag green">Công việc</span></div>
-            </div>
-            <div class="float-note"><span class="float-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17 9 12l3 3 7-8M14 7h5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><span class="float-label">Bạn đang đi đúng hướng</span><br><span class="float-value">Tiến độ tuần +18%</span></span></div>
-        </div>
-    </section>
-
-    <div class="trust-row"><span class="trust-avatars" aria-hidden="true"><span>L</span><span>H</span><span>N</span></span><span>Dành cho những ngày bận rộn, nhưng vẫn muốn sống có kế hoạch.</span></div>
-
-    <section class="modules" id="modules" aria-labelledby="modules-title">
-        <div class="section-inner">
-            <div class="section-heading">
-                <div class="eyebrow"><span class="eyebrow-dot"></span> Hai không gian của bạn</div>
-                <h2 id="modules-title">Mọi thứ quan trọng, ở đúng chỗ</h2>
-                <p>Chọn công cụ bạn cần ngay hôm nay. Dayflow giúp kế hoạch rõ ràng và những quyết định tài chính dễ hiểu hơn.</p>
-            </div>
-            <div class="module-grid">
-                <a class="module-card" id="todo-list" href="/todo/index.html" aria-label="Mở To-do list">
-                    <div class="module-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m3 6 .8.8L5.5 5M3 12l.8.8 1.7-1.8M3 18l.8.8 1.7-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-                    <h3>To-do list</h3>
-                    <p>Gom công việc vào một nơi, ưu tiên việc quan trọng và theo dõi tiến độ mỗi ngày.</p>
-                    <div class="module-points"><span>Danh sách công việc</span><span>Nhắc hạn</span><span>Theo dõi tiến độ</span></div>
-                    <span class="module-link">Khám phá To-do list <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <div class="mascot-area" aria-label="Linh vật Vàng chào bạn">
+            <div class="mascot-stage">
+                <a class="mascot-bubble" href="/login/index.html">
+                    <span><strong>Bấm vào đây để đăng nhập</strong></span>
                 </a>
-                <a class="module-card" id="expense-management" href="/expenses/index.html" aria-label="Mở quản lí chi tiêu">
-                    <div class="module-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M7 14h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
-                    <h3>Quản lí chi tiêu</h3>
-                    <p>Ghi lại thu chi, theo dõi ngân sách và biết tiền của bạn đang được sử dụng ra sao.</p>
-                    <div class="module-points"><span>Ghi chép thu chi</span><span>Ngân sách</span><span>Mục tiêu tiết kiệm</span></div>
-                    <span class="module-link">Khám phá quản lí chi tiêu <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <a class="mascot-link" href="/login/index.html" aria-label="Đăng nhập">
+                    <img class="mascot-img mascot-body" src="/home/mascot-body.png" alt="Linh vật Vàng nhìn thẳng và vẫy tay chào">
+                    <img class="mascot-img mascot-arm" src="/home/mascot-arm.png" alt="">
                 </a>
             </div>
         </div>
-    </section>
-
-    <section class="bottom-cta">
-        <h2>Bắt đầu từ một việc nhỏ</h2>
-        <p>Một kế hoạch rõ ràng có thể làm ngày hôm nay nhẹ nhàng hơn.</p>
-        <a class="button button-primary" href="/todo/index.html">Xem các công cụ của bạn <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </section>
 </main>
-<footer>© 2026 Dayflow · Sống chủ động mỗi ngày</footer>
+<script>
+(() => {
+    // Ảnh mẫu hiện ngay; khi API /api/public/banners trả về thì thay bằng ảnh từ database.
+    let list = [
+        {title:'Sắp xếp ngày. Sống chủ động.', imageUrl:'/home/banners/banner-1.png'},
+        {title:'Hiểu rõ tiền. Chi tiêu thông minh.', imageUrl:'/home/banners/banner-2.png'},
+        {title:'Việc nhỏ mỗi ngày. Kết quả lớn.', imageUrl:'/home/banners/banner-3.png'}
+    ];
+    const row = document.getElementById('banner-row');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const TILT = -10 * Math.PI / 180;        // quỹ đạo nghiêng
+    const SECONDS_PER_TURN = 12;             // 1 vòng quay = 12 giây
+    let items = [], angle = Math.PI / 2, paused = false, last = 0, raf = 0, hovered = -1;
+    const layout = () => {
+        const W = row.clientWidth, H = row.clientHeight;
+        if (!W || !H) return;
+        const n = items.length, d = Math.min(H * 0.66, W * 0.42);
+        const rx = W * 0.27, ry = H * 0.16;
+        items.forEach((el, i) => {
+            const t = angle + i * 2 * Math.PI / n;          // góc trên quỹ đạo, sin(t) = 1 là phía trước
+            let x = Math.cos(t) * rx, y = Math.sin(t) * ry;
+            const rxp = x * Math.cos(TILT) - y * Math.sin(TILT);
+            const ryp = x * Math.sin(TILT) + y * Math.cos(TILT);
+            const depth = (Math.sin(t) + 1) / 2;               // 0 = sau cùng, 1 = trước nhất
+            const h = el._h || 0;                              // 0..1: mức "nổi lên" khi rê chuột
+            const scale = (0.62 + 0.38 * depth) + h * (1.3 - (0.62 + 0.38 * depth));
+            const lift = -h * d * 0.14;
+            el.style.width = el.style.height = d + 'px';
+            el.style.transform = `translate(${W / 2 + rxp - d / 2}px, ${H / 2 + ryp - d / 2 + lift}px) scale(${scale})`;
+            el.style.zIndex = String(h > 0.02 ? 20 : Math.round(depth * 10));
+            el.style.opacity = String(Math.min(1, 0.72 + 0.28 * depth + h));
+            el.classList.toggle('front', depth > 0.93 || h > 0.5);
+        });
+    };
+    const tick = ts => {
+        if (!last) last = ts;
+        const dt = Math.min(ts - last, 60); last = ts;
+        if (!paused) angle += dt / 1000 * (2 * Math.PI / SECONDS_PER_TURN);
+        items.forEach((el, i) => { el._h = (el._h || 0) + ((hovered === i ? 1 : 0) - (el._h || 0)) * 0.16; });
+        layout();
+        raf = requestAnimationFrame(tick);
+    };
+    const start = () => {
+        cancelAnimationFrame(raf); row.innerHTML = ''; last = 0;
+        items = list.slice(0, 3).map(b => {
+            const a = document.createElement('a');
+            a.className = 'banner-circle';
+            a.href = (b.linkUrl && b.linkUrl.startsWith('/')) ? b.linkUrl : '/login/index.html';
+            a.setAttribute('aria-label', b.title || 'Banner');
+            const img = document.createElement('img');
+            img.src = b.imageUrl; img.alt = b.title || 'Banner';
+            a.appendChild(img);
+            const on = () => { paused = true; hovered = items.indexOf(a); if (reduce) { items.forEach((e, k) => e._h = k === hovered ? 1 : 0); layout(); } };
+            const off = () => { paused = false; hovered = -1; if (reduce) { items.forEach(e => e._h = 0); layout(); } };
+            a.addEventListener('mouseenter', on); a.addEventListener('mouseleave', off);
+            a.addEventListener('focus', on); a.addEventListener('blur', off);
+            row.appendChild(a);
+            return a;
+        });
+        layout();
+        if (!reduce) raf = requestAnimationFrame(tick);
+    };
+    window.addEventListener('resize', layout);
+    start();
+    fetch('/api/public/banners', {credentials:'same-origin'}).then(r => r.ok ? r.json() : []).then(data => {
+        if (Array.isArray(data)) { const l = data.filter(b => b.imageUrl); if (l.length) { list = l; start(); } }
+    }).catch(() => {});
+})();
+</script>
 </body>
 </html>

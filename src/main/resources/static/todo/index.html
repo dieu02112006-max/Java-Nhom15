@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#f7f8fd">
     <title>To-do list — Dayflow</title>
     <link rel="stylesheet" href="todo.css">
+    <link rel="stylesheet" href="/shared/user-menu.css">
 </head>
 <body>
 <div class="shell">
@@ -16,11 +17,9 @@
         <div class="side-label">Điều hướng</div>
         <nav class="side-nav" aria-label="Điều hướng chính">
             <a class="side-link active" href="#tasks" aria-current="page"><svg viewBox="0 0 24 24" fill="none"><path d="M8 6h12M8 12h12M8 18h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m3 6 .8.8L5.5 5M3 12l.8.8 1.7-1.8M3 18l.8.8 1.7-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Công việc</span></a>
-            <a class="side-link" href="/todo/lich/index.html"><svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="16" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M7.5 3v4M16.5 3v4M3.5 10h17M8 14h3m3 0h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Lịch</span></a>
-            <a class="side-link" href="/todo/muc-tieu/index.html"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Mục tiêu</span></a>
-            <a class="side-link" href="/todo/thong-ke/index.html"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Thống kê</span></a>
-            <a class="side-link" href="/todo/chu-de/index.html"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 0 18h1.2a2.2 2.2 0 0 0 1.7-3.6c-.8-1 .2-2.4 1.5-2.4H18a3 3 0 0 0 3-3C21 7 17 3 12 3Z" stroke="currentColor" stroke-width="1.7"/><circle cx="7.5" cy="10" r="1" fill="currentColor"/><circle cx="11" cy="7" r="1" fill="currentColor"/><circle cx="16" cy="9" r="1" fill="currentColor"/></svg><span>Chủ đề</span></a>
-            <a class="side-link" href="/todo/goi-nap/index.html"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M3 9h18M7 14h4m7-1v4m-2-2h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Gói nạp</span></a>
+            <a class="side-link" href="/todo/calendar/index.html"><svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="16" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M7.5 3v4M16.5 3v4M3.5 10h17M8 14h3m3 0h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Lịch</span></a>
+            <a class="side-link" href="/todo/goals/index.html"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Mục tiêu</span></a>
+            <a class="side-link" href="/todo/stats/index.html"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Thống kê</span></a>
         </nav>
         <div class="side-spacer"></div>
         <div class="workspace-label">Không gian</div>
@@ -28,7 +27,7 @@
         <div class="side-bottom"><div class="side-bottom-title">Một việc tại một thời điểm ✨</div><div class="side-bottom-copy">Chia nhỏ kế hoạch để mỗi ngày đều có một bước tiến.</div></div>
     </aside>
     <main class="main">
-        <header class="topbar"><div class="topbar-spacer" aria-hidden="true"></div><nav class="app-switcher" aria-label="Chọn ứng dụng"><a class="active" href="/todo/index.html" aria-current="page">To-do list</a><a href="/expenses/index.html">Quản lí chi tiêu</a></nav><div class="top-right-nav"><div class="top-actions"><button class="icon-button" type="button" aria-label="Thông báo"><svg viewBox="0 0 24 24" fill="none"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="logout-button" id="logout-button" type="button">Đăng xuất</button><span class="profile" id="profile-logout" aria-hidden="true">DF</span></div></div></header>
+        <header class="topbar"><div class="topbar-spacer" aria-hidden="true"></div><nav class="app-switcher" aria-label="Chọn ứng dụng"><a class="active" href="/todo/index.html" aria-current="page">To-do list</a><a href="/expenses/index.html">Quản lí chi tiêu</a></nav><div class="top-right-nav"><div class="top-actions"><button class="icon-button" type="button" aria-label="Thông báo"><svg viewBox="0 0 24 24" fill="none"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="user-menu" id="user-menu"></div></div></div></header>
         <div class="content">
             <section class="page-heading page-actions-only" aria-label="Thao tác công việc"><button class="primary-button" id="focus-add" type="button" aria-label="Thêm công việc" title="Thêm công việc"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></button></section>
             <section class="week-calendar" aria-label="Lịch công việc trong tuần"><div class="week-heading"><div><h2>Tuần này</h2><p>Chọn một ngày để xem công việc</p></div><button class="week-today" id="week-today" type="button">Hôm nay</button></div><div class="week-days" id="week-days"></div></section>
@@ -68,6 +67,7 @@
         <div class="dialog-actions"><button class="button" id="cancel-task" type="button">Hủy</button><button class="button primary" id="save-task" type="submit">Lưu công việc</button></div>
     </form>
 </dialog>
+<script src="/shared/user-menu.js" defer></script>
 <script src="todo.js" defer></script>
 </body>
 </html>
