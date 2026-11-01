@@ -136,6 +136,7 @@
             .goal-card { padding: 15px; }
         }
     </style>
+<link rel="stylesheet" href="/shared/user-menu.css">
 <link rel="stylesheet" href="/shared/app-shell.css?v=20261102-0070">
 </head>
 <body>
@@ -146,10 +147,10 @@
         <div class="workspace"><span class="workspace-icon">✳</span><span><strong>Không gian của tôi</strong><small>Cá nhân · Gói miễn phí</small></span></div>
         <div class="side-label">Điều hướng</div>
         <nav class="side-nav" aria-label="Điều hướng chi tiêu">
-            <a class="side-link" href="/expenses/section.html?view=calendar"><span>▦</span><span>Lịch chi tiêu</span></a>
-            <a class="side-link" href="/expenses/index.html"><span>◉</span><span>Quản lí chi tiêu</span></a>
-            <a class="side-link" href="/expenses/section.html?view=stats"><span>↗</span><span>Thống kê</span></a>
+            <a class="side-link" href="/expenses/expenses.html"><span>◉</span><span>Quản lí chi tiêu</span></a>
             <a class="side-link active" href="/expenses/goals.html" aria-current="page"><span>◎</span><span>Mục tiêu tiết kiệm</span></a>
+            <a class="side-link" href="/expenses/section.html?view=calendar"><span>▦</span><span>Lịch chi tiêu</span></a>
+            <a class="side-link" href="/expenses/section.html?view=stats"><span>↗</span><span>Thống kê</span></a>
         </nav>
         <div class="side-spacer"></div>
         <div class="workspace-label">Không gian</div>
@@ -159,8 +160,8 @@
     <main class="main">
         <header class="topbar">
             <div class="topbar-spacer" aria-hidden="true"></div>
-            <nav class="switcher" aria-label="Chọn ứng dụng"><a href="/todo/index.html">To-do list</a><a class="active" href="/expenses/index.html">Quản lí chi tiêu</a></nav>
-            <div class="user-actions"><button class="logout" id="logout" type="button">Đăng xuất</button><span class="avatar" id="avatar" aria-hidden="true">DF</span></div>
+            <nav class="switcher" aria-label="Chọn ứng dụng"><a href="/todo/index.html">To-do list</a><a class="active" href="/expenses/expenses.html">Quản lí chi tiêu</a></nav>
+            <div class="user-actions"></button><div class="user-menu" id="user-menu"></div></div>
         </header>
         <div class="content">
             <div id="message" class="message" role="alert"></div>
@@ -396,22 +397,10 @@
         document.getElementById(button.dataset.close).close();
     }));
 
-    document.getElementById('logout').addEventListener('click', async () => {
-        try {
-            await api('/api/auth/logout', { method: 'POST' });
-            location.href = '/login/index.html';
-        } catch (error) {
-            showMessage(`Không đăng xuất được: ${error.message}`);
-        }
-    });
-
     (async () => {
         try {
             const user = await api('/api/auth/me');
             currentUserId = user.id;
-            document.getElementById('avatar').textContent =
-                user.fullName.trim().split(/\s+/).slice(-2).map(part => part[0]).join('').toUpperCase();
-            document.getElementById('avatar').title = user.email;
             await loadGoals();
         } catch (error) {
             showMessage(`Không tải được thông tin tài khoản: ${error.message}`);
@@ -419,6 +408,7 @@
         }
     })();
 </script>
+<script src="/shared/user-menu.js" defer></script>
 <script src="/assistant/assistant.js?v=20261102-0092" defer></script>
 <script src="/shared/app-shell.js?v=20261101-2200" defer></script>
 </body>

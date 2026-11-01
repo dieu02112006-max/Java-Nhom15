@@ -85,7 +85,7 @@ CREATE TABLE `categories` (
   `type` enum('income','expense') NOT NULL,
   `icon` varchar(100) DEFAULT NULL,
   `color` varchar(30) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `categories`
@@ -111,7 +111,7 @@ CREATE TABLE `notifications` (
   `content` text NOT NULL,
   `is_read` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `notifications`
@@ -214,7 +214,7 @@ CREATE TABLE `skins` (
   `is_default` tinyint(1) NOT NULL DEFAULT '0',
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `skins`
@@ -236,7 +236,7 @@ CREATE TABLE `tags` (
   `user_id` bigint NOT NULL,
   `name` varchar(100) NOT NULL,
   `color` varchar(30) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tags`
@@ -296,7 +296,7 @@ CREATE TABLE `task_lists` (
   `name` varchar(120) NOT NULL,
   `color` varchar(30) DEFAULT NULL,
   `position` int NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `task_lists`
@@ -317,7 +317,7 @@ INSERT INTO `task_lists` (`id`, `user_id`, `name`, `color`, `position`) VALUES
 CREATE TABLE `task_tags` (
   `task_id` bigint NOT NULL,
   `tag_id` bigint NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `task_tags`
@@ -380,7 +380,7 @@ CREATE TABLE `users` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `role` varchar(50) NOT NULL DEFAULT 'USER'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
@@ -406,7 +406,7 @@ CREATE TABLE `wallets` (
   `balance` decimal(15,2) NOT NULL DEFAULT '0.00',
   `currency` varchar(3) NOT NULL DEFAULT 'VND',
   `is_archived` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `wallets`

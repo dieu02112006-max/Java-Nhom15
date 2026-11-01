@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f7f8fd">
-    <title>Lịch sử chi tiêu — Dayflow</title>
+    <title>Lịch chi tiêu — Dayflow</title>
     <style>
         :root{color-scheme:light;--ink:#202235;--muted:#81849a;--blue:#4568df;--blue-dark:#3452bf;--blue-pale:#eef1ff;--pink:#efa9c8;--pink-pale:#fff1f7;--line:#eaebf2;--canvas:#f7f8fd;--card:#fff;--red:#c85f73;--red-pale:#fff0f2;--green:#23866d}
         .cashflow-chart{display:grid;justify-items:center;gap:14px;padding:6px 0 2px}.cashflow-donut{display:block;width:min(100%,280px);height:auto;overflow:visible}.cashflow-donut-label{fill:var(--ink);font-size:12px;font-weight:700}.cashflow-empty-label{fill:var(--muted);font-size:11px;font-weight:600}.cashflow-legend{display:grid;width:min(100%,520px);gap:0}.cashflow-legend-item{display:grid;grid-template-columns:12px minmax(0,1fr) auto auto;align-items:center;gap:9px;padding:11px 2px;border-top:1px solid var(--line);font-size:11px}.cashflow-swatch{width:10px;height:10px;border-radius:3px}.cashflow-swatch.income{background:var(--green)}.cashflow-swatch.expense{background:var(--red)}.cashflow-legend-name{color:var(--muted)}.cashflow-legend-value{font-weight:700;white-space:nowrap}.cashflow-legend-percent{min-width:38px;color:var(--muted);text-align:right}
@@ -21,6 +21,7 @@
         @media(max-width:900px){.shell{grid-template-columns:1fr}.sidebar{position:static;height:auto}.side-bottom{display:none}.topbar{grid-template-columns:1fr auto;gap:10px;padding:0 14px}.topbar-spacer{display:none}.switcher{justify-self:start}.content{padding:24px 14px 40px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
         @media(max-width:520px){.side-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.topbar{height:auto;min-height:62px}.switcher a{padding:8px;font-size:10px}.logout{padding:0 8px}.toolbar{align-items:flex-start;flex-direction:column}.controls{width:100%;justify-content:space-between}.day-cell{min-height:66px;padding:4px}.day-total{font-size:7px}.category-row{grid-template-columns:minmax(72px,100px) minmax(45px,1fr) auto;gap:7px}}
     </style>
+<link rel="stylesheet" href="/shared/user-menu.css">
 <link rel="stylesheet" href="/shared/app-shell.css?v=20261102-0070">
 </head>
 <body>
@@ -31,18 +32,18 @@
         <div class="workspace"><span class="workspace-icon">✳</span><span><strong>Không gian của tôi</strong><small>Cá nhân · Gói miễn phí</small></span></div>
         <div class="nav-label">Điều hướng</div>
         <nav class="side-nav" aria-label="Điều hướng chi tiêu">
-            <a class="side-link" href="/todo/index.html"><span>☑</span><span>Công việc</span></a>
-            <a class="side-link" data-nav="calendar" href="/expenses/section.html?view=calendar"><span>▦</span><span>Lịch chi tiêu</span></a>
-            <a class="side-link" href="/expenses/index.html"><span>◉</span><span>Quản lí chi tiêu</span></a>
-            <a class="side-link" data-nav="stats" href="/expenses/section.html?view=stats"><span>↗</span><span>Thống kê</span></a>
+            <a class="side-link" href="/expenses/expenses.html"><span>◉</span><span>Quản lí chi tiêu</span></a>
             <a class="side-link" href="/expenses/goals.html"><span>◎</span><span>Mục tiêu tiết kiệm</span></a>
+            <a class="side-link" data-nav="calendar" href="/expenses/section.html?view=calendar"><span>▦</span><span>Lịch chi tiêu</span></a>
+            <a class="side-link" data-nav="stats" href="/expenses/section.html?view=stats"><span>↗</span><span>Thống kê</span></a>
+
         </nav>
         <div class="side-spacer"></div><div class="workspace-label">Không gian</div>
         <nav class="side-nav"><a class="side-link" href="/"><span>⌂</span><span>Trang giới thiệu</span></a></nav>
         <div class="side-bottom"><strong>Quản lí tài chính ✨</strong><p>Theo dõi thu chi để từng mục tiêu tài chính rõ ràng hơn.</p></div>
     </aside>
     <main class="main">
-        <header class="topbar"><div class="topbar-spacer" aria-hidden="true"></div><nav class="switcher" aria-label="Chọn ứng dụng"><a href="/todo/index.html">To-do list</a><a class="active" href="/expenses/index.html">Quản lí chi tiêu</a></nav><div class="user-actions"><button class="logout" id="logout" type="button">Đăng xuất</button><span class="avatar" id="avatar" aria-hidden="true">DF</span></div></header>
+        <header class="topbar"><div class="topbar-spacer" aria-hidden="true"></div><nav class="switcher" aria-label="Chọn ứng dụng"><a href="/todo/index.html">To-do list</a><a class="active" href="/expenses/expenses.html">Quản lí chi tiêu</a></nav><div class="user-actions"><div class="user-menu" id="user-menu"></div></div></header>
         <div class="content"><div id="message" class="message" role="alert"></div><section id="page-content"></section></div>
     </main>
 </div>
@@ -145,16 +146,8 @@
         document.getElementById('month-picker').addEventListener('change',event=>{if(!event.target.value)return;const [year,month]=event.target.value.split('-').map(Number);cursor=new Date(year,month-1,1);refresh();});
         await refresh();
     }
-    document.getElementById('avatar').textContent=user.fullName.trim().split(/\s+/).slice(-2).map(part=>part[0]).join('').toUpperCase();
     document.querySelector(`[data-nav="${view}"]`).classList.add('active');
     document.title=`${views[view]} — Dayflow`;
-    document.getElementById('logout').addEventListener('click',async()=>{
-        await fetch('/api/auth/csrf',{credentials:'same-origin'});
-        const cookie=document.cookie.split('; ').find(value=>value.startsWith('XSRF-TOKEN='));
-        const result=await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin',headers:{'X-XSRF-TOKEN':cookie?decodeURIComponent(cookie.slice('XSRF-TOKEN='.length)):''}});
-        if(!result.ok){error(`Đăng xuất thất bại (${result.status}).`);return;}
-        location.href='/login/index.html';
-    });
     if(view==='stats')await renderStats();
     else{
         content.innerHTML=heading('TÀI CHÍNH CỦA BẠN','Lịch sử chi tiêu','Chọn một ngày để xem khoản thu, chi cùng thời gian và chi tiết giao dịch.')+
@@ -166,6 +159,7 @@
     }
 })().catch(exception=>{const node=document.getElementById('message');if(node){node.textContent=`Không tải được trang: ${exception.message}`;node.classList.add('show');}console.error('Không thể tải trang chi tiêu:',exception);});
 </script>
+<script src="/shared/user-menu.js" defer></script>
 <script src="/assistant/assistant.js?v=20261102-0092" defer></script>
 <script src="/shared/app-shell.js?v=20261101-2200" defer></script>
 </body>
