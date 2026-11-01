@@ -246,7 +246,7 @@ body > .shell::before {
     inset: 0;
     z-index: -1;
     content: "";
-    background: url("/home/background.jpg") center / cover no-repeat;
+    background: var(--topic-background-image, url("/home/background.jpg")) center / cover no-repeat;
     opacity: .28;
     pointer-events: none;
 }
@@ -493,12 +493,32 @@ body > .shell::before { opacity: .42; }
     inset: 0;
     z-index: 0;
     content: "";
-    background: url("/home/background.jpg") center / cover no-repeat;
+    background: var(--topic-background-image, url("/home/background.jpg")) center / cover no-repeat;
     opacity: .65;
     pointer-events: none;
 }
 :root:not([data-skin="dark"]):not([data-skin="ocean"]) .shell > .main,
 :root:not([data-skin="dark"]):not([data-skin="ocean"]) .app-shell > .main {
+    position: relative;
+    z-index: 1;
+}
+:root[data-topic-background] .shell,
+:root[data-topic-background] .app-shell {
+    position: relative;
+    isolation: isolate;
+}
+:root[data-topic-background] .shell::before,
+:root[data-topic-background] .app-shell::before {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    content: "";
+    background: var(--topic-background-image) center / cover no-repeat;
+    opacity: .65;
+    pointer-events: none;
+}
+:root[data-topic-background] .shell > .main,
+:root[data-topic-background] .app-shell > .main {
     position: relative;
     z-index: 1;
 }
@@ -634,4 +654,10 @@ body > .shell::before { opacity: .42; }
 @media (max-width: 620px) {
     .assistant-pet,
     .dayflow-assistant.open .assistant-pet { width: 105px !important; height: 90px !important; }
+}
+:root[data-topic-background]:not([data-skin="dark"]) body > .shell > .sidebar {
+    background: linear-gradient(rgb(255 255 255 / 78%), rgb(255 255 255 / 78%)), var(--topic-background-image) center / cover no-repeat !important;
+}
+:root[data-topic-background][data-skin="dark"] body > .shell > .sidebar {
+    background: linear-gradient(rgb(26 32 44 / 78%), rgb(26 32 44 / 78%)), var(--topic-background-image) center / cover no-repeat !important;
 }
