@@ -1,0 +1,637 @@
+/* ===== Bảng màu pastel (lấy từ ảnh mẫu) ===== */
+:root {
+    --t-teal: #e5ebf3;   --t-teal-ink: #526980;
+    --t-green: #e8eeea;  --t-green-ink: #5e7668;
+    --t-yellow: #f3eadb; --t-yellow-ink: #826f53;
+    --t-pink: #f0e2e8;   --t-pink-ink: #916477;
+    --t-lav: #e8e5f0;    --t-lav-ink: #6e6580;
+    --glass: rgb(255 255 255);
+}
+
+/* ===== Nền dùng chung ===== */
+:root:not([data-skin="dark"]):not([data-skin="ocean"]) body {
+    background: var(--canvas, #f7f8fd);
+}
+
+/* ===== Bỏ thanh nav phía trên ===== */
+.topbar { display: none !important; }
+
+/* ===== Sidebar: kính mờ + chuông/profile ở đáy ===== */
+.sidebar {
+    z-index: 20;
+    background: rgb(238 238 244 / 90%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+}
+@media (min-width: 621px) {
+    .sidebar { display: flex; flex-direction: column; }   /* không đặt overflow để menu profile không bị cắt */
+    .sidebar > * { flex-shrink: 0; }
+    .sidebar .side-bottom { position: static; margin-top: auto; }
+}
+
+.side-account {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 9px 10px;
+    border: 1px solid rgb(255 255 255);
+    border-radius: 16px;
+    background: #f0e5eb;
+    box-shadow: 0 6px 18px rgb(125 90 160 / 12%);
+}
+.side-account .icon-button { flex: none; margin: 0; }
+.side-account .logout-button,
+.side-account .logout {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    white-space: nowrap;
+}
+.side-account .user-menu { margin-left: auto; }
+.side-account .profile, .side-account .avatar { flex: none; margin: 0; }
+
+/* Menu tài khoản mở lên phía trên (vì đang nằm ở đáy) */
+.side-account .user-menu-panel {
+    top: auto;
+    bottom: calc(100% + 12px);
+    left: 0;
+    right: auto;
+    transform: translateY(6px) scale(.98);
+    transform-origin: bottom left;
+}
+.side-account .user-menu.open .user-menu-panel { transform: none; }
+
+/* ===== Ngăn kéo chọn ứng dụng ở cạnh phải ===== */
+.app-dock {
+    --dock-w: 236px;
+    position: fixed;
+    top: 50%;
+    right: 0;
+    z-index: 30;
+    width: var(--dock-w);
+    transform: translate(var(--dock-w), -50%);
+    transition: transform .3s cubic-bezier(.22, .9, .3, 1);
+}
+.app-dock.open { transform: translate(0, -50%); }
+
+.dock-toggle {
+    position: absolute;
+    top: 50%;
+    left: -38px;
+    width: 38px;
+    height: 74px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid rgb(255 255 255);
+    border-right: 0;
+    border-radius: 18px 0 0 18px;
+    color: #7a4fa8;
+    background: #e8e5f0;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: -6px 8px 22px rgb(125 90 160 / 20%);
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition: width .18s ease, left .18s ease, color .18s ease;
+}
+.dock-toggle:hover { left: -42px; width: 42px; color: #5b2f94; }
+.dock-toggle:focus-visible { outline: 3px solid #b8a3e0; outline-offset: 2px; }
+.dock-toggle svg { width: 22px; height: 22px; transition: transform .3s ease; }
+.app-dock.open .dock-toggle svg { transform: rotate(180deg); }
+
+.dock-panel {
+    padding: 16px 14px 14px;
+    border: 1px solid rgb(255 255 255);
+    border-right: 0;
+    border-radius: 24px 0 0 24px;
+    background: #f1eff5;
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+    box-shadow: -14px 18px 50px rgb(100 80 150 / 20%);
+}
+.dock-title {
+    margin: 0 6px 10px;
+    color: #8a7da6;
+    font-size: 10px;
+    font-weight: 780;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+.dock-links { display: grid; gap: 8px; }
+.dock-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 13px;
+    border: 1px solid transparent;
+    border-radius: 15px;
+    color: #5d6075;
+    background: #e9efeb;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
+}
+.dock-link:hover { transform: translateX(-3px); box-shadow: 0 8px 20px rgb(100 80 150 / 14%); }
+.dock-ico { width: 34px; height: 34px; display: grid; place-items: center; flex: none; border-radius: 11px; }
+.dock-ico svg { width: 19px; height: 19px; }
+.dock-ico-todo { color: var(--t-lav-ink); background: var(--t-lav); }
+.dock-ico-expenses { color: var(--t-teal-ink); background: var(--t-teal); }
+.dock-link.active { color: #58536a; border-color: rgb(255 255 255); background: #e8e5f0; box-shadow: 0 8px 22px rgb(125 90 160 / 12%); }
+.dock-link.active .dock-ico { background: rgb(255 255 255); }
+
+/* ===== Màu đơn sắc cho các màn hình ===== */
+:root:not([data-skin="dark"]) {
+    & .brand-mark { background: #7485a2; }
+    & .side-link.active, & .nav-item.active { color: #58536a; background: #e8e5f0; box-shadow: none; }
+    & .side-link:hover, & .nav-item:hover { background: #e9efeb; }
+    & .workspace { border-color: #fff; background: #e5ebf3; }
+    & .workspace-icon { color: var(--t-teal-ink); background: #fff; }
+    & .side-bottom { border-color: #fff; background: #f0e5eb; }
+    & .card, & .panel { background: rgb(255 255 255 / 88%); }
+    & .list-panel, & .week-calendar { background: rgb(255 255 255 / 88%); }
+    & .card, & .panel, & .list-panel, & .week-calendar { border-color: #fff; backdrop-filter: blur(8px); }
+    & .button { background: #e8eeea; }
+    & .week-day { border-color: #fff; background: #e8eeea; }
+    & .week-day:nth-child(7) { background: #f0e2e8; }
+    & .week-day:hover, & .week-day.active { color: #58536a; background: #e8e5f0; box-shadow: none; }
+    & .week-day.active strong, & .week-day.is-today strong { color: #657996; }
+    & .week-today { border-color: #fff; color: #58536a; background: #f3eadb; }
+    & .stats .stat-card:nth-child(1), & .stats-grid .stat-card:nth-child(1) { color: #526980; background: #e5ebf3; }
+    & .stats .stat-card:nth-child(2), & .stats-grid .stat-card:nth-child(2) { color: #5e7668; background: #e8eeea; }
+    & .stats .stat-card:nth-child(3), & .stats-grid .stat-card:nth-child(3) { color: #826f53; background: #f3eadb; }
+    & .stats-grid .stat-card:nth-child(4) { color: #916477; background: #f0e2e8; }
+    & .stats-grid .stat-card:nth-child(5) { color: #6e6580; background: #e8e5f0; }
+    & .stats .stat-card:first-child:nth-last-child(4) ~ .stat-card:nth-child(2) { color: #916477; background: #f0e2e8; }
+    & .stats .stat-card:first-child:nth-last-child(4) ~ .stat-card:nth-child(3) { color: #6e6580; background: #e8e5f0; }
+    & .stats .stat-card:first-child:nth-last-child(4) ~ .stat-card:nth-child(4) { color: #5e7668; background: #e8eeea; }
+    & .stat-card .stat-value { color: inherit; }
+    & .stat-card .stat-icon { color: inherit; background: #fff; box-shadow: none; }
+    & .panel-toolbar { background: #eeebf2; }
+    & .task-table thead, & .task-table th { color: #765b68; background: #f0e2e8; }
+    & .task-row:nth-child(odd) { background: #fff; }
+    & .task-row:nth-child(even) { background: #f5f6f5; }
+    & .filter-button:hover { background: #e8eeea; }
+    & .filter-button.active { color: #58536a; background: #e8e5f0; box-shadow: none; }
+    & .search-box { border-color: #fff; background: #f5f6f5; }
+    & .status-pill:not(.in_progress):not(.done), & .priority-pill:not(.high):not(.low) { background: #e8e5f0; }
+    & .status-pill.in_progress { background: #f3eadb; }
+    & .status-pill.done { background: #e5ebf3; }
+    & .priority-pill.high { background: #f0e2e8; }
+    & .priority-pill.low { background: #e8eeea; }
+    & .empty-icon { color: var(--t-pink-ink); background: #f0e2e8; }
+    & .task-dialog, & .goal-dialog, & .um-dialog { background: #fcfafb; }
+    & .dialog-title-icon { color: var(--t-lav-ink); background: #e8e5f0; }
+    & .task-field input, & .task-field select, & .task-field textarea, & .field input, & .field select { background: #fff; }
+    & .primary-button, & .button.primary, & .dialog-actions .button.primary, & .um-close,
+    & .btn-primary { color: #fff; border-color: transparent; background: #71819e; }
+    & #focus-add, & .goal-add-button { color: #fff; background: #c88ba2; box-shadow: 0 12px 28px rgb(200 139 162 / 22%); }
+    & .user-menu-panel { background: #fff; }
+    & .user-menu-head { background: #f0e2e8; }
+    & .user-menu-big { background: #7888a5; }
+    & .user-menu-item:hover, & .user-menu-item.active { background: #f3eadb; }
+    & .goal-art { background: #e5ebf3; }
+    & .agenda-item { background: transparent; }
+    & .goal-card:nth-child(5n+1), & .package-card:nth-child(5n+1), & .theme-card:nth-child(5n+1) { background: #e5ebf3; }
+    & .goal-card:nth-child(5n+2), & .package-card:nth-child(5n+2), & .theme-card:nth-child(5n+2) { background: #e8eeea; }
+    & .goal-card:nth-child(5n+3), & .package-card:nth-child(5n+3), & .theme-card:nth-child(5n+3) { background: #f3eadb; }
+    & .goal-card:nth-child(5n+4), & .package-card:nth-child(5n+4), & .theme-card:nth-child(5n+4) { background: #f0e2e8; }
+    & .goal-card:nth-child(5n+5), & .package-card:nth-child(5n+5), & .theme-card:nth-child(5n+5) { background: #e8e5f0; }
+    & .stats-panels .panel { background: rgb(255 255 255 / 91%); }
+    & .calendar-grid .day-cell { background: #e8eeea; }
+    & .calendar-grid .day-cell.outside { background: #f0e2e8; }
+    & .calendar-grid .weekday { color: var(--t-lav-ink); background: #e8e5f0; }
+    & .event-chip { color: #58536a; background: #e8e5f0; }
+    & .event-chip.done { background: #f0f1f5; }
+}
+
+/* ===== Màn hình nhỏ ===== */
+@media (max-width: 850px) {
+    .side-account { flex-direction: column; padding: 8px 4px; border-radius: 14px; }
+    .side-account .logout-button, .side-account .logout { flex: none; width: 100%; padding: 0 2px; font-size: 9px; }
+    .side-account .user-menu-panel { left: 0; }
+}
+@media (max-width: 620px) {
+    /* sidebar thành thanh dưới: profile nằm gọn bên phải thanh */
+    .side-account { flex: none; margin: 0 0 0 auto; padding: 0 4px; border: 0; background: none; box-shadow: none; flex-direction: row; gap: 6px; }
+    .side-account .logout-button, .side-account .logout { flex: none; width: auto; padding: 0 9px; font-size: 10px; }
+    .side-account .user-menu-panel { position: fixed; top: auto; bottom: 80px; left: 12px; right: 12px; width: auto; transform-origin: bottom center; }
+    .app-dock { --dock-w: 210px; }
+}
+@media (min-width: 621px) and (max-height: 720px) {
+    .sidebar .side-bottom { display: none; }               /* màn hình thấp: nhường chỗ cho hàng tài khoản */
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-dock, .dock-toggle, .dock-toggle svg, .dock-link { transition: none; }
+}
+html body[data-view="goals"] .goal-card h2 { font-size: 21px !important; }
+html body[data-view="goals"] .goal-meta, html body[data-view="goals"] .goal-footer { font-size: 14px !important; }
+html body[data-view="goals"] .goal-task { font-size: 15px !important; }
+html body[data-view="goals"] .goal-task small, html body[data-view="goals"] .goal-empty { font-size: 13px !important; }
+html body[data-view="stats"] .panel h2 { font-size: 20px !important; }
+html body[data-view="stats"] .stat-label { font-size: 15px !important; }
+html body[data-view="stats"] .stat-value { font-size: 30px !important; }
+html body[data-view="stats"] .bar-row, html body[data-view="stats"] .bar-number { font-size: 14px !important; }
+html body[data-view="stats"] .subtitle { font-size: 16px !important; }
+
+/* Cập nhật giao diện Dayflow: nền ảnh nhẹ, các khối có màu và chữ rõ hơn. */
+html body { background: #edf0f4 !important; }
+body > .shell { position: relative; isolation: isolate; background: transparent !important; }
+body > .shell::before {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    content: "";
+    background: url("/home/background.jpg") center / cover no-repeat;
+    opacity: .28;
+    pointer-events: none;
+}
+.sidebar .brand,
+.sidebar .workspace-label,
+.sidebar .side-label,
+.sidebar .nav-label,
+.sidebar .side-spacer { display: none !important; }
+.sidebar .workspace { background: #e3ece7 !important; border-color: #fff !important; }
+.sidebar .side-link { min-height: 48px; font-size: 16px !important; }
+.sidebar .side-link.active { color: #4e627b !important; background: #e1e7f0 !important; }
+.sidebar .side-bottom, .sidebar .side-account { background: #efe5e8 !important; }
+.week-calendar { background: #e7eaf1 !important; }
+.week-day { background: #e2ece5 !important; }
+.week-day:nth-child(7) { background: #eee1e8 !important; }
+.stats .stat-card:nth-child(1), .stats-grid .stat-card:nth-child(1) { background: #dce9e7 !important; }
+.stats .stat-card:nth-child(2), .stats-grid .stat-card:nth-child(2) { background: #e2eddf !important; }
+.stats .stat-card:nth-child(3), .stats-grid .stat-card:nth-child(3) { background: #f0e9d5 !important; }
+.list-panel { background: #f1e7ec !important; }
+.panel-toolbar { background: #e8e9ef !important; }
+.task-table thead, .task-table th { background: #eadde5 !important; }
+.task-row:nth-child(odd) { background: #f7f3f4 !important; }
+.task-row:nth-child(even) { background: #e9edf0 !important; }
+.filter-button.active { background: #dfe6ee !important; }
+.stat-value, .stat-label, .week-heading h2, .week-day strong,
+.filter-button, .task-table th, .task-table td { font-size: 16px !important; }
+.week-day strong { font-size: 24px !important; }
+.stat-value { font-size: 29px !important; }
+.app-dock { background: rgb(245 246 248 / 96%) !important; }
+
+/* Điểm nhấn rõ hơn nhưng vẫn hòa với nền ảnh. */
+body > .shell::before { opacity: .19; }
+.sidebar { background: rgb(234 240 239 / 96%) !important; border-right-color: #cbd8d7 !important; }
+.sidebar .workspace { background: #d5e6df !important; }
+.sidebar .side-link { color: #4e5f72 !important; }
+.sidebar .side-link.active { color: #fff !important; background: #526f86 !important; box-shadow: 0 7px 18px rgb(63 91 116 / 22%) !important; }
+.sidebar .side-link.active svg { color: #fff !important; }
+.week-calendar { border-color: #d0d9e3 !important; background: #e1e8f0 !important; box-shadow: 0 14px 36px rgb(45 65 87 / 14%) !important; }
+.week-day { color: #53677a !important; border-color: #c7d7cd !important; background: #d7e8dd !important; }
+.week-day:nth-child(7) { border-color: #dfc6d0 !important; background: #edd9e2 !important; }
+.week-day.is-today, .week-day.active { color: #fff !important; border-color: #536f8b !important; background: #617e9b !important; box-shadow: 0 7px 16px rgb(62 88 116 / 23%) !important; }
+.week-day.is-today strong, .week-day.active strong { color: #fff !important; }
+.week-today { color: #fff !important; border-color: #ac6f87 !important; background: #ac6f87 !important; }
+.stats .stat-card:nth-child(1), .stats-grid .stat-card:nth-child(1) { color: #345b5c !important; background: #c8e2dc !important; }
+.stats .stat-card:nth-child(2), .stats-grid .stat-card:nth-child(2) { color: #426a49 !important; background: #d5e8cb !important; }
+.stats .stat-card:nth-child(3), .stats-grid .stat-card:nth-child(3) { color: #80652e !important; background: #f0e1b6 !important; }
+.stat-card { border-color: rgb(255 255 255 / 85%) !important; box-shadow: 0 10px 25px rgb(47 59 77 / 13%) !important; }
+.stat-value { color: inherit !important; }
+.stat-label { color: #4d5869 !important; font-weight: 600; }
+.list-panel { border-color: #e3d2dc !important; background: #f0e0e8 !important; box-shadow: 0 14px 36px rgb(76 52 70 / 15%) !important; }
+.panel-toolbar { background: #e3e6ee !important; }
+.task-table thead, .task-table th { color: #fff !important; background: #88647a !important; }
+.task-row:nth-child(odd) { background: #f8eef2 !important; }
+.task-row:nth-child(even) { background: #e8edf1 !important; }
+.filter-button { color: #4b596d !important; }
+.filter-button.active { color: #fff !important; background: #637c98 !important; }
+.search-box { border-color: #c4ced9 !important; background: #f7f8fa !important; }
+#focus-add, .goal-add-button { color: #fff !important; background: #b85f84 !important; box-shadow: 0 12px 28px rgb(149 68 103 / 35%) !important; }
+#focus-add:hover, .goal-add-button:hover { background: #974b6b !important; }
+.app-dock { border-color: #d0d8e2 !important; box-shadow: 0 16px 42px rgb(44 57 75 / 20%) !important; }
+.dock-link { color: #415168 !important; }
+.dock-link:nth-child(1) { background: #dce5f0 !important; }
+.dock-link:nth-child(2) { background: #f0e1b9 !important; }
+.dock-link:nth-child(3) { background: #ead8e3 !important; }
+.dock-link.active { color: #fff !important; background: #637c98 !important; }
+.dock-link.active .dock-ico { color: #fff !important; background: rgb(255 255 255 / 22%) !important; }
+.empty-state { color: #59667a !important; }
+
+/* Bảng màu pastel cũ, phối lại bằng gradient để các khối có chiều sâu hơn. */
+body > .shell::before { opacity: .42; }
+.sidebar { background: linear-gradient(155deg, rgb(216 238 234 / 96%), rgb(232 247 220 / 94%) 48%, rgb(249 218 224 / 94%)) !important; }
+.sidebar .workspace { background: linear-gradient(120deg, #d5f0e6, #e4f6ce) !important; }
+.sidebar .side-link.active { color: #514080 !important; background: linear-gradient(110deg, #f2d9ec, #dcd3ed) !important; box-shadow: 0 7px 18px rgb(102 74 141 / 19%) !important; }
+.sidebar .side-link.active svg { color: #514080 !important; }
+.week-calendar { background: linear-gradient(112deg, rgb(228 211 237 / 92%), rgb(252 215 219 / 91%) 51%, rgb(211 236 229 / 93%)) !important; }
+.week-day { background: linear-gradient(140deg, #d8eeea, #def5db) !important; }
+.week-day:nth-child(7) { background: linear-gradient(135deg, #fad5d8, #e4d7ee) !important; }
+.week-day.is-today, .week-day.active { background: linear-gradient(135deg, #d9c9e8, #f4c9df) !important; }
+.week-day.is-today strong, .week-day.active strong { color: #514080 !important; }
+.week-today { color: #594093 !important; border-color: #fff !important; background: linear-gradient(110deg, #fff7bd, #ffd8d7) !important; }
+.stats .stat-card:nth-child(1), .stats-grid .stat-card:nth-child(1) { color: #388f83 !important; background: linear-gradient(115deg, #cdece7, #dbf3d8) !important; }
+.stats .stat-card:nth-child(2), .stats-grid .stat-card:nth-child(2) { color: #3a9e25 !important; background: linear-gradient(115deg, #daf3d4, #f4f8bd) !important; }
+.stats .stat-card:nth-child(3), .stats-grid .stat-card:nth-child(3) { color: #bd9610 !important; background: linear-gradient(115deg, #fff2b9, #ffded1) !important; }
+.list-panel { background: linear-gradient(120deg, rgb(250 213 219 / 95%), rgb(227 213 238 / 95%) 55%, rgb(209 235 232 / 95%)) !important; }
+.panel-toolbar { background: linear-gradient(105deg, #fff8bd, #e6d8ec 54%, #d9eee8) !important; }
+.task-table thead, .task-table th { color: #854e70 !important; background: linear-gradient(105deg, #f6d2dc, #dfd5ed 58%, #d7ece8) !important; }
+.task-row:nth-child(odd) { background: rgb(255 247 244 / 88%) !important; }
+.task-row:nth-child(even) { background: rgb(224 242 231 / 88%) !important; }
+.filter-button.active { color: #514080 !important; background: linear-gradient(115deg, #f4d9ea, #ded7ef) !important; }
+.search-box { background: rgb(255 255 255 / 83%) !important; }
+#focus-add, .goal-add-button { background: linear-gradient(135deg, #fa9dbc, #d79ce3) !important; box-shadow: 0 12px 28px rgb(201 115 168 / 35%) !important; }
+#focus-add:hover, .goal-add-button:hover { background: linear-gradient(135deg, #ed82a9, #bd82d5) !important; }
+.app-dock { background: linear-gradient(145deg, rgb(238 231 244 / 97%), rgb(252 224 222 / 96%) 56%, rgb(218 240 232 / 97%)) !important; }
+.dock-link:nth-child(1) { background: linear-gradient(115deg, #f7d6e5, #e1d7f0) !important; }
+.dock-link:nth-child(2) { background: linear-gradient(115deg, #d7f0df, #f4f6c8) !important; }
+.dock-link:nth-child(3) { background: linear-gradient(115deg, #d7eae8, #ded8f0) !important; }
+.dock-link.active { color: #514080 !important; background: linear-gradient(115deg, #f1d8e9, #ddd7ef) !important; }
+.dock-link.active .dock-ico { color: #514080 !important; background: rgb(255 255 255 / 82%) !important; }
+
+/* Danh sách công việc dùng một tông nền xuyên suốt, giảm độ đậm các mục. */
+.list-panel { background: rgb(233 223 238 / 78%) !important; }
+.list-panel .panel-toolbar,
+.list-panel .task-table thead,
+.list-panel .task-table th,
+.list-panel .task-table tbody,
+.list-panel .task-row,
+.list-panel .empty-state { background: transparent !important; }
+.list-panel .panel-toolbar { border-bottom-color: rgb(125 91 125 / 18%) !important; }
+.list-panel .task-table th { color: #805b78 !important; border-bottom-color: rgb(125 91 125 / 16%) !important; }
+.list-panel .task-row { border-bottom-color: rgb(125 91 125 / 12%) !important; }
+.list-panel .filter-button { background: rgb(255 255 255 / 26%) !important; }
+.list-panel .filter-button:hover { background: rgb(255 255 255 / 44%) !important; }
+.list-panel .filter-button.active { color: #594276 !important; background: rgb(213 195 227 / 68%) !important; }
+.list-panel .search-box { background: rgb(255 255 255 / 62%) !important; }
+
+/* Vị trí và kích thước mới của Momo; ảnh PNG đã có nền trong suốt. */
+.dayflow-assistant { left: 258px; bottom: 10px; }
+.assistant-pet { width: 184px; height: 145px; filter: drop-shadow(0 8px 13px rgb(73 59 48 / 17%)); }
+.assistant-dog, .assistant-tail { mix-blend-mode: normal; }
+.dayflow-assistant.open .assistant-pet { width: 148px; height: 148px; }
+.assistant-window { left: 0; bottom: 157px; }
+.assistant-header img { object-fit: contain; mix-blend-mode: normal; }
+.assistant-tail {
+    clip-path: polygon(69% 59%,84% 56%,94% 60%,98% 68%,98% 76%,95% 82%,88% 85%,81% 83%,74% 79%,69% 72%);
+    transform-origin: 75% 77%;
+    animation: assistant-tail-wag .25s ease-in-out infinite alternate;
+}
+.assistant-toast { left: 456px; }
+@keyframes assistant-tail-wag { from { transform: rotate(-16deg); } to { transform: rotate(18deg); } }
+@media (max-width: 1050px) and (min-width: 761px) { .dayflow-assistant { left: 220px; } .assistant-toast { left: 418px; } }
+@media (max-width: 760px) { .dayflow-assistant { left: 10px; bottom: 78px; } .assistant-pet { width: 150px; height: 120px; } .dayflow-assistant.open .assistant-pet { width: 122px; height: 122px; } .assistant-window { bottom: 132px; } .assistant-toast { left: 160px; bottom: 92px; max-width: calc(100vw - 178px); } }
+
+/* Thú cưng trợ lý ở góc trái. */
+.dayflow-assistant { position: fixed; z-index: 120; left: 18px; bottom: 16px; font-family: inherit; }
+.assistant-pet { position: relative; display: block; width: 126px; height: 105px; padding: 0; border: 0; background: transparent; cursor: pointer; filter: drop-shadow(0 7px 12px rgb(73 59 48 / 18%)); }
+.assistant-dog, .assistant-tail { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+.assistant-dog-sleep { display: block; }
+.assistant-dog-sit, .assistant-tail { display: none; }
+.assistant-unread { position: absolute; top: 12px; right: 12px; width: 12px; height: 12px; border: 2px solid #fff; border-radius: 50%; background: #e86c91; opacity: 0; transform: scale(.5); transition: .18s ease; }
+.assistant-unread.visible { opacity: 1; transform: scale(1); }
+.assistant-window { position: absolute; left: 0; bottom: 116px; display: flex; width: min(360px,calc(100vw - 28px)); height: min(480px,calc(100vh - 170px)); flex-direction: column; overflow: hidden; border: 1px solid rgb(255 255 255 / 92%); border-radius: 22px; background: rgb(255 252 248 / 97%); box-shadow: 0 18px 52px rgb(65 52 44 / 24%); opacity: 0; visibility: hidden; transform: translateY(12px) scale(.98); transform-origin: bottom left; transition: opacity .2s ease,transform .2s ease,visibility .2s; }
+.dayflow-assistant.open .assistant-window { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+.dayflow-assistant.open .assistant-dog-sleep { display: none; }
+.dayflow-assistant.open .assistant-dog-sit, .dayflow-assistant.open .assistant-tail { display: block; }
+.dayflow-assistant.open .assistant-pet { width: 96px; height: 96px; }
+.dayflow-assistant.open .assistant-nose-bubble { display: none; }
+.assistant-tail { clip-path: polygon(68% 59%,83% 56%,94% 65%,98% 76%,91% 84%,81% 86%,70% 80%); transform-origin: 79% 76%; animation: assistant-tail-wag .42s ease-in-out infinite alternate; }
+.assistant-header { display: flex; align-items: center; gap: 11px; padding: 11px 14px; border-bottom: 1px solid #eee4dc; background: linear-gradient(110deg,#f9e9db,#f5e4eb); }
+.assistant-header img { width: 48px; height: 48px; border-radius: 14px; object-fit: cover; mix-blend-mode: multiply; }
+.assistant-header div { display: grid; gap: 3px; flex: 1; color: #493b35; }
+.assistant-header strong { font-size: 16px; }
+.assistant-header small { color: #81736c; font-size: 12px; }
+.assistant-close { width: 32px; height: 32px; border: 0; border-radius: 10px; color: #6b5a51; background: rgb(255 255 255 / 70%); font-size: 22px; cursor: pointer; }
+.assistant-messages { display: flex; flex: 1; flex-direction: column; gap: 9px; overflow-y: auto; padding: 13px; }
+.assistant-message { max-width: 88%; padding: 10px 12px; border-radius: 15px; color: #493f47; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.assistant-reply { align-self: flex-start; border-bottom-left-radius: 5px; background: #f2eaf1; }
+.assistant-user { align-self: flex-end; border-bottom-right-radius: 5px; color: #fff; background: #7889a8; }
+.assistant-thinking { opacity: .7; font-style: italic; }
+.assistant-form { display: flex; gap: 8px; padding: 10px 12px 6px; border-top: 1px solid #eee4dc; }
+.assistant-input { min-width: 0; flex: 1; height: 42px; padding: 0 13px; border: 1px solid #e5dce0; border-radius: 14px; outline: none; color: #403943; background: #fff; font: inherit; font-size: 14px; }
+.assistant-input:focus { border-color: #a58db2; box-shadow: 0 0 0 3px rgb(165 141 178 / 15%); }
+.assistant-form button { width: 42px; height: 42px; border: 0; border-radius: 14px; color: #fff; background: #9a718f; font-size: 19px; cursor: pointer; }
+.assistant-hint { padding: 0 14px 10px; color: #958982; font-size: 11px; }
+.assistant-toast { position: fixed; left: 148px; bottom: 29px; z-index: 121; max-width: min(390px,calc(100vw - 175px)); padding: 12px 16px; border: 1px solid rgb(255 255 255 / 80%); border-radius: 14px; color: #4b3d48; background: rgb(255 250 246 / 96%); box-shadow: 0 8px 26px rgb(58 47 52 / 18%); font-size: 14px; line-height: 1.45; opacity: 0; visibility: hidden; transform: translateY(8px); transition: .2s ease; }
+.assistant-toast.show { opacity: 1; visibility: visible; transform: translateY(0); }
+@keyframes assistant-tail-wag { from { transform: rotate(-7deg); } to { transform: rotate(8deg); } }
+@media (max-width: 620px) { .dayflow-assistant { left: 9px; bottom: 84px; } .assistant-pet { width: 105px; height: 90px; } .assistant-window { bottom: 98px; } .assistant-toast { left: 112px; bottom: 94px; max-width: calc(100vw - 128px); } }
+@media (prefers-reduced-motion: reduce) { .assistant-tail { animation: none; } }
+
+/* Thẻ ngày và thống kê nhẹ màu hơn, có chuyển động nhỏ khi tương tác. */
+.week-day {
+    background: linear-gradient(140deg, rgb(216 238 234 / 56%), rgb(222 245 219 / 56%)) !important;
+    transition: transform .22s ease, box-shadow .22s ease, background .22s ease !important;
+    animation: day-card-enter .42s both;
+}
+.week-day:nth-child(2) { animation-delay: .04s; }
+.week-day:nth-child(3) { animation-delay: .08s; }
+.week-day:nth-child(4) { animation-delay: .12s; }
+.week-day:nth-child(5) { animation-delay: .16s; }
+.week-day:nth-child(6) { animation-delay: .20s; }
+.week-day:nth-child(7) { animation-delay: .24s; background: linear-gradient(135deg, rgb(250 213 216 / 58%), rgb(228 215 238 / 58%)) !important; }
+.week-day:hover { transform: translateY(-4px); box-shadow: 0 9px 18px rgb(79 70 112 / 15%); }
+.week-day.is-today, .week-day.active { background: linear-gradient(135deg, rgb(217 201 232 / 65%), rgb(244 201 223 / 65%)) !important; }
+.week-day.is-today strong, .week-day.active strong { color: #514080 !important; }
+.week-day.is-today span, .week-day.active span,
+.week-day.is-today small, .week-day.active small { color: #66527e !important; }
+.week-day:active { transform: translateY(-1px) scale(.975); }
+.stats .stat-card:nth-child(1), .stats-grid .stat-card:nth-child(1) { background: linear-gradient(115deg, rgb(205 236 231 / 62%), rgb(219 243 216 / 62%)) !important; }
+.stats .stat-card:nth-child(2), .stats-grid .stat-card:nth-child(2) { background: linear-gradient(115deg, rgb(218 243 212 / 62%), rgb(244 248 189 / 62%)) !important; }
+.stats .stat-card:nth-child(3), .stats-grid .stat-card:nth-child(3) { background: linear-gradient(115deg, rgb(255 242 185 / 62%), rgb(255 222 209 / 62%)) !important; }
+.stats .stat-card, .stats-grid .stat-card {
+    transition: transform .24s ease, box-shadow .24s ease !important;
+    animation: stat-card-enter .48s both;
+}
+.stats .stat-card:nth-child(2), .stats-grid .stat-card:nth-child(2) { animation-delay: .08s; }
+.stats .stat-card:nth-child(3), .stats-grid .stat-card:nth-child(3) { animation-delay: .16s; }
+.stats .stat-card:hover, .stats-grid .stat-card:hover { transform: translateY(-4px); box-shadow: 0 13px 26px rgb(47 59 77 / 17%) !important; }
+@keyframes day-card-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes stat-card-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+    .week-day, .stats .stat-card, .stats-grid .stat-card { animation: none !important; transition: none !important; }
+}
+
+/* Chuyển động chỉ chạy khi rê chuột vào thẻ, không tự chạy lúc tải trang. */
+.week-day, .stats .stat-card, .stats-grid .stat-card { animation: none !important; }
+.week-day { transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease !important; }
+.week-day:hover { transform: translateY(-5px) scale(1.025); border-color: #a894c0 !important; box-shadow: 0 12px 22px rgb(83 64 112 / 19%) !important; }
+.week-day.is-today:hover, .week-day.active:hover { transform: translateY(-5px) scale(1.035); }
+.stats .stat-card, .stats-grid .stat-card { transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease !important; }
+.stats .stat-card:hover, .stats-grid .stat-card:hover { transform: translateY(-5px) scale(1.02); border-color: rgb(255 255 255 / 100%) !important; box-shadow: 0 15px 30px rgb(47 59 77 / 21%) !important; }
+
+/* Hover đồng nhất cho những mục tương tác còn lại. */
+.sidebar .side-link, .dock-link, .filter-button, .button, .primary-button,
+.week-today, .icon-button, .task-row, .card, .panel, .expense-card,
+.calendar-day, .day-cell, .goal-card, .package-card, .theme-card {
+    transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease,
+        border-color .2s ease, color .2s ease !important;
+}
+.sidebar .side-link:hover { transform: translateX(4px); box-shadow: 0 5px 13px rgb(77 64 112 / 12%); }
+.dock-link:hover { transform: translateX(-4px) scale(1.015); box-shadow: 0 9px 20px rgb(77 64 112 / 16%) !important; }
+.filter-button:hover, .week-today:hover { transform: translateY(-2px); box-shadow: 0 6px 13px rgb(77 64 112 / 14%); }
+.button:hover, .primary-button:hover, .icon-button:hover { transform: translateY(-2px) scale(1.035); box-shadow: 0 8px 17px rgb(77 64 112 / 18%); }
+.task-row:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgb(77 64 112 / 11%); }
+.card:hover, .panel:hover, .expense-card:hover, .calendar-day:hover, .day-cell:hover,
+.goal-card:hover, .package-card:hover, .theme-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 11px 23px rgb(77 64 112 / 16%);
+}
+@media (prefers-reduced-motion: reduce) {
+    .sidebar .side-link, .dock-link, .filter-button, .button, .primary-button,
+    .week-today, .icon-button, .task-row, .card, .panel, .expense-card,
+    .calendar-day, .day-cell, .goal-card, .package-card, .theme-card { transition: none !important; }
+}
+
+/* Nền ảnh riêng, phía trên màu nền và phía dưới toàn bộ nội dung. */
+:root:not([data-skin="dark"]):not([data-skin="ocean"]) .shell,
+:root:not([data-skin="dark"]):not([data-skin="ocean"]) .app-shell {
+    position: relative;
+    isolation: isolate;
+}
+:root:not([data-skin="dark"]):not([data-skin="ocean"]) .shell::before,
+:root:not([data-skin="dark"]):not([data-skin="ocean"]) .app-shell::before {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    content: "";
+    background: url("/home/background.jpg") center / cover no-repeat;
+    opacity: .65;
+    pointer-events: none;
+}
+:root:not([data-skin="dark"]):not([data-skin="ocean"]) .shell > .main,
+:root:not([data-skin="dark"]):not([data-skin="ocean"]) .app-shell > .main {
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== Sidebar gọn, điều hướng ứng dụng rõ ràng, chữ dễ đọc ===== */
+:root:not([data-skin="dark"]) .brand,
+:root:not([data-skin="dark"]) .workspace-label,
+:root:not([data-skin="dark"]) .side-label,
+:root:not([data-skin="dark"]) .nav-label,
+:root:not([data-skin="dark"]) .side-spacer { display: none !important; }
+:root:not([data-skin="dark"]) .side-link { min-height: 46px; font-size: 15px; }
+:root:not([data-skin="dark"]) .side-bottom-title,
+:root:not([data-skin="dark"]) .side-bottom strong { font-size: 13px; }
+:root:not([data-skin="dark"]) .side-bottom-copy,
+:root:not([data-skin="dark"]) .side-bottom p { font-size: 12px; }
+:root:not([data-skin="dark"]) .side-account .icon-button,
+:root:not([data-skin="dark"]) .side-account .logout-button,
+:root:not([data-skin="dark"]) .side-account .logout { font-size: 14px; }
+:root:not([data-skin="dark"]) .dock-title { font-size: 12px; }
+:root:not([data-skin="dark"]) .dock-link { min-height: 52px; padding: 13px 14px; font-size: 15px; }
+:root:not([data-skin="dark"]) .dock-ico-home { color: #6e6580; background: #e8e5f0; }
+
+/* Pastel đơn sắc giúp phân biệt mọi vùng nội dung. */
+:root:not([data-skin="dark"]) .workspace { background: #e5ebf3; }
+:root:not([data-skin="dark"]) .week-calendar { background: rgb(236 234 243 / 92%); }
+:root:not([data-skin="dark"]) .week-heading h2 { font-size: 21px; }
+:root:not([data-skin="dark"]) .week-heading p { font-size: 15px; }
+:root:not([data-skin="dark"]) .week-day span { font-size: 14px; }
+:root:not([data-skin="dark"]) .week-day strong { font-size: 23px; }
+:root:not([data-skin="dark"]) .week-day small { font-size: 13px; }
+:root:not([data-skin="dark"]) .week-today { font-size: 15px; background: #f3eadb; }
+:root:not([data-skin="dark"]) .list-panel { background: rgb(243 236 243 / 92%); }
+:root:not([data-skin="dark"]) .panel-toolbar { min-height: 72px; background: #eeebf2; }
+:root:not([data-skin="dark"]) .filter-button { font-size: 15px; }
+:root:not([data-skin="dark"]) .search-box input { font-size: 15px; }
+:root:not([data-skin="dark"]) .task-table th { font-size: 14px; background: #f0e2e8; }
+:root:not([data-skin="dark"]) .task-table td { font-size: 15px; }
+:root:not([data-skin="dark"]) .stat-value { font-size: 28px; }
+:root:not([data-skin="dark"]) .stat-label { font-size: 15px; }
+:root:not([data-skin="dark"]) .stats .stat-value { font-size: 24px; }
+:root:not([data-skin="dark"]) .stats .stat-label { font-size: 13px; }
+:root:not([data-skin="dark"]) .stats .stat:nth-child(1) { color: #526980; background: #e5ebf3; }
+:root:not([data-skin="dark"]) .stats .stat:nth-child(2) { color: #5e7668; background: #e8eeea; }
+:root:not([data-skin="dark"]) .stats .stat:nth-child(3) { color: #826f53; background: #f3eadb; }
+:root:not([data-skin="dark"]) .stats .stat:nth-child(4) { color: #916477; background: #f0e2e8; }
+:root:not([data-skin="dark"]) .stats-panels .panel:nth-child(1) { background: #e9eff2; }
+:root:not([data-skin="dark"]) .stats-panels .panel:nth-child(2) { background: #eeebf3; }
+:root:not([data-skin="dark"]) .stats-panels .panel:nth-child(3) { background: #f3eadb; }
+:root:not([data-skin="dark"]) .expense-card { background: #e9eff2; }
+:root:not([data-skin="dark"]) .transaction-list { background: #f3eadb; }
+:root:not([data-skin="dark"]) .calendar-panel { background: #e9eff2; }
+:root:not([data-skin="dark"]) .day-details { background: #eeebf3; }
+:root:not([data-skin="dark"]) .card { background: #e9eff2; }
+:root:not([data-skin="dark"]) .panel { background: #eeebf3; }
+:root:not([data-skin="dark"]) .toolbar-title { font-size: 15px; }
+:root:not([data-skin="dark"]) .button,
+:root:not([data-skin="dark"]) .month-picker { min-height: 40px; font-size: 14px; }
+:root:not([data-skin="dark"]) .primary-button,
+:root:not([data-skin="dark"]) .btn,
+:root:not([data-skin="dark"]) .btn-primary,
+:root:not([data-skin="dark"]) .btn-danger { font-size: 15px; }
+:root:not([data-skin="dark"]) .summary-row,
+:root:not([data-skin="dark"]) .category-row { font-size: 13px; }
+:root:not([data-skin="dark"]) .transaction-title,
+:root:not([data-skin="dark"]) .transaction-amount { font-size: 14px; }
+:root:not([data-skin="dark"]) .transaction-meta,
+:root:not([data-skin="dark"]) .empty { font-size: 12px; }
+:root:not([data-skin="dark"]) .transaction-value,
+:root:not([data-skin="dark"]) .day-transaction-title,
+:root:not([data-skin="dark"]) .day-transaction-amount { font-size: 14px; }
+:root:not([data-skin="dark"]) .transaction-delete { font-size: 13px; }
+:root:not([data-skin="dark"]) .day-transaction-meta,
+:root:not([data-skin="dark"]) .transaction-empty,
+:root:not([data-skin="dark"]) .day-empty { font-size: 13px; }
+:root:not([data-skin="dark"]) .day-cell .day-number { font-size: 13px; }
+:root:not([data-skin="dark"]) .calendar-day-number { font-size: 14px; }
+:root:not([data-skin="dark"]) .calendar-day-total { font-size: 11px; }
+:root:not([data-skin="dark"]) .calendar-weekday { font-size: 13px; }
+:root:not([data-skin="dark"]) .weekday { font-size: 12px; }
+:root:not([data-skin="dark"]) .day-total { font-size: 11px; }
+:root:not([data-skin="dark"]) .eyebrow { font-size: 12px; }
+:root:not([data-skin="dark"]) h1 { font-size: clamp(32px, 4vw, 42px); }
+:root:not([data-skin="dark"]) .user-menu-item { font-size: 14px; }
+:root:not([data-skin="dark"]) .user-menu-head,
+:root:not([data-skin="dark"]) .user-menu-head * { font-size: 14px; }
+:root:not([data-skin="dark"]) .status-pill,
+:root:not([data-skin="dark"]) .priority-pill,
+:root:not([data-skin="dark"]) .task-tag { font-size: 13px; }
+:root:not([data-skin="dark"]) .stats-panels .panel h2,
+:root:not([data-skin="dark"]) .panel h2,
+:root:not([data-skin="dark"]) .card h2 { font-size: 17px; }
+:root:not([data-skin="dark"]) .subtitle,
+:root:not([data-skin="dark"]) .subheading { font-size: 15px; }
+:root:not([data-skin="dark"]) .dock-link:nth-child(1) { background: #e5ebf3; }
+:root:not([data-skin="dark"]) .dock-link:nth-child(2) { background: #f3eadb; }
+:root:not([data-skin="dark"]) .dock-link:nth-child(3) { background: #e8e5f0; }
+/* Momo: transparent assets, sát bên phải sidebar, hiển thị lớn hơn. */
+.dayflow-assistant { position: fixed; z-index: 120; left: 258px; bottom: 10px; font-family: inherit; }
+.assistant-pet { width: 184px; height: 145px; filter: drop-shadow(0 8px 13px rgb(73 59 48 / 17%)); }
+.assistant-dog, .assistant-tail { mix-blend-mode: normal; }
+.dayflow-assistant.open .assistant-pet { width: 148px; height: 148px; }
+.assistant-window { bottom: 157px; }
+.assistant-header img { object-fit: contain; mix-blend-mode: normal; }
+.assistant-tail { clip-path: polygon(69% 59%,84% 56%,94% 60%,98% 68%,98% 76%,95% 82%,88% 85%,81% 83%,74% 79%,69% 72%); transform-origin: 75% 77%; animation: assistant-tail-wag .25s ease-in-out infinite alternate; }
+.assistant-toast { left: 456px; }
+@keyframes assistant-tail-wag { from { transform: rotate(-16deg); } to { transform: rotate(18deg); } }
+@media (max-width: 1050px) and (min-width: 761px) { .dayflow-assistant { left: 220px; } .assistant-toast { left: 418px; } }
+@media (max-width: 760px) { .dayflow-assistant { left: 10px; bottom: 78px; } .assistant-pet { width: 150px; height: 120px; } .dayflow-assistant.open .assistant-pet { width: 122px; height: 122px; } .assistant-window { bottom: 132px; } .assistant-toast { left: 160px; bottom: 92px; max-width: calc(100vw - 178px); } }
+/* Tách rời bong bóng và đuôi gốc để hoạt ảnh không tạo hình đôi. */
+.assistant-bubble-layer { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; transform-origin: 18% 72%; animation: assistant-real-bubble 1.55s ease-in-out infinite; }
+.dayflow-assistant.open .assistant-bubble-layer { display: none; }
+.assistant-tail { clip-path: none !important; transform-origin: 72% 71% !important; animation: assistant-tail-wag .28s ease-in-out infinite alternate !important; }
+@keyframes assistant-real-bubble { 0%,100% { transform: scale(.90); } 50% { transform: scale(1.13); } }
+@keyframes assistant-tail-wag { from { transform: rotate(-13deg); } to { transform: rotate(14deg); } }
+@media (prefers-reduced-motion: reduce) { .assistant-bubble-layer,.assistant-tail { animation: none !important; } }
+
+/* Momo remains a still image in both chat states; the speech bubble is part of its source image. */
+.assistant-pet,
+.dayflow-assistant.open .assistant-pet { width: 184px !important; height: 145px !important; }
+.assistant-dog-sleep { display: block !important; animation: none !important; transform: none !important; }
+.dayflow-assistant.open .assistant-dog-sleep { display: none !important; }
+.assistant-dog-sit { display: none !important; animation: none !important; transform: none !important; }
+.dayflow-assistant.open .assistant-dog-sit { display: block !important; }
+.dayflow-assistant.reminder-active .assistant-dog-sleep { display: none !important; }
+.dayflow-assistant.reminder-active .assistant-dog-sit { display: block !important; }
+.assistant-tail,
+.assistant-bubble-layer { display: none !important; animation: none !important; transform: none !important; }
+.assistant-dog { mix-blend-mode: normal !important; animation: none !important; transform: none !important; }
+@media (max-width: 760px) {
+    .assistant-pet,
+    .dayflow-assistant.open .assistant-pet { width: 150px !important; height: 120px !important; }
+}
+@media (max-width: 620px) {
+    .assistant-pet,
+    .dayflow-assistant.open .assistant-pet { width: 105px !important; height: 90px !important; }
+}

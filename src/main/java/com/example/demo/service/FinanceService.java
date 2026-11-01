@@ -163,6 +163,55 @@ public class FinanceService {
     }
 
     @Transactional
+    public TransactionRow update(long id, long userId, NewTransaction transaction) {
+        if (transaction == null || transaction.walletId() == null
+                || transaction.amount() == null || transaction.transactionDate() == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "walletId, amount and transactionDate are required");
+        }
+        if (transaction.amount().signum() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "amount must be greater than zero");
+        }
+        if (!"income".equals(transaction.type()) && !"expense".equals(transaction.type())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "type must be income or expense");
+        }
+        requireUser(userId);
+        List<DeleteInfo> rows = jdbcTemplate.query("""
+                SELECT wallet_id, type, amount
+                FROM transactions
+                WHERE id = ? AND user_id = ? AND deleted_at IS NULL
+                FOR UPDATE
+                """, (rs, rowNum) -> new DeleteInfo(
+                rs.getLong("wallet_id"), rs.getString("type"), rs.getBigDecimal("amount")), id, userId);
+        if (rows.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found");
+        int walletExists = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM wallets WHERE id = ? AND user_id = ? AND is_archived = 0
+                """, Integer.class, transaction.walletId(), userId);
+        if (walletExists == 0) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wallet not found for this user");
+        if (transaction.categoryId() != null) {
+            int categoryExists = jdbcTemplate.queryForObject("""
+                    SELECT COUNT(*) FROM categories
+                    WHERE id = ? AND type = ? AND (user_id IS NULL OR user_id = ?)
+                    """, Integer.class, transaction.categoryId(), transaction.type(), userId);
+            if (categoryExists == 0) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category is invalid for this transaction");
+        }
+        DeleteInfo old = rows.get(0);
+        jdbcTemplate.update("""
+                UPDATE wallets SET balance = balance - ? WHERE id = ? AND user_id = ?
+                """, walletDelta(old.type(), old.amount()), old.walletId(), userId);
+        jdbcTemplate.update("""
+                UPDATE transactions SET wallet_id = ?, category_id = ?, type = ?, amount = ?, transaction_date = ?, note = ?
+                WHERE id = ? AND user_id = ? AND deleted_at IS NULL
+                """, transaction.walletId(), transaction.categoryId(), transaction.type(), transaction.amount(),
+                Timestamp.valueOf(transaction.transactionDate()),
+                transaction.note() == null || transaction.note().isBlank() ? null : transaction.note().trim(), id, userId);
+        jdbcTemplate.update("""
+                UPDATE wallets SET balance = balance + ? WHERE id = ? AND user_id = ?
+                """, walletDelta(transaction.type(), transaction.amount()), transaction.walletId(), userId);
+        return findTransaction(id, userId);
+    }
+
+    @Transactional
     public void delete(long id, long userId) {
         requireUser(userId);
         List<DeleteInfo> rows = jdbcTemplate.query("""

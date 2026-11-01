@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8" />
@@ -8,21 +8,21 @@
     <style>
         :root {
             color-scheme: light;
-            --bg: #f3f4f8;
-            --sidebar: rgba(255,255,255,.86);
+            --bg: #f1eff3;
+            --sidebar: rgba(244,243,241,.86);
             --panel: #fff;
-            --panel-soft: #f5f7ff;
+            --panel-soft: #eeeaf2;
             --line: #e6eaf5;
-            --primary: #4b5ec7;
-            --primary-dark: #3f4db1;
-            --primary-soft: #e9edff;
-            --yellow: #f6c34c;
+            --primary: #71819e;
+            --primary-dark: #5e6f8d;
+            --primary-soft: #e9e4f0;
+            --yellow: #d9c89d;
             --text: #1e2337;
             --muted: #70768b;
-            --danger: #e85d57;
-            --danger-soft: #fee6e5;
-            --success: #1a8e5d;
-            --green-pale: #eaf7f2;
+            --danger: #a56878;
+            --danger-soft: #f2e1e5;
+            --success: #637761;
+            --green-pale: #e7eee6;
             --shadow: 0 18px 40px rgba(30, 35, 55, 0.12);
         }
 
@@ -170,7 +170,7 @@
             padding: 14px;
             border: 1px solid #f3e2ec;
             border-radius: 14px;
-            background: linear-gradient(140deg, #fff, #fff5f9);
+            background: #f8e4e6;
             color: var(--text);
         }
 
@@ -277,7 +277,7 @@
             height: 52px;
             border-radius: 16px;
             border: 0;
-            background: linear-gradient(180deg, #f9e3a5 0%, var(--yellow) 100%);
+            background: var(--yellow);
             color: #2d2d2d;
             cursor: pointer;
             font-size: 20px;
@@ -637,7 +637,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(110deg, var(--primary), #5c79e4);
+            background: var(--primary);
             color: white;
             box-shadow: 0 8px 19px #4568df2b;
         }
@@ -719,6 +719,7 @@
             }
         }
     </style>
+<link rel="stylesheet" href="/shared/app-shell.css?v=20261102-0070">
 </head>
 <body>
     <div class="app-shell">
@@ -973,6 +974,7 @@ async function loadWallets() {
             calendarTransactions.splice(0, calendarTransactions.length, ...rows);
             renderCalendar();
         }
+        window.addEventListener('dayflow:expense-updated', () => { if (currentUserId) loadTransactions(); });
 
         segments.forEach(segment => segment.addEventListener('click', async () => {
             segments.forEach(item => item.classList.toggle('active', item === segment));
@@ -1003,6 +1005,7 @@ async function loadWallets() {
 
             try {
                 await api('/api/finance/transactions', { method: 'POST', body: JSON.stringify(payload) });
+                window.dayflowAssistant?.warnExpense(payload.amount);
                 showStatus('Giao dịch đã được lưu vào cơ sở dữ liệu.');
                 amountInput.value = '';
                 document.getElementById('expenseNote').value = '';
@@ -1164,5 +1167,7 @@ async function loadWallets() {
             }
         })();
     </script>
+<script src="/assistant/assistant.js?v=20261102-0092" defer></script>
+<script src="/shared/app-shell.js?v=20261101-2200" defer></script>
 </body>
 </html>
