@@ -743,3 +743,20 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+-- --------------------------------------------------------
+-- Bảng banners: ảnh banner hiển thị ở trang giới thiệu (cũng được tự tạo khi chạy ứng dụng)
+CREATE TABLE IF NOT EXISTS `banners` (
+  `id` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `title` varchar(200) NOT NULL,
+  `image_url` varchar(500) DEFAULT NULL,
+  `link_url` varchar(300) DEFAULT NULL,
+  `sort_order` int NOT NULL DEFAULT '0',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO `banners` (`title`,`image_url`,`link_url`,`sort_order`,`is_active`) VALUES
+('Sắp xếp ngày. Sống chủ động.','/home/banners/banner-1.png',NULL,1,1),
+('Hiểu rõ tiền. Chi tiêu thông minh.','/home/banners/banner-2.png',NULL,2,1),
+('Việc nhỏ mỗi ngày. Kết quả lớn.','/home/banners/banner-3.png',NULL,3,1);

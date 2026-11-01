@@ -41,15 +41,8 @@
     const requestedView = document.body.dataset.view || new URLSearchParams(location.search).get('view');
     const view = viewNames[requestedView] ? requestedView : 'calendar';
     document.title = `${viewNames[view]} — Dayflow`;
-    document.getElementById('avatar').textContent = user.fullName.trim().split(/\s+/).slice(-2).map(part=>part[0]).join('').toUpperCase();
-    document.querySelector(`[data-nav="${view}"]`).classList.add('active');
+    document.querySelector(`[data-nav="${view}"]`)?.classList.add('active');
     applySkin(currentSkin);
-    document.getElementById('logout').addEventListener('click',async()=>{
-        await fetch('/api/auth/csrf',{credentials:'same-origin'});
-        const cookie=document.cookie.split('; ').find(value=>value.startsWith('XSRF-TOKEN='));
-        await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin',headers:{'X-XSRF-TOKEN':cookie?decodeURIComponent(cookie.slice('XSRF-TOKEN='.length)):''}});
-        location.href='/login/index.html';
-    });
     const content=document.getElementById('page-content');
     const showMessage=message=>{const node=document.getElementById('message');node.textContent=message;node.classList.add('show');clearTimeout(showMessage.timer);showMessage.timer=setTimeout(()=>node.classList.remove('show'),2600);};
     const csrfHeaders=async()=>{await fetch('/api/auth/csrf',{credentials:'same-origin'});const cookie=document.cookie.split('; ').find(value=>value.startsWith('XSRF-TOKEN='));return {'Content-Type':'application/json','X-XSRF-TOKEN':cookie?decodeURIComponent(cookie.slice('XSRF-TOKEN='.length)):''};};
@@ -115,10 +108,14 @@
         const completed=tasks.filter(task=>task.completed).length,open=tasks.length-completed,overdue=tasks.filter(task=>!task.completed&&task.dueDate&&task.dueDate<dateKey(today)).length,rate=tasks.length?Math.round(completed/tasks.length*100):0;
         const groups={};tasks.forEach(task=>{const category=task.category||'Khác';groups[category]=(groups[category]||0)+1;});
         const nextDays=Array.from({length:7},(_,index)=>{const date=new Date();date.setDate(date.getDate()+index);const key=dateKey(date);return {label:new Intl.DateTimeFormat('vi-VN',{weekday:'short',day:'numeric'}).format(date),value:tasks.filter(task=>task.dueDate===key).length};});
+        const weekStart=new Date(today.getFullYear(),today.getMonth(),today.getDate());weekStart.setDate(weekStart.getDate()-((weekStart.getDay()+6)%7));
+        const weekStartKey=dateKey(weekStart),weekEnd=new Date(weekStart);weekEnd.setDate(weekEnd.getDate()+6);const weekEndKey=dateKey(weekEnd),monthPrefix=`${today.getFullYear()}-${pad(today.getMonth()+1)}`;
+        const makePie=(title,periodTasks)=>{const done=periodTasks.filter(task=>task.completed).length,total=periodTasks.length,pct=total?Math.round(done/total*100):0;return `<section class="card panel pie-panel"><h2>${title}</h2><div class="pie-layout"><div class="pie-chart ${total?'':'is-empty'}" style="--done:${pct}%" role="img" aria-label="${title}: ${done} trên ${total} công việc hoàn thành"><span>${total?`${pct}%`:'—'}</span></div><div class="pie-details"><strong>${done} / ${total}</strong><span>công việc hoàn thành</span><div class="pie-legend"><span><i class="pie-dot done"></i>Hoàn thành (${done})</span><span><i class="pie-dot pending"></i>Chưa hoàn thành (${total-done})</span></div></div></div></section>`;};
+        const weekTasks=tasks.filter(task=>task.dueDate&&task.dueDate>=weekStartKey&&task.dueDate<=weekEndKey),monthTasks=tasks.filter(task=>task.dueDate?.startsWith(monthPrefix));
         const categoryRows=Object.entries(groups).sort((a,b)=>b[1]-a[1]).map(([name,value])=>`<div class="bar-row"><span>${safe(name)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(4,value/Math.max(1,...Object.values(groups))*100)}%"></div></div><span class="bar-number">${value}</span></div>`).join('')||'<p class="subtitle">Chưa có dữ liệu công việc.</p>';
         const dateRows=nextDays.map(day=>`<div class="bar-row"><span>${safe(day.label)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(day.value?5:0,day.value/Math.max(1,...nextDays.map(item=>item.value))*100)}%"></div></div><span class="bar-number">${day.value}</span></div>`).join('');
         content.innerHTML=heading('TỔNG QUAN TIẾN ĐỘ','Thống kê công việc','Tổng hợp tự động từ danh sách công việc của bạn.')+
-            `<div class="stats-grid"><article class="card stat-card"><div class="stat-label">Tổng công việc</div><div class="stat-value">${tasks.length}</div></article><article class="card stat-card"><div class="stat-label">Đã hoàn thành</div><div class="stat-value">${completed}</div></article><article class="card stat-card"><div class="stat-label">Đang thực hiện</div><div class="stat-value">${open}</div></article><article class="card stat-card"><div class="stat-label">Quá hạn</div><div class="stat-value">${overdue}</div></article></div><div class="stats-panels"><section class="card panel"><h2>Tỉ lệ hoàn thành</h2><div class="stat-value">${rate}%</div><div class="progress" style="margin:12px 0"><span style="width:${rate}%"></span></div><p class="subtitle">${completed} trên ${tasks.length} công việc đã được đánh dấu hoàn thành.</p></section><section class="card panel"><h2>Công việc theo danh mục</h2>${categoryRows}</section><section class="card panel" style="grid-column:1/-1"><h2>Lịch đến hạn trong 7 ngày tới</h2>${dateRows}</section></div>`;
+            `<div class="stats-grid"><article class="card stat-card"><div class="stat-label">Tổng công việc</div><div class="stat-value">${tasks.length}</div></article><article class="card stat-card"><div class="stat-label">Đã hoàn thành</div><div class="stat-value">${completed}</div></article><article class="card stat-card"><div class="stat-label">Đang thực hiện</div><div class="stat-value">${open}</div></article><article class="card stat-card"><div class="stat-label">Quá hạn</div><div class="stat-value">${overdue}</div></article></div><div class="stats-panels pie-panels">${makePie('Tiến độ trong tuần này',weekTasks)}${makePie('Tiến độ trong tháng này',monthTasks)}</div><div class="stats-panels"><section class="card panel"><h2>Tỉ lệ hoàn thành</h2><div class="stat-value">${rate}%</div><div class="progress" style="margin:12px 0"><span style="width:${rate}%"></span></div><p class="subtitle">${completed} trên ${tasks.length} công việc đã được đánh dấu hoàn thành.</p></section><section class="card panel"><h2>Công việc theo danh mục</h2>${categoryRows}</section><section class="card panel" style="grid-column:1/-1"><h2>Lịch đến hạn trong 7 ngày tới</h2>${dateRows}</section></div>`;
     }
     function renderThemes() {
         content.innerHTML=heading('CÁ NHÂN HÓA','Chủ đề','Chọn màu sắc hiển thị cho không gian công việc của bạn.')+
@@ -146,6 +143,35 @@
                 `<div class="stats-grid"><article class="card stat-card"><div class="stat-label">Tổng số dư</div><div class="stat-value">${money(summary.walletBalance)}</div></article></div><div class="package-note"><strong>Gói nạp chưa khả dụng.</strong> Ứng dụng hiện chưa có danh mục gói nạp hoặc kết nối thanh toán. Số liệu bên dưới là số dư thật trong các ví của bạn.</div><div class="package-grid">${wallets.length?wallets.map(wallet=>`<article class="card package-card"><h2>${safe(wallet.name)}</h2><div class="package-description">Số dư hiện tại</div><div class="package-credits">${money(wallet.balance)}</div></article>`).join(''):'<div class="card package-card">Chưa có ví đang hoạt động trong tài khoản.</div>'}</div>`;
         } catch(error) { content.innerHTML=heading('SỐ DƯ TÀI KHOẢN','Ví của bạn','Không tải được dữ liệu ví.')+`<div class="card package-note">${safe(error.message)}</div>`; }
     }
+    window.addEventListener('dayflow:task-created',event=>{
+        const saved=event.detail;
+        if(!saved?.id||tasks.some(task=>String(task.id)===String(saved.id)))return;
+        tasks.unshift(saved);
+        if(view==='calendar')renderCalendar();
+        if(view==='stats')renderStats();
+        if(view==='goals'){
+            const list=document.getElementById('goal-list');
+            if(list)list.querySelectorAll('.goal-card').forEach(card=>card.remove());
+            renderGoals();
+        }
+    });
+    window.addEventListener('dayflow:task-updated',event=>{
+        const changed=event.detail;
+        if(!changed?.id)return;
+        const index=tasks.findIndex(task=>String(task.id)===String(changed.id));
+        if(changed.deleted){if(index>=0)tasks.splice(index,1);}
+        else if(index>=0)tasks[index]={...tasks[index],...changed};
+        else tasks.unshift(changed);
+        if(view==='calendar')renderCalendar();
+        if(view==='stats')renderStats();
+        if(view==='goals')renderGoals();
+    });
+    window.addEventListener('dayflow:goal-created',event=>{
+        const saved=event.detail;
+        if(!saved?.id||goals.some(goal=>String(goal.id)===String(saved.id)))return;
+        goals.unshift(saved);
+        if(view==='goals')renderGoals();
+    });
     if(view==='calendar')renderCalendar();
     if(view==='goals')renderGoals();
     if(view==='stats')renderStats();
