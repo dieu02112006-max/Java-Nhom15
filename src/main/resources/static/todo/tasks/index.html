@@ -7,6 +7,7 @@
     <title>Không gian cá nhân — Dayflow</title>
     <link rel="stylesheet" href="../section.css">
     <link rel="stylesheet" href="/shared/user-menu.css">
+<link rel="stylesheet" href="/shared/app-shell.css?v=20261102-0070">
 </head>
 <body data-view="tasks">
 <div class="shell">
@@ -16,7 +17,7 @@
         <div class="workspace"><span class="workspace-icon">✳</span><div class="workspace-copy"><strong>Không gian của tôi</strong><small>Cá nhân · Gói miễn phí</small></div></div>
         <div class="side-label">Điều hướng</div>
         <nav class="side-nav" aria-label="Điều hướng công việc">
-            <a class="side-link" data-nav="tasks" href="/todo/tasks/index.html"><svg viewBox="0 0 24 24" fill="none"><path d="M8 6h12M8 12h12M8 18h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m3 6 .8.8L5.5 5M3 12l.8.8 1.7-1.8M3 18l.8.8 1.7-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Công việc</span></a>
+            <a class="side-link" data-nav="tasks" href="/todo/index.html#tasks"><svg viewBox="0 0 24 24" fill="none"><path d="M8 6h12M8 12h12M8 18h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m3 6 .8.8L5.5 5M3 12l.8.8 1.7-1.8M3 18l.8.8 1.7-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Công việc</span></a>
             <a class="side-link" data-nav="calendar" href="/todo/calendar/index.html"><svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="16" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M7.5 3v4M16.5 3v4M3.5 10h17M8 14h3m3 0h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Lịch</span></a>
             <a class="side-link" data-nav="goals" href="/todo/goals/index.html"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Mục tiêu</span></a>
             <a class="side-link" data-nav="stats" href="/todo/stats/index.html"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Thống kê</span></a>
@@ -34,5 +35,7 @@
 <div class="message" id="message" role="status" aria-live="polite"></div>
 <script src="/shared/user-menu.js" defer></script>
 <script src="../section.js" defer></script>
+<script src="/assistant/assistant.js?v=20261102-0092" defer></script>
+<script src="/shared/app-shell.js?v=20261101-2200" defer></script>
 </body>
 </html>

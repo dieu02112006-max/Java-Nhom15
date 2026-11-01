@@ -164,6 +164,7 @@
         };
         try {
             await api('/api/finance/transactions', { method:'POST', body:JSON.stringify(payload) });
+            window.dayflowAssistant?.warnExpense(payload.amount);
             dialog.close();
             form.reset();
             await loadDashboard();
@@ -198,6 +199,7 @@
         }
     });
     search.addEventListener('input', renderTransactions);
+    window.addEventListener('dayflow:expense-updated', () => { if (USER_ID) loadDashboard(); });
     monthPicker.addEventListener('change', () => {
         const [year, month] = selectedMonth().split('-').map(Number);
         document.getElementById('month-label').textContent = new Intl.DateTimeFormat('vi-VN', {

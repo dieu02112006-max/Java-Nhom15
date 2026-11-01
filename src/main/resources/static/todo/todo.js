@@ -170,12 +170,14 @@
                 if (button.dataset.action === 'delete') {
                     await api(`/api/todo/tasks/${task.id}`,{method:'DELETE',headers:await csrfHeaders()});
                     tasks=tasks.filter(item=>String(item.id)!==String(task.id));
+                    window.dispatchEvent(new CustomEvent('dayflow:task-updated',{detail:{id:task.id,deleted:true}}));
                     showToast('Đã xóa công việc');
                 } else {
                     const payload=taskPayload(task);
                     if(button.dataset.action==='toggle') { payload.status=task.status==='done'?'todo':'done'; if(payload.status!=='done') payload.completedAt=null; }
                     const updated=await api(`/api/todo/tasks/${task.id}`,{method:'PUT',headers:await csrfHeaders(),body:JSON.stringify(payload)});
                     tasks=tasks.map(item=>String(item.id)===String(task.id)?updated:item);
+                    window.dispatchEvent(new CustomEvent('dayflow:task-updated',{detail:updated}));
                     showToast(updated.status==='done'?'Đã hoàn thành công việc':'Đã cập nhật công việc');
                 }
                 render();
@@ -201,6 +203,7 @@
         try {
             const saved=await api(id?`/api/todo/tasks/${id}`:'/api/todo/tasks',{method:id?'PUT':'POST',headers:await csrfHeaders(),body:JSON.stringify(payload)});
             if(id) tasks=tasks.map(task=>String(task.id)===id?saved:task); else tasks.unshift(saved);
+            window.dispatchEvent(new CustomEvent(id?'dayflow:task-updated':'dayflow:task-created',{detail:saved}));
             taskDialog.close(); render(); showToast(id?'Đã cập nhật công việc':'Đã thêm công việc mới');
         } catch(error) { showToast(error.message); }
         finally { saveButton.disabled=false; }
@@ -211,6 +214,30 @@
     taskDialog.addEventListener('click',event=>{if(event.target===taskDialog)taskDialog.close();});
     taskLocationInput.addEventListener('input',updateMapsLink);
     taskCategoryInput.addEventListener('change',updateCategoryPreview);
+    window.addEventListener('dayflow:task-created', event => {
+        const saved=event.detail;
+        if(!saved?.id||tasks.some(task=>String(task.id)===String(saved.id)))return;
+        tasks.unshift(saved);
+        selectedDay=null;
+        currentFilter='all';
+        document.querySelectorAll('.filter-button').forEach(item=>{const active=item.dataset.filter==='all';item.classList.toggle('active',active);item.setAttribute('aria-selected',String(active));});
+        render();
+    });
+    window.addEventListener('dayflow:task-updated', event => {
+        const changed=event.detail;
+        if(!changed?.id)return;
+        const index=tasks.findIndex(task=>String(task.id)===String(changed.id));
+        if(changed.deleted){if(index>=0)tasks.splice(index,1);}
+        else if(index>=0)tasks[index]={...tasks[index],...changed};
+        else tasks.unshift(changed);
+        render();
+    });
+    window.addEventListener('dayflow:goal-created', event => {
+        const saved=event.detail;
+        if(!saved?.id||goals.some(goal=>String(goal.id)===String(saved.id)))return;
+        goals.unshift(saved);
+        renderGoalOptions();
+    });
     try { [tasks,goals]=await Promise.all([api('/api/todo/tasks'),api('/api/todo/goals')]); renderGoalOptions(); }
     catch(error) { loadError=`Không tải được công việc từ cơ sở dữ liệu: ${error.message}`; showToast(error.message); }
     render();

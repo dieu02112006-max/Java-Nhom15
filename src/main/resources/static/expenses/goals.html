@@ -56,7 +56,7 @@
         .side-link { min-height: 41px; display: flex; align-items: center; gap: 11px; padding: 9px 11px; border-radius: 10px; color: #6f7285; font-size: 12px; font-weight: 620; transition: .18s ease; }
         .side-link:hover, .side-link.active { color: var(--blue-dark); background: var(--blue-pale); }
         .side-spacer { height: 1px; margin: 15px 9px; background: var(--line); }
-        .side-bottom { position: absolute; right: 15px; bottom: 18px; left: 15px; padding: 14px; border: 1px solid #f3e2ec; border-radius: 14px; background: linear-gradient(140deg,#fff,var(--pink-pale)); }
+        .side-bottom { position: absolute; right: 15px; bottom: 18px; left: 15px; padding: 14px; border: 1px solid #f3e2ec; border-radius: 14px; background: #f8e4e6; }
         .side-bottom strong { font-size: 11px; }
         .side-bottom p { margin: 5px 0 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
         .main { min-width: 0; }
@@ -93,7 +93,7 @@
         .goal-saved { font-size: 19px; font-weight: 760; letter-spacing: -.04em; }
         .goal-target { color: var(--muted); font-size: 10px; text-align: right; }
         .progress-track { height: 9px; overflow: hidden; margin-top: 11px; border-radius: 999px; background: #eff0f6; }
-        .progress-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg,var(--blue),var(--pink)); transition: width .25s ease; }
+        .progress-fill { height: 100%; border-radius: inherit; background: var(--blue); transition: width .25s ease; }
         .goal-meta { display: flex; justify-content: space-between; gap: 10px; margin-top: 8px; color: var(--muted); font-size: 10px; }
         .goal-meta strong { color: var(--blue-dark); }
         .goal-deadline { margin-top: 16px; color: var(--muted); font-size: 10px; }
@@ -136,6 +136,7 @@
             .goal-card { padding: 15px; }
         }
     </style>
+<link rel="stylesheet" href="/shared/app-shell.css?v=20261102-0070">
 </head>
 <body>
 <div class="shell">
@@ -418,5 +419,7 @@
         }
     })();
 </script>
+<script src="/assistant/assistant.js?v=20261102-0092" defer></script>
+<script src="/shared/app-shell.js?v=20261101-2200" defer></script>
 </body>
 </html>
