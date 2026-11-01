@@ -118,14 +118,38 @@
             `<div class="stats-grid"><article class="card stat-card"><div class="stat-label">Tổng công việc</div><div class="stat-value">${tasks.length}</div></article><article class="card stat-card"><div class="stat-label">Đã hoàn thành</div><div class="stat-value">${completed}</div></article><article class="card stat-card"><div class="stat-label">Đang thực hiện</div><div class="stat-value">${open}</div></article><article class="card stat-card"><div class="stat-label">Quá hạn</div><div class="stat-value">${overdue}</div></article></div><div class="stats-panels pie-panels">${makePie('Tiến độ trong tuần này',weekTasks)}${makePie('Tiến độ trong tháng này',monthTasks)}</div><div class="stats-panels"><section class="card panel"><h2>Tỉ lệ hoàn thành</h2><div class="stat-value">${rate}%</div><div class="progress" style="margin:12px 0"><span style="width:${rate}%"></span></div><p class="subtitle">${completed} trên ${tasks.length} công việc đã được đánh dấu hoàn thành.</p></section><section class="card panel"><h2>Công việc theo danh mục</h2>${categoryRows}</section><section class="card panel" style="grid-column:1/-1"><h2>Lịch đến hạn trong 7 ngày tới</h2>${dateRows}</section></div>`;
     }
     function renderThemes() {
-        content.innerHTML=heading('CÁ NHÂN HÓA','Chủ đề','Chọn màu sắc hiển thị cho không gian công việc của bạn.')+
-            `<div class="theme-grid">${skins.map(skin=>`<button class="card theme-card ${currentSkin.id===skin.id?'selected':''}" data-theme-id="${skin.id}" type="button"><div class="theme-preview" style="--preview-bg:${safe(skin.backgroundColor)};--preview-primary:${safe(skin.primaryColor)};--preview-secondary:${safe(skin.secondaryColor)};--preview-accent:${safe(skin.secondaryColor)};--preview-image:${safeImageUrl(skin.previewUrl||skin.backgroundImageUrl)}"><div class="preview-bar"></div><div class="preview-line"></div><div class="preview-line short"></div><div class="preview-chip"></div></div><div class="theme-info"><span><strong>${safe(skin.name)}${skin.isDefault?' · Mặc định':''}</strong><br><small>${safe(skin.code)}</small></span><small>${currentSkin.id===skin.id?'Đang dùng':'Chọn chủ đề'}</small></div></button>`).join('')}</div>`;
+        const topicPackages=[
+            {id:'tet',name:'Tết',image:'/home/topics/tet.png'},
+            {id:'noel',name:'Noel',image:'/home/topics/noel.png'},
+            {id:'ocean',name:'Đại dương',image:'/home/topics/ocean.png'}
+        ];
+        const selectedTopic=topicPackages.find(topic=>topic.id===localStorage.getItem('dayflow-topic-background'));
+        content.innerHTML=heading('CÁ NHÂN HÓA','Chủ đề','Chọn một gói chủ đề để thay đổi hình nền hoặc chọn bảng màu hiển thị.')+
+            `<section class="theme-section"><h2>Gói chủ đề</h2><p class="subtitle">Hình nền được lấy từ bộ ảnh chủ đề và áp dụng cho các trang trong ứng dụng.</p><div class="theme-grid">${topicPackages.map(topic=>`<button class="card theme-card ${selectedTopic?.id===topic.id?'selected':''}" data-topic-id="${topic.id}" type="button" aria-pressed="${selectedTopic?.id===topic.id}"><div class="theme-preview topic-preview"><img class="topic-preview-image" src="${safe(topic.image)}" alt="Ảnh xem trước chủ đề ${safe(topic.name)}"></div><div class="theme-info"><span><strong>${safe(topic.name)}</strong><br><small>Gói chủ đề</small></span><small>${selectedTopic?.id===topic.id?'Đang dùng':'Chọn chủ đề'}</small></div></button>`).join('')}</div></section>`+
+            `<section class="theme-section"><h2>Bảng màu</h2><div class="theme-grid">${skins.map(skin=>`<button class="card theme-card ${currentSkin.id===skin.id?'selected':''}" data-theme-id="${skin.id}" type="button"><div class="theme-preview" style="--preview-bg:${safe(skin.backgroundColor)};--preview-primary:${safe(skin.primaryColor)};--preview-secondary:${safe(skin.secondaryColor)};--preview-accent:${safe(skin.secondaryColor)};--preview-image:${safeImageUrl(skin.previewUrl||skin.backgroundImageUrl)}"><div class="preview-bar"></div><div class="preview-line"></div><div class="preview-line short"></div><div class="preview-chip"></div></div><div class="theme-info"><span><strong>${safe(skin.name)}${skin.isDefault?' · Mặc định':''}</strong><br><small>${safe(skin.code)}</small></span><small>${currentSkin.id===skin.id?'Đang dùng':'Chọn chủ đề'}</small></div></button>`).join('')}</div></section>`;
+        document.querySelectorAll('[data-topic-id]').forEach(button=>button.addEventListener('click',()=>{
+            const topic=topicPackages.find(item=>item.id===button.dataset.topicId);
+            if(!topic)return;
+            try {
+                localStorage.setItem('dayflow-topic-background',topic.id);
+            } catch(error) {
+                showMessage('Không thể lưu gói chủ đề trên trình duyệt này.');
+                return;
+            }
+            document.documentElement.dataset.topicBackground=topic.id;
+            document.documentElement.style.setProperty('--topic-background-image',safeImageUrl(topic.image));
+            renderThemes();
+            showMessage(`Đã áp dụng gói chủ đề ${topic.name}.`);
+        }));
         document.querySelectorAll('[data-theme-id]').forEach(button=>button.addEventListener('click',async()=>{
             const skinId=Number(button.dataset.themeId);
             await fetch('/api/auth/csrf',{credentials:'same-origin'});
             const csrfCookie=document.cookie.split('; ').find(value=>value.startsWith('XSRF-TOKEN='));
             const response=await fetch('/api/auth/me/skin',{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json','X-XSRF-TOKEN':csrfCookie?decodeURIComponent(csrfCookie.slice('XSRF-TOKEN='.length)):''},body:JSON.stringify({skinId})});
             if(!response.ok){showMessage('Không thể lưu chủ đề. Hãy thử lại.');return;}
+            localStorage.removeItem('dayflow-topic-background');
+            delete document.documentElement.dataset.topicBackground;
+            document.documentElement.style.removeProperty('--topic-background-image');
             currentSkin=await response.json();applySkin(currentSkin);renderThemes();showMessage(`Đã lưu chủ đề ${currentSkin.name} cho tài khoản của bạn.`);
         }));
     }

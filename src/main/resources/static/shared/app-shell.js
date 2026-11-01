@@ -4,6 +4,23 @@
    - Bộ chọn ứng dụng nằm ở cạnh phải và gồm To-do, Chi tiêu, Trang giới thiệu.
    Chỉ di chuyển các node có sẵn nên mọi sự kiện/ID của từng trang vẫn hoạt động. */
 (() => {
+    const topicBackgrounds = {
+        tet: '/home/topics/tet.png',
+        noel: '/home/topics/noel.png',
+        ocean: '/home/topics/ocean.png'
+    };
+    const selectedTopic = localStorage.getItem('dayflow-topic-background');
+    const selectedBackground = Object.prototype.hasOwnProperty.call(topicBackgrounds, selectedTopic)
+        ? topicBackgrounds[selectedTopic]
+        : '';
+    const root = document.documentElement;
+    if (selectedBackground) {
+        root.dataset.topicBackground = selectedTopic;
+        root.style.setProperty('--topic-background-image', `url("${selectedBackground}")`);
+    } else if (selectedTopic) {
+        localStorage.removeItem('dayflow-topic-background');
+    }
+
     const topbar = document.querySelector('.topbar');
     const sidebar = document.querySelector('.sidebar');
     if (!topbar || !sidebar || document.querySelector('.side-account')) return;

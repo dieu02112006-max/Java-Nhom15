@@ -612,15 +612,13 @@
         }
       }
     </style>
-    <link rel="stylesheet" href="/shared/user-menu.css" />
-    <link rel="stylesheet" href="/shared/app-shell.css?v=20261102-0072" />
-  </head>
-  <body>
-    <div class="shell">
-      <aside class="sidebar">
-        <a class="brand" href="/" aria-label="Dayflow - Trang chủ"
-          ><span class="brand-mark">✓</span><span>dayflow</span></a
-        >
+<link rel="stylesheet" href="/shared/user-menu.css">
+<link rel="stylesheet" href="/shared/app-shell.css?v=20261102-0071">
+</head>
+<body>
+<div class="shell">
+    <aside class="sidebar">
+        <a class="brand" href="/" aria-label="Dayflow - Trang chủ"><span class="brand-mark">✓</span><span>dayflow</span></a>
         <div class="workspace-label">Không gian làm việc</div>
         <div class="workspace">
           <span class="workspace-icon">✳</span
@@ -966,40 +964,15 @@
               "Chọn một ngày để xem khoản thu, chi cùng thời gian và chi tiết giao dịch.",
             ) +
             `<div class="toolbar"><strong>Lịch giao dịch</strong><div class="controls"><button class="button" id="prev" type="button" aria-label="Tháng trước">‹</button><span id="calendar-title"></span><button class="button" id="next" type="button" aria-label="Tháng sau">›</button><input id="month-picker" class="month-picker" type="month" value="${monthKey(cursor)}" aria-label="Chọn tháng"></div></div><div id="calendar-grid" class="calendar-grid"></div><section class="card"><h2 id="day-heading">Chi tiết trong ngày</h2><div id="day-transactions"><div class="empty">Chọn một ngày để xem chi tiết.</div></div></section>`;
-          document.getElementById("prev").addEventListener("click", () => {
-            cursor = new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1);
-            selected = dateKey(cursor);
-            document.getElementById("month-picker").value = monthKey(cursor);
-            refreshCalendar();
-          });
-          document.getElementById("next").addEventListener("click", () => {
-            cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
-            selected = dateKey(cursor);
-            document.getElementById("month-picker").value = monthKey(cursor);
-            refreshCalendar();
-          });
-          document
-            .getElementById("month-picker")
-            .addEventListener("change", (event) => {
-              if (!event.target.value) return;
-              const [year, month] = event.target.value.split("-").map(Number);
-              cursor = new Date(year, month - 1, 1);
-              selected = dateKey(cursor);
-              refreshCalendar();
-            });
-          await refreshCalendar();
-        }
-      })().catch((exception) => {
-        const node = document.getElementById("message");
-        if (node) {
-          node.textContent = `Không tải được trang: ${exception.message}`;
-          node.classList.add("show");
-        }
-        console.error("Không thể tải trang chi tiêu:", exception);
-      });
-    </script>
-    <script src="/shared/user-menu.js" defer></script>
-    <script src="/assistant/assistant.js?v=20261102-0092" defer></script>
-    <script src="/shared/app-shell.js?v=20261102-2201" defer></script>
-  </body>
+        document.getElementById('prev').addEventListener('click',()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);selected=dateKey(cursor);document.getElementById('month-picker').value=monthKey(cursor);refreshCalendar();});
+        document.getElementById('next').addEventListener('click',()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);selected=dateKey(cursor);document.getElementById('month-picker').value=monthKey(cursor);refreshCalendar();});
+        document.getElementById('month-picker').addEventListener('change',event=>{if(!event.target.value)return;const [year,month]=event.target.value.split('-').map(Number);cursor=new Date(year,month-1,1);selected=dateKey(cursor);refreshCalendar();});
+        await refreshCalendar();
+    }
+})().catch(exception=>{const node=document.getElementById('message');if(node){node.textContent=`Không tải được trang: ${exception.message}`;node.classList.add('show');}console.error('Không thể tải trang chi tiêu:',exception);});
+</script>
+<script src="/shared/user-menu.js" defer></script>
+<script src="/assistant/assistant.js?v=20261102-0092" defer></script>
+<script src="/shared/app-shell.js?v=20261102-2202" defer></script>
+</body>
 </html>
