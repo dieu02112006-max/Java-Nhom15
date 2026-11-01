@@ -11,7 +11,7 @@
     /* ---------- 1. Chuông + profile xuống đáy sidebar ---------- */
     const account = document.createElement('div');
     account.className = 'side-account';
-    topbar.querySelectorAll('.icon-button, #user-menu, .logout-button, #logout, .profile, .avatar')
+    topbar.querySelectorAll('.icon-button, #user-menu, .logout-button, #logout-button, #logout, .profile, .avatar')
         .forEach(node => account.appendChild(node));      // giữ nguyên thứ tự gốc
     if (account.children.length) sidebar.appendChild(account);
 

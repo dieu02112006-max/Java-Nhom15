@@ -1,7 +1,7 @@
 package com.example.demo.config;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -31,10 +31,11 @@ public class BannerSchemaInitializer implements ApplicationRunner {
                 ) CHARACTER SET utf8mb4
                 """);
         // Bảng từ phiên bản cũ (banner dạng chữ) chưa có cột ảnh -> bổ sung.
-        Set<String> columns = new HashSet<>(jdbc.queryForList("""
+        Set<String> columns = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        columns.addAll(jdbc.queryForList("""
                 SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'banners'
-                """, String.class));
+                WHERE UPPER(TABLE_NAME) = UPPER(?)
+                """, String.class, "banners"));
         if (!columns.contains("image_url")) {
             jdbc.execute("ALTER TABLE banners ADD COLUMN image_url VARCHAR(500) DEFAULT NULL AFTER title");
         }
