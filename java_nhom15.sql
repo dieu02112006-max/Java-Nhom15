@@ -376,6 +376,7 @@ CREATE TABLE `users` (
   `timezone` varchar(60) NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
   `skin_id` bigint DEFAULT NULL,
   `role` varchar(20) NOT NULL DEFAULT 'USER',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

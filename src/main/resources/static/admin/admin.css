@@ -21,3 +21,197 @@
 
 .text-right{text-align:right}
 
+/* Dayflow admin shares the soft, pastel canvas used by the to-do workspace. */
+:root{--ink:#29283b;--muted:#77798e;--blue:#6479cf;--blue-dark:#4e60b2;--blue-pale:#eceefd;--paper:#edf0f5;--line:#e4e5ee;--green:#6d9e82;--amber:#c69557;--red:#c87591}
+body{position:relative;isolation:isolate;min-height:100vh;background:#e8edf2 url("/home/background.jpg") center/cover fixed no-repeat}
+body::before{position:fixed;inset:0;z-index:-1;content:"";background:rgb(239 241 246 / 52%);pointer-events:none}
+.sidebar{background:rgb(250 249 252 / 89%);backdrop-filter:blur(18px);border-right-color:#e4e3ec}
+.brand-mark{background:#7182ca;box-shadow:0 7px 16px #7182ca30}
+.nav-link{font-size:14px;color:#6d6e83}
+.nav-link:hover,.nav-link.active{color:#4e60b2;background:#e9eafa}
+.main{position:relative}
+.topbar{background:rgb(250 249 252 / 78%);border-bottom-color:#e4e3ec}
+.content{padding-top:38px}
+.heading h1{font-size:clamp(32px,4vw,43px);letter-spacing:-.06em;color:#29283b}
+.heading p{font-size:14px;color:#77798e}
+.eyebrow{color:#6479cf}
+.dot{background:#efa9c8;box-shadow:0 0 0 4px #fff0f6}
+.button{background:#6479cf;box-shadow:0 8px 19px #6479cf2b}
+.button:hover{background:#4e60b2}
+.button.secondary{background:rgb(255 255 255 / 84%);color:#62647a}
+.stats{gap:14px;margin-bottom:20px}
+.stat-card,.panel{border-color:rgb(255 255 255 / 78%);box-shadow:0 8px 26px rgb(61 63 91 / 8%);backdrop-filter:blur(12px)}
+.stat-card{background:rgb(247 248 252 / 88%);border-radius:17px;padding:19px}
+.stat-card:nth-child(1){background:linear-gradient(135deg,rgb(229 235 243 / 94%),rgb(238 240 249 / 90%))}
+.stat-card:nth-child(2){background:linear-gradient(135deg,rgb(227 240 231 / 94%),rgb(242 245 226 / 90%))}
+.stat-card:nth-child(3){background:linear-gradient(135deg,rgb(248 238 218 / 94%),rgb(250 229 224 / 90%))}
+.stat-card:nth-child(4){background:linear-gradient(135deg,rgb(243 229 238 / 94%),rgb(235 231 246 / 90%))}
+.stat-value{font-size:29px;color:#35354a}
+.stat-foot{font-size:12px;color:#85869a}
+.dashboard-grid{gap:18px}
+.panel{background:rgb(248 246 250 / 91%);border-radius:18px}
+.panel-title{font-size:16px;color:#35354a}
+.panel-subtitle{font-size:12px}
+.activity-row{border-color:#e9e8ef}
+.activity-info strong{font-size:13px}
+.activity-info small,.activity-date{font-size:11px}
+.quick{background:rgb(255 255 255 / 75%);border-color:#e6e4ee;border-radius:14px}
+.quick:hover{border-color:#d2d7f0;background:#f7f7fd;transform:translateY(-3px);box-shadow:0 10px 20px rgb(77 64 112 / 12%)}
+.quick strong{font-size:13px}
+.quick span{font-size:11px}
+.data-panel{background:rgb(248 246 250 / 93%)}
+.table-tools{border-color:#e9e8ef}
+th{background:rgb(239 234 242 / 85%);font-size:11px;color:#77798e}
+td{font-size:13px}
+tbody tr:hover{background:rgb(238 237 247 / 72%)}
+.search{font-size:13px;background:rgb(255 255 255 / 86%)}
+.tabs{gap:8px}
+.tab{padding:10px 14px;border-radius:10px;font-size:13px;background:rgb(255 255 255 / 82%)}
+.tab.active{color:#4e60b2;background:#e9eafa;border-color:#dce0f5}
+.count{font-size:12px}
+.badge{font-size:11px}
+.button.small{font-size:12px}
+@media(max-width:760px){.content{padding-top:27px}.sidebar{background:rgb(250 249 252 / 94%)}.topbar{background:rgb(250 249 252 / 86%)}.stat-value{font-size:24px}.panel-title{font-size:15px}th,td{font-size:12px}}
+
+/* Navigation and section tabs use the same soft segmented-tab treatment as To-do. */
+.sidebar nav{display:grid;gap:5px;padding:7px;border:1px solid rgb(226 225 237 / 82%);border-radius:15px;background:rgb(242 240 247 / 72%)}
+.sidebar .nav-link{min-height:43px;border:1px solid transparent;border-radius:11px;transition:color .18s ease,background .18s ease,border-color .18s ease,transform .18s ease}
+.sidebar .nav-link:hover{transform:translateX(2px);background:rgb(255 255 255 / 78%)}
+.sidebar .nav-link.active{border-color:rgb(220 223 245 / 90%);background:#fff;box-shadow:0 3px 10px rgb(65 66 102 / 7%)}
+.tabs{width:max-content;max-width:100%;overflow-x:auto;padding:5px;border:1px solid #e4e3ed;border-radius:14px;background:rgb(241 239 247 / 82%);scrollbar-width:thin}
+.tab{min-height:38px;padding:9px 15px;border:1px solid transparent;border-radius:10px;background:transparent;color:#77798e;white-space:nowrap;transition:color .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease}
+.tab:hover{color:#4e60b2;background:rgb(255 255 255 / 65%)}
+.tab.active{border-color:#e0e2f2;background:#fff;color:#4e60b2;box-shadow:0 3px 9px rgb(65 66 102 / 8%)}
+#finance-tabs{width:max-content;max-width:100%}
+@media(max-width:760px){.sidebar nav{display:flex;gap:4px;padding:4px;border:0;border-radius:0;background:transparent}.sidebar .nav-link{min-height:36px;padding:0 10px;border-radius:9px}.sidebar .nav-link:hover{transform:none}.sidebar .nav-link.active{box-shadow:0 2px 8px rgb(65 66 102 / 8%)}.tabs{width:100%;margin-bottom:14px}.tab{flex:0 0 auto;padding:8px 12px;font-size:12px}}
+
+/* Admin sidebar follows the To-do workspace card and vertical navigation. */
+.sidebar{width:292px;padding:25px 20px;background:linear-gradient(155deg,rgb(215 240 231 / 96%) 0%,rgb(235 245 218 / 95%) 46%,rgb(248 225 231 / 96%) 100%);border-right:1px solid rgb(255 255 255 / 75%)}
+.main{margin-left:292px}
+.workspace-card{display:flex;align-items:center;gap:13px;min-height:88px;margin:10px 0 25px;padding:13px;border:1px solid rgb(255 255 255 / 90%);border-radius:19px;background:linear-gradient(120deg,rgb(246 251 255 / 82%),rgb(223 243 198 / 78%));box-shadow:0 8px 22px rgb(92 127 106 / 8%)}
+.workspace-icon{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:13px;background:#fff;color:#8292ae}
+.workspace-icon svg{width:21px;height:21px}
+.workspace-copy{min-width:0}
+.workspace-copy strong{display:block;color:#29283b;font-size:15px;font-weight:740}
+.workspace-copy small{display:block;margin-top:5px;color:#77798e;font-size:12px}
+.sidebar .nav-label{padding:5px 9px 10px;color:#8b9b99;font-size:11px;letter-spacing:.11em}
+.sidebar nav{display:grid;gap:5px;padding:0;border:0;border-radius:0;background:transparent}
+.sidebar .nav-link{min-height:56px;gap:14px;padding:0 16px;border:1px solid transparent;border-radius:15px;color:#586c80;font-size:18px;font-weight:620}
+.sidebar .nav-link svg{width:20px;height:20px}
+.sidebar .nav-link:hover{transform:translateX(3px);color:#514781;background:rgb(255 255 255 / 54%)}
+.sidebar .nav-link.active{border-color:rgb(255 255 255 / 55%);color:#514781;background:linear-gradient(110deg,#eadcf0,#dfd2ec);box-shadow:0 10px 22px rgb(96 79 130 / 13%)}
+.sidebar .side-bottom{display:grid;gap:4px;margin-top:auto;padding:14px;border:1px solid rgb(255 255 255 / 78%);border-radius:20px;background:rgb(244 229 236 / 88%);box-shadow:0 8px 22px rgb(92 82 104 / 7%)}
+.sidebar .side-bottom .nav-label{padding:0 9px 4px}
+.sidebar .side-bottom .nav-link{min-height:42px;font-size:14px}
+.sidebar .profile-card{margin-top:7px;padding:12px 6px 2px;border-top-color:rgb(255 255 255 / 85%)}
+.sidebar .avatar{width:43px;height:43px;border:2px solid #fff;border-radius:50%;background:#efdae7;color:#9b5b83;font-size:13px}
+.sidebar .profile-card strong{font-size:14px;color:#353449}
+.sidebar .profile-card small{display:block;margin-top:4px;font-size:12px;overflow-wrap:anywhere}
+.sidebar .profile-info{min-width:0;flex:1;overflow:hidden}
+.sidebar .profile-info small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sidebar .profile-card .button{flex:none;min-height:31px;padding:0 8px;font-size:10px}
+.sidebar .profile-card #user-menu{flex:none;display:flex;align-items:center}
+.sidebar .profile-card .user-menu-trigger{width:44px;height:44px;font-size:12px}
+.sidebar .profile-card .user-menu-panel{top:auto;right:0;bottom:calc(100% + 12px);width:288px;transform:translateY(7px) scale(.98);transform-origin:bottom right}
+.sidebar .profile-card .user-menu.open .user-menu-panel{transform:none}
+.sidebar .profile-card .user-menu-trigger{border-color:#fff;color:#9b5b83;background:#f5e3ed;box-shadow:0 0 0 1px #edd7e3}
+.sidebar .profile-card .user-menu-trigger:hover,.sidebar .profile-card .user-menu.open .user-menu-trigger{box-shadow:0 0 0 3px rgb(168 129 184 / 28%)}
+.sidebar .profile-card .user-menu-panel{border-color:rgb(255 255 255 / 94%);border-radius:20px;background:rgb(251 247 251 / 98%);box-shadow:0 20px 52px rgb(68 58 87 / 22%);backdrop-filter:blur(18px)}
+.sidebar .profile-card .user-menu-head{background:linear-gradient(120deg,#e9e8fb 0%,#f5e1eb 100%)}
+.sidebar .profile-card .user-menu-big{background:#7583d0;box-shadow:0 5px 14px rgb(98 111 197 / 20%)}
+.sidebar .profile-card .user-menu-name{color:#303044;font-size:15px}
+.sidebar .profile-card .user-menu-email{font-size:12px}
+.sidebar .profile-card .user-menu-list + .user-menu-list{border-top-color:#e7e1eb}
+.sidebar .profile-card .user-menu-item{min-height:42px;border-radius:11px;color:#343449;font-size:14px}
+.sidebar .profile-card .user-menu-item svg{width:19px;height:19px;color:#78809a}
+.sidebar .profile-card .user-menu-item:hover,.sidebar .profile-card .user-menu-item:focus-visible,.sidebar .profile-card .user-menu-item.active{color:#514781;background:#e9def1}
+.sidebar .profile-card .user-menu-item.danger:hover{color:#b84f69;background:#fbe7ed}
+.heading-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.status-toggle{border:0;cursor:pointer}
+.status-toggle:hover{filter:brightness(.96);box-shadow:0 2px 7px rgb(40 40 60 / 10%)}
+.transaction-row{display:flex;align-items:center;gap:11px;padding:12px 0;border-top:1px solid #e9e8ef}
+.transaction-row:first-child{border-top:0}
+.transaction-icon{width:36px;height:36px;display:grid;place-items:center;flex:none;border-radius:12px;background:#eaf3ed;color:#4f9875;font-size:17px;font-weight:700}
+.transaction-icon.expense{background:#f8e8e8;color:#c56a78}
+.transaction-icon.transfer{background:#eeebf7;color:#7770ab}
+.transaction-copy{min-width:0;flex:1}
+.transaction-copy strong{display:block;overflow:hidden;color:#343449;font-size:13px;text-overflow:ellipsis;white-space:nowrap}
+.transaction-copy small{display:block;margin-top:4px;overflow:hidden;color:#85869a;font-size:11px;text-overflow:ellipsis;white-space:nowrap}
+.transaction-amount{color:#485d70;font-size:13px;font-weight:720;white-space:nowrap}
+.transaction-amount.expense{color:#b55d70}
+.transaction-amount.income{color:#438567}
+.task-modal textarea{width:100%;resize:vertical}
+.field textarea{width:100%;min-height:78px;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font:inherit;font-size:12px}
+.field textarea:focus{border-color:#99a8ea;box-shadow:0 0 0 3px #4663c816;outline:0}
+@media(max-width:760px){.heading-actions{width:100%}.heading-actions .button{flex:1}.transaction-amount{font-size:12px}}
+@media(max-width:1080px) and (min-width:761px){.sidebar{width:260px}.main{margin-left:260px}}
+@media(max-width:760px){.sidebar{position:relative;top:auto;width:100%;height:auto;min-height:100vh;padding:22px 20px;display:flex;flex-direction:column;align-items:stretch;gap:0;border-right:0;border-bottom:1px solid #fff}.workspace-card{margin:9px 0 23px}.sidebar .nav-label{display:block}.sidebar nav{display:grid;overflow:visible;gap:4px;padding:0}.sidebar .nav-link{min-height:55px;padding:0 16px;font-size:18px}.sidebar .nav-link svg{display:block;width:20px}.sidebar .side-bottom{display:grid;margin-top:30px}.sidebar .side-bottom .nav-label{display:block}.sidebar .side-bottom .nav-link{min-height:43px;font-size:14px}.main{margin-left:0}.topbar{position:static}.sidebar .brand{display:none}}
+
+.admin-week{margin:22px 0 24px;padding:22px 24px;border:1px solid rgb(255 255 255 / 85%);border-radius:22px;background:linear-gradient(112deg,rgb(226 211 235 / 87%),rgb(248 218 224 / 82%),rgb(207 235 226 / 87%));box-shadow:0 14px 32px rgb(70 77 105 / 11%);backdrop-filter:blur(14px)}
+.admin-week-head{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:16px}
+.admin-week-head h2{margin:0;color:#29283b;font-size:20px;letter-spacing:-.035em}
+.admin-week-head p{margin:5px 0 0;color:#77798e;font-size:15px}
+.admin-week-today{min-height:43px;padding:0 17px;border:1px solid rgb(255 255 255 / 90%);border-radius:13px;background:linear-gradient(120deg,#fff0bd,#fbd9df);color:#694da1;font-size:15px;font-weight:730}
+.admin-week-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px}
+.admin-week-day{min-height:112px;display:grid;justify-items:center;align-content:center;gap:6px;border:1px solid rgb(161 198 185 / 50%);border-radius:17px;background:linear-gradient(140deg,rgb(225 235 233 / 89%),rgb(234 239 222 / 86%));color:#566b7e}
+.admin-week-day span{font-size:15px;font-weight:720}
+.admin-week-day strong{color:#29283b;font-size:32px;line-height:1}
+.admin-week-day small{font-size:14px}
+.admin-week-day.is-today{border-color:#7483c3;background:linear-gradient(140deg,rgb(220 208 233 / 96%),rgb(238 215 230 / 94%));color:#694e94;box-shadow:0 9px 18px rgb(80 71 125 / 12%)}
+.admin-week-day.is-today strong{color:#514781}
+.stats{gap:16px;margin:27px 0 30px}
+.stat-card{position:relative;min-height:124px;padding:22px 18px 20px 76px;border-radius:20px}
+.stat-icon{position:absolute;left:19px;top:50%;width:48px;height:48px;transform:translateY(-50%);border-radius:15px;background:#fff}
+.stat-icon svg{width:21px;height:21px}
+.stat-head{font-size:14px}
+.stat-value{margin-top:12px;font-size:32px}
+.stat-foot{font-size:13px}
+.dashboard-grid{gap:18px}
+.dashboard-grid>.panel{min-height:230px;padding:24px;border-radius:21px}
+.panel-head{margin-bottom:19px}
+.panel-title{font-size:18px}
+.panel-subtitle{font-size:13px}
+.activity-row{padding:14px 0}
+.activity-icon{width:42px;height:42px;border-radius:14px;font-size:13px}
+.activity-info strong{font-size:14px}
+.activity-info small,.activity-date{font-size:12px}
+.quick{min-height:138px;padding:17px;border-radius:16px}
+.quick-icon{width:38px;height:38px;border-radius:13px}
+.quick strong{font-size:14px}
+.quick span{font-size:12px}
+.data-panel{border-radius:20px}
+.table-tools{min-height:78px;padding:17px 22px;background:rgb(231 220 237 / 70%)}
+.table-wrap th{padding:15px 20px;background:rgb(239 229 239 / 84%);color:#895f7f;font-size:13px}
+.table-wrap td{padding:17px 20px;font-size:14px}
+.table-wrap tbody tr:hover{background:rgb(238 237 247 / 73%)}
+.tabs{margin-bottom:18px}
+.tab{min-height:45px;padding:10px 17px;font-size:14px}
+.search{height:44px;font-size:14px}
+.count{font-size:13px}
+@media(max-width:1080px){.admin-week{padding:19px}.admin-week-days{gap:8px}.admin-week-day{min-height:94px}.admin-week-day strong{font-size:27px}.stat-card{padding-left:66px}.stat-icon{left:14px}}
+@media(max-width:760px){.admin-week{padding:17px 14px;border-radius:18px}.admin-week-head h2{font-size:18px}.admin-week-head p{font-size:13px}.admin-week-days{grid-template-columns:repeat(7,minmax(62px,1fr));overflow-x:auto;padding-bottom:4px}.admin-week-day{min-height:86px;border-radius:13px}.admin-week-day span,.admin-week-day small{font-size:12px}.admin-week-day strong{font-size:24px}.stats{gap:10px}.stat-card{min-height:106px;padding:16px 12px 15px 55px;border-radius:16px}.stat-icon{left:10px;width:36px;height:36px;border-radius:12px}.stat-value{font-size:25px}.stat-head{font-size:11px}.stat-foot{font-size:11px}.dashboard-grid>.panel{padding:17px}.quick{min-height:120px}.table-tools{min-height:auto;gap:10px}.table-wrap th,.table-wrap td{padding:13px 14px}.tab{min-height:40px;padding:8px 12px}}
+
+/* Admin task form follows the spacious, soft Dayflow task editor. */
+#task-modal{padding:20px;background:rgb(37 40 61 / 35%);backdrop-filter:blur(5px)}
+#task-modal .modal{width:min(900px,calc(100vw - 40px));max-height:calc(100vh - 40px);overflow-y:auto;padding:clamp(22px,3.4vw,40px);border:1px solid rgb(255 255 255 / 90%);border-radius:24px;background:linear-gradient(145deg,#fffdfd 0%,#faf8ff 58%,#f5f8ff 100%);box-shadow:0 28px 90px rgb(56 54 89 / 22%)}
+#task-modal .modal-head{align-items:center;margin-bottom:26px}
+#task-modal .task-modal-heading{display:flex;align-items:center;gap:16px}
+#task-modal .task-modal-mark{display:grid;width:58px;height:58px;flex:0 0 58px;place-items:center;border-radius:19px;background:linear-gradient(145deg,#eeebf8,#e6e8fb);color:#5968bd;font-size:25px}
+#task-modal .task-modal-kicker{display:block;margin-bottom:5px;color:#7582ce;font-size:10px;font-weight:800;letter-spacing:.12em}
+#task-modal .modal-head h2{font-size:25px;letter-spacing:-.045em}
+#task-modal .modal-head p{margin-top:6px;font-size:13px}
+#task-modal .close{width:40px;height:40px;border:1px solid #e2e4f0;border-radius:12px;background:#fff;color:#697493;font-size:23px;cursor:pointer;transition:background .18s,transform .18s}
+#task-modal .close:hover{transform:translateY(-1px);background:#f0effb}
+#task-modal .form-grid{gap:18px 20px}
+#task-modal .field{gap:8px}
+#task-modal .field label{color:#66728b;font-size:12px;font-weight:700}
+#task-modal .field input,#task-modal .field select{height:49px;padding:0 14px;border:1px solid #dfe3ef;border-radius:12px;background:rgb(255 255 255 / 92%);color:#292c40;font-size:13px;transition:border-color .18s,box-shadow .18s}
+#task-modal .field textarea{width:100%;min-height:100px;resize:vertical;padding:13px 14px;border:1px solid #dfe3ef;border-radius:12px;background:rgb(255 255 255 / 92%);color:#292c40;font:inherit;font-size:13px;transition:border-color .18s,box-shadow .18s}
+#task-modal .field input:focus,#task-modal .field select:focus,#task-modal .field textarea:focus{border-color:#7c8be0;outline:0;box-shadow:0 0 0 3px rgb(100 119 213 / 13%)}
+#task-modal .field input::placeholder,#task-modal .field textarea::placeholder{color:#9299aa}
+#task-modal .modal-actions{gap:10px;margin-top:26px;padding-top:19px;border-top:1px solid #e9e7f0}
+#task-modal .modal-actions .button{min-height:44px;padding:0 20px;border-radius:12px;font-size:13px;font-weight:700}
+#task-modal .modal-actions .button:not(.secondary){background:#5669c1;box-shadow:0 7px 16px rgb(86 105 193 / 18%)}
+#task-modal .modal-actions .button.secondary{border:1px solid #dfe3ef;background:#fff;color:#68718a}
+@media(max-width:760px){#task-modal{padding:10px}#task-modal .modal{width:100%;max-height:calc(100vh - 20px);padding:22px 18px;border-radius:20px}#task-modal .modal-head{margin-bottom:20px}#task-modal .task-modal-mark{width:46px;height:46px;flex-basis:46px;border-radius:15px;font-size:21px}#task-modal .modal-head h2{font-size:21px}#task-modal .modal-head p{max-width:230px;line-height:1.45}#task-modal .form-grid{grid-template-columns:1fr;gap:14px}#task-modal .field.full{grid-column:auto}#task-modal .modal-actions{margin-top:20px}}
+

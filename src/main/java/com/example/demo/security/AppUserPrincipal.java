@@ -14,13 +14,19 @@ public final class AppUserPrincipal implements UserDetails {
     private final String passwordHash;
     private final String fullName;
     private final UserRole role;
+    private final boolean active;
 
     public AppUserPrincipal(User user) {
+        this(user, true);
+    }
+
+    public AppUserPrincipal(User user, boolean active) {
         this.id = user.getId();
         this.email = user.getEmail();
         this.passwordHash = user.getPasswordHash();
         this.fullName = user.getFullName();
         this.role = user.getRole();
+        this.active = active;
     }
 
     public Long id() { return id; }
@@ -35,5 +41,5 @@ public final class AppUserPrincipal implements UserDetails {
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+    @Override public boolean isEnabled() { return active; }
 }

@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.UserRequest;
 import com.example.demo.dto.request.UserRoleRequest;
+import com.example.demo.dto.request.UserStatusRequest;
 import com.example.demo.dto.response.UserResponse;
 import com.example.demo.exception.BusinessException;
 import com.example.demo.security.AppUserPrincipal;
@@ -58,6 +59,14 @@ public class UserController {
             throw new BusinessException("Không thể tự thay đổi quyền của tài khoản đang đăng nhập");
         }
         return service.changeRole(id, req.role());
+    }
+
+    @PutMapping("/{id}/status")
+    public UserResponse changeStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody UserStatusRequest req,
+            @AuthenticationPrincipal AppUserPrincipal currentUser) {
+        return service.changeActiveStatus(id, req.active(), currentUser.id());
     }
 
     @DeleteMapping("/{id}")

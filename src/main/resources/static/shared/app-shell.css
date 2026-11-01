@@ -52,6 +52,20 @@
 .side-account .user-menu { margin-left: auto; }
 .side-account .profile, .side-account .avatar { flex: none; margin: 0; }
 
+.admin-return-link {
+    min-height: 44px;
+    margin: 12px 6px 0;
+    padding: 0 12px;
+    border: 1px solid rgb(255 255 255 / 82%);
+    border-radius: 12px;
+    color: #514781 !important;
+    background: linear-gradient(110deg, #eadcf0, #f4e2e9) !important;
+    font-size: 14px;
+    font-weight: 700;
+}
+.admin-return-link svg { width: 18px; height: 18px; flex: none; }
+.admin-return-link:hover { transform: translateX(3px); box-shadow: 0 7px 16px rgb(96 79 130 / 12%); }
+
 /* Menu tài khoản mở lên phía trên (vì đang nằm ở đáy) */
 .side-account .user-menu-panel {
     top: auto;
@@ -448,6 +462,47 @@ body > .shell::before { opacity: .42; }
 @keyframes stat-card-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) {
     .week-day, .stats .stat-card, .stats-grid .stat-card { animation: none !important; transition: none !important; }
+}
+
+/* Admin return action: a clear, compact control that fits the pastel sidebar. */
+.sidebar .admin-return-link {
+    display: flex;
+    align-items: center;
+    position: relative;
+    min-height: 46px;
+    gap: 10px;
+    margin: 12px 6px 10px;
+    padding: 0 12px;
+    overflow: hidden;
+    box-sizing: border-box;
+    border: 1px solid rgb(255 255 255 / 88%);
+    border-radius: 13px;
+    color: #5a527e !important;
+    background: #ece8f4 !important;
+    box-shadow: 0 3px 9px rgb(82 70 112 / 7%);
+    font-size: 13px;
+    font-weight: 680;
+    line-height: 1.2;
+    text-decoration: none !important;
+    transition: background .18s ease, box-shadow .18s ease;
+}
+.sidebar .admin-return-link svg {
+    width: 18px;
+    height: 18px;
+    color: #716894;
+}
+.sidebar .admin-return-link::after {
+    margin-left: auto;
+    color: #8a83a5;
+    content: "↗";
+    font-size: 14px;
+}
+.sidebar .admin-return-link:hover {
+    background: #e5e0ef !important;
+    box-shadow: 0 5px 12px rgb(82 70 112 / 10%);
+}
+@media (prefers-reduced-motion: reduce) {
+    .sidebar .admin-return-link { transition: none; }
 }
 
 /* Chuyển động chỉ chạy khi rê chuột vào thẻ, không tự chạy lúc tải trang. */

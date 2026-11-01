@@ -379,7 +379,8 @@ CREATE TABLE `users` (
   `skin_id` bigint DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `role` varchar(50) NOT NULL DEFAULT 'USER'
+  `role` varchar(50) NOT NULL DEFAULT 'USER',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --

@@ -21,7 +21,7 @@
         @media(max-width:900px){.shell{grid-template-columns:1fr}.sidebar{position:static;height:auto}.side-bottom{display:none}.topbar{grid-template-columns:1fr auto;gap:10px;padding:0 14px}.topbar-spacer{display:none}.switcher{justify-self:start}.content{padding:24px 14px 40px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
         @media(max-width:520px){.side-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.topbar{height:auto;min-height:62px}.switcher a{padding:8px;font-size:10px}.logout{padding:0 8px}.toolbar{align-items:flex-start;flex-direction:column}.controls{width:100%;justify-content:space-between}.day-cell{min-height:66px;padding:4px}.day-total{font-size:7px}.category-row{grid-template-columns:minmax(72px,100px) minmax(45px,1fr) auto;gap:7px}}
     </style>
-<link rel="stylesheet" href="/shared/app-shell.css?v=20261102-0070">
+<link rel="stylesheet" href="/shared/app-shell.css?v=20261102-0072">
 </head>
 <body>
 <div class="shell">
@@ -167,6 +167,6 @@
 })().catch(exception=>{const node=document.getElementById('message');if(node){node.textContent=`Không tải được trang: ${exception.message}`;node.classList.add('show');}console.error('Không thể tải trang chi tiêu:',exception);});
 </script>
 <script src="/assistant/assistant.js?v=20261102-0092" defer></script>
-<script src="/shared/app-shell.js?v=20261101-2200" defer></script>
+<script src="/shared/app-shell.js?v=20261102-2201" defer></script>
 </body>
 </html>
