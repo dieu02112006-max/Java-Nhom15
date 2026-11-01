@@ -32,6 +32,20 @@
         .forEach(node => account.appendChild(node));      // giữ nguyên thứ tự gốc
     if (account.children.length) sidebar.appendChild(account);
 
+    /* Admins can jump back to the admin workspace from any shared app page. */
+    fetch('/api/auth/me', {credentials:'same-origin'})
+        .then(response => response.ok ? response.json() : null)
+        .then(user => {
+            if (user?.role !== 'ADMIN') return;
+            const adminLink = document.createElement('a');
+            adminLink.href = '/admin/index.html';
+            adminLink.className = 'side-link admin-return-link';
+            adminLink.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 14 4 19m0 0v-5m0 5h5M4 19a8 8 0 1 0 2-11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8v4l2.5 1.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Quay lại quản trị</span>';
+            const sideBottom = sidebar.querySelector('.side-bottom');
+            sidebar.insertBefore(adminLink, sideBottom || account);
+        })
+        .catch(() => {});
+
     /* ---------- 2. Ngăn kéo chọn ứng dụng ở cạnh phải ---------- */
     const switcher = topbar.querySelector('.app-switcher, .switcher');
     if (!switcher) return;
