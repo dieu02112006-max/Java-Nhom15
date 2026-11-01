@@ -1,7 +1,7 @@
 package com.example.demo.config;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,11 +28,19 @@ public class TodoTaskSchemaInitializer implements ApplicationRunner {
                     CONSTRAINT fk_todo_work_goals_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 )
                 """);
-        Set<String> columns = new HashSet<>(jdbc.queryForList("""
+        Integer taskTableCount = jdbc.queryForObject("""
+                SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
+                WHERE UPPER(TABLE_NAME) = UPPER(?)
+                """, Integer.class, "tasks");
+        if (taskTableCount == null || taskTableCount == 0) {
+            return;
+        }
+        Set<String> columns = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        columns.addAll(jdbc.queryForList("""
                 SELECT COLUMN_NAME
                 FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'tasks'
-                """, String.class));
+                WHERE UPPER(TABLE_NAME) = UPPER(?)
+                """, String.class, "tasks"));
         if (!columns.contains("category")) {
             jdbc.execute("ALTER TABLE `tasks` ADD COLUMN `category` varchar(80) NOT NULL DEFAULT 'Cá nhân' AFTER `description`");
         }
@@ -43,10 +51,11 @@ public class TodoTaskSchemaInitializer implements ApplicationRunner {
             jdbc.execute("ALTER TABLE `tasks` ADD COLUMN `goal_id` bigint DEFAULT NULL AFTER `parent_task_id`");
             jdbc.execute("ALTER TABLE `tasks` ADD CONSTRAINT `fk_tasks_goal` FOREIGN KEY (`goal_id`) REFERENCES `todo_work_goals` (`id`) ON DELETE SET NULL");
         }
-        Set<String> goalColumns = new HashSet<>(jdbc.queryForList("""
+        Set<String> goalColumns = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        goalColumns.addAll(jdbc.queryForList("""
                 SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'todo_work_goals'
-                """, String.class));
+                WHERE UPPER(TABLE_NAME) = UPPER(?)
+                """, String.class, "todo_work_goals"));
         if (goalColumns.contains("target")) jdbc.execute("ALTER TABLE `todo_work_goals` MODIFY `target` int NULL");
         if (goalColumns.contains("deadline")) jdbc.execute("ALTER TABLE `todo_work_goals` MODIFY `deadline` date NULL");
     }
