@@ -1,166 +1,1005 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f7f8fd">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f8fd" />
     <title>Lịch chi tiêu — Dayflow</title>
     <style>
-        :root{color-scheme:light;--ink:#202235;--muted:#81849a;--blue:#4568df;--blue-dark:#3452bf;--blue-pale:#eef1ff;--pink:#efa9c8;--pink-pale:#fff1f7;--line:#eaebf2;--canvas:#f7f8fd;--card:#fff;--red:#c85f73;--red-pale:#fff0f2;--green:#23866d}
-        .cashflow-chart{display:grid;justify-items:center;gap:14px;padding:6px 0 2px}.cashflow-donut{display:block;width:min(100%,280px);height:auto;overflow:visible}.cashflow-donut-label{fill:var(--ink);font-size:12px;font-weight:700}.cashflow-empty-label{fill:var(--muted);font-size:11px;font-weight:600}.cashflow-legend{display:grid;width:min(100%,520px);gap:0}.cashflow-legend-item{display:grid;grid-template-columns:12px minmax(0,1fr) auto auto;align-items:center;gap:9px;padding:11px 2px;border-top:1px solid var(--line);font-size:11px}.cashflow-swatch{width:10px;height:10px;border-radius:3px}.cashflow-swatch.income{background:var(--green)}.cashflow-swatch.expense{background:var(--red)}.cashflow-legend-name{color:var(--muted)}.cashflow-legend-value{font-weight:700;white-space:nowrap}.cashflow-legend-percent{min-width:38px;color:var(--muted);text-align:right}
-        *{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--canvas);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}button,input{font:inherit}a{color:inherit;text-decoration:none}
-        .shell{min-height:100vh;display:grid;grid-template-columns:248px minmax(0,1fr)}.sidebar{position:sticky;top:0;height:100vh;padding:23px 15px;background:rgba(255,255,255,.92);border-right:1px solid var(--line)}
-        .brand{display:flex;align-items:center;gap:10px;margin:0 7px 29px;font-size:18px;font-weight:760;letter-spacing:-.05em}.brand-mark{width:34px;height:34px;display:grid;place-items:center;color:#fff;background:var(--blue);border-radius:11px}
-        .workspace-label,.nav-label{margin:0 9px 9px;color:#a0a2b0;font-size:10px;font-weight:750;letter-spacing:.12em;text-transform:uppercase}.workspace{display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:22px;border:1px solid var(--line);border-radius:12px;background:var(--card)}.workspace-icon{width:30px;height:30px;display:grid;place-items:center;color:#9a5d82;background:var(--pink-pale);border-radius:9px}.workspace strong{font-size:12px}.workspace small{display:block;margin-top:3px;color:var(--muted);font-size:10px}
-        .side-nav{display:grid;gap:4px}.side-link{min-height:41px;display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:10px;color:#6f7285;font-size:12px;font-weight:620}.side-link:hover,.side-link.active{color:var(--blue-dark);background:var(--blue-pale)}.side-bottom{position:absolute;right:15px;bottom:18px;left:15px;padding:14px;border:1px solid #f3e2ec;border-radius:14px;background:#f8e4e6}.side-bottom strong{font-size:11px}.side-bottom p{margin:5px 0 0;color:var(--muted);font-size:10px;line-height:1.6}
-        .main{min-width:0}.topbar{position:sticky;top:0;z-index:4;height:66px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:18px;padding:0 clamp(20px,4vw,52px);border-bottom:1px solid var(--line);background:rgba(255,255,255,.88);backdrop-filter:blur(16px)}.switcher{display:flex;align-items:center;justify-self:center;gap:4px;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--card)}.switcher a{padding:8px 12px;border-radius:9px;color:var(--muted);font-size:11px;font-weight:650;white-space:nowrap}.switcher a.active,.switcher a:hover{color:var(--blue-dark);background:var(--blue-pale)}.user-actions{display:flex;align-items:center;justify-self:end;gap:9px}.logout{min-height:34px;padding:0 12px;border:1px solid var(--line);border-radius:10px;color:var(--muted);background:var(--card);font-size:11px;font-weight:650;cursor:pointer}.avatar{width:32px;height:32px;display:grid;place-items:center;border:2px solid var(--card);border-radius:50%;color:#8c4d75;background:var(--pink-pale);font-size:10px;font-weight:760}
-        .content{width:min(1180px,100%);margin:0 auto;padding:38px clamp(20px,4vw,52px) 70px}.heading{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:24px}.eyebrow{display:flex;align-items:center;gap:8px;color:var(--blue);font-size:10px;font-weight:750;letter-spacing:.11em;text-transform:uppercase}.dot{width:7px;height:7px;border-radius:50%;background:var(--pink);box-shadow:0 0 0 4px var(--pink-pale)}h1{margin:10px 0 6px;font-size:clamp(28px,4vw,38px);line-height:1.05;letter-spacing:-.06em}.subtitle{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
-        .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.controls{display:flex;align-items:center;gap:8px}.button,.month-picker{min-height:36px;padding:0 10px;border:1px solid var(--line);border-radius:9px;color:var(--ink);background:var(--card);font-size:11px}.button{cursor:pointer}.button:hover{border-color:#cdd5f5;background:var(--blue-pale)}.month-picker{padding:0 8px}
-        .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));overflow:hidden;border:1px solid var(--line);border-radius:14px;background:var(--card)}.weekday{min-height:36px;display:grid;place-items:center;border-bottom:1px solid var(--line);color:var(--muted);font-size:10px;font-weight:700}.day-cell{min-height:92px;padding:7px;border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);color:var(--ink);background:var(--card);text-align:left;cursor:pointer}.day-cell:nth-child(7n){border-right:0}.day-cell:hover{background:var(--blue-pale)}.day-cell.outside{color:#b6b8c3;background:#fafbfe}.day-cell.selected{box-shadow:inset 0 0 0 2px var(--blue)}.day-cell.today .day-number{color:#fff;background:var(--blue)}.day-number{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;font-size:10px;font-weight:650}.day-total{overflow:hidden;margin-top:5px;color:var(--red);font-size:9px;text-overflow:ellipsis;white-space:nowrap}.day-total.income{color:var(--green)}
-        .card{margin-top:18px;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--card);box-shadow:0 7px 24px #343b680a}.card h2{margin:0 0 12px;font-size:14px}.summary-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:11px}.summary-row strong.expense{color:var(--red)}.summary-row strong.income{color:var(--green)}.transaction{padding:12px 0;border-top:1px solid var(--line)}.transaction-main{display:flex;justify-content:space-between;gap:12px}.transaction-title{font-size:12px;font-weight:700}.transaction-amount{flex:none;font-size:12px;font-weight:750}.transaction-amount.expense{color:var(--red)}.transaction-amount.income{color:var(--green)}.transaction-meta,.empty{margin-top:5px;color:var(--muted);font-size:10px;line-height:1.5}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:20px}.stat{min-width:0;padding:16px;border:1px solid var(--line);border-radius:15px;background:var(--card);box-shadow:0 4px 15px #343b6810}.stat-label{color:var(--muted);font-size:10px}.stat-value{overflow:hidden;margin-top:7px;font-size:clamp(14px,1.8vw,20px);font-weight:760;letter-spacing:-.04em;text-overflow:ellipsis;white-space:nowrap}.category-row{display:grid;grid-template-columns:minmax(100px,160px) minmax(80px,1fr) auto;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:11px}.category-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.track{height:8px;overflow:hidden;border-radius:8px;background:#f0f1f7}.fill{height:100%;border-radius:inherit;background:var(--blue)}.category-amount{font-weight:700;white-space:nowrap}.message{display:none;margin-bottom:14px;padding:11px 13px;border:1px solid #f2d5da;border-radius:10px;color:var(--red);background:var(--red-pale);font-size:12px}.message.show{display:block}
-        @media(max-width:900px){.shell{grid-template-columns:1fr}.sidebar{position:static;height:auto}.side-bottom{display:none}.topbar{grid-template-columns:1fr auto;gap:10px;padding:0 14px}.topbar-spacer{display:none}.switcher{justify-self:start}.content{padding:24px 14px 40px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
-        @media(max-width:520px){.side-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.topbar{height:auto;min-height:62px}.switcher a{padding:8px;font-size:10px}.logout{padding:0 8px}.toolbar{align-items:flex-start;flex-direction:column}.controls{width:100%;justify-content:space-between}.day-cell{min-height:66px;padding:4px}.day-total{font-size:7px}.category-row{grid-template-columns:minmax(72px,100px) minmax(45px,1fr) auto;gap:7px}}
+      :root {
+        color-scheme: light;
+        --ink: #202235;
+        --muted: #81849a;
+        --blue: #4568df;
+        --blue-dark: #3452bf;
+        --blue-pale: #eef1ff;
+        --pink: #efa9c8;
+        --pink-pale: #fff1f7;
+        --line: #eaebf2;
+        --canvas: #f7f8fd;
+        --card: #fff;
+        --red: #c85f73;
+        --red-pale: #fff0f2;
+        --green: #23866d;
+      }
+      .cashflow-chart {
+        display: grid;
+        justify-items: center;
+        gap: 14px;
+        padding: 6px 0 2px;
+      }
+      .cashflow-donut {
+        display: block;
+        width: min(100%, 280px);
+        height: auto;
+        overflow: visible;
+      }
+      .cashflow-donut-label {
+        fill: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .cashflow-empty-label {
+        fill: var(--muted);
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .cashflow-legend {
+        display: grid;
+        width: min(100%, 520px);
+        gap: 0;
+      }
+      .cashflow-legend-item {
+        display: grid;
+        grid-template-columns: 12px minmax(0, 1fr) auto auto;
+        align-items: center;
+        gap: 9px;
+        padding: 11px 2px;
+        border-top: 1px solid var(--line);
+        font-size: 11px;
+      }
+      .cashflow-swatch {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+      }
+      .cashflow-swatch.income {
+        background: var(--green);
+      }
+      .cashflow-swatch.expense {
+        background: var(--red);
+      }
+      .cashflow-legend-name {
+        color: var(--muted);
+      }
+      .cashflow-legend-value {
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .cashflow-legend-percent {
+        min-width: 38px;
+        color: var(--muted);
+        text-align: right;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      button,
+      input {
+        font: inherit;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .shell {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 248px minmax(0, 1fr);
+      }
+      .sidebar {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        padding: 23px 15px;
+        background: rgba(255, 255, 255, 0.92);
+        border-right: 1px solid var(--line);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 7px 29px;
+        font-size: 18px;
+        font-weight: 760;
+        letter-spacing: -0.05em;
+      }
+      .brand-mark {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        background: var(--blue);
+        border-radius: 11px;
+      }
+      .workspace-label,
+      .nav-label {
+        margin: 0 9px 9px;
+        color: #a0a2b0;
+        font-size: 10px;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .workspace {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        margin-bottom: 22px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--card);
+      }
+      .workspace-icon {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        color: #9a5d82;
+        background: var(--pink-pale);
+        border-radius: 9px;
+      }
+      .workspace strong {
+        font-size: 12px;
+      }
+      .workspace small {
+        display: block;
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 10px;
+      }
+      .side-nav {
+        display: grid;
+        gap: 4px;
+      }
+      .side-link {
+        min-height: 41px;
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 9px 11px;
+        border-radius: 10px;
+        color: #6f7285;
+        font-size: 12px;
+        font-weight: 620;
+      }
+      .side-link:hover,
+      .side-link.active {
+        color: var(--blue-dark);
+        background: var(--blue-pale);
+      }
+      .side-bottom {
+        position: absolute;
+        right: 15px;
+        bottom: 18px;
+        left: 15px;
+        padding: 14px;
+        border: 1px solid #f3e2ec;
+        border-radius: 14px;
+        background: #f8e4e6;
+      }
+      .side-bottom strong {
+        font-size: 11px;
+      }
+      .side-bottom p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.6;
+      }
+      .main {
+        min-width: 0;
+      }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 4;
+        height: 66px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        gap: 18px;
+        padding: 0 clamp(20px, 4vw, 52px);
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(16px);
+      }
+      .switcher {
+        display: flex;
+        align-items: center;
+        justify-self: center;
+        gap: 4px;
+        padding: 4px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--card);
+      }
+      .switcher a {
+        padding: 8px 12px;
+        border-radius: 9px;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 650;
+        white-space: nowrap;
+      }
+      .switcher a.active,
+      .switcher a:hover {
+        color: var(--blue-dark);
+        background: var(--blue-pale);
+      }
+      .user-actions {
+        display: flex;
+        align-items: center;
+        justify-self: end;
+        gap: 9px;
+      }
+      .logout {
+        min-height: 34px;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        color: var(--muted);
+        background: var(--card);
+        font-size: 11px;
+        font-weight: 650;
+        cursor: pointer;
+      }
+      .avatar {
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        border: 2px solid var(--card);
+        border-radius: 50%;
+        color: #8c4d75;
+        background: var(--pink-pale);
+        font-size: 10px;
+        font-weight: 760;
+      }
+      .content {
+        width: min(1180px, 100%);
+        margin: 0 auto;
+        padding: 38px clamp(20px, 4vw, 52px) 70px;
+      }
+      .heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--blue);
+        font-size: 10px;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+      }
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--pink);
+        box-shadow: 0 0 0 4px var(--pink-pale);
+      }
+      h1 {
+        margin: 10px 0 6px;
+        font-size: clamp(28px, 4vw, 38px);
+        line-height: 1.05;
+        letter-spacing: -0.06em;
+      }
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .button,
+      .month-picker {
+        min-height: 36px;
+        padding: 0 10px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        color: var(--ink);
+        background: var(--card);
+        font-size: 11px;
+      }
+      .button {
+        cursor: pointer;
+      }
+      .button:hover {
+        border-color: #cdd5f5;
+        background: var(--blue-pale);
+      }
+      .month-picker {
+        padding: 0 8px;
+      }
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--card);
+      }
+      .weekday {
+        min-height: 36px;
+        display: grid;
+        place-items: center;
+        border-bottom: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 700;
+      }
+      .day-cell {
+        min-height: 92px;
+        padding: 7px;
+        border: 0;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        color: var(--ink);
+        background: var(--card);
+        text-align: left;
+        cursor: pointer;
+      }
+      .day-cell:nth-child(7n) {
+        border-right: 0;
+      }
+      .day-cell:hover {
+        background: var(--blue-pale);
+      }
+      .day-cell.outside {
+        color: #b6b8c3;
+        background: #fafbfe;
+      }
+      .day-cell.selected {
+        box-shadow: inset 0 0 0 2px var(--blue);
+      }
+      .day-cell.today .day-number {
+        color: #fff;
+        background: var(--blue);
+      }
+      .day-number {
+        width: 24px;
+        height: 24px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        font-size: 10px;
+        font-weight: 650;
+      }
+      .day-total {
+        overflow: hidden;
+        margin-top: 5px;
+        color: var(--red);
+        font-size: 9px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .day-total.income {
+        color: var(--green);
+      }
+      .card {
+        margin-top: 18px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--card);
+        box-shadow: 0 7px 24px #343b680a;
+      }
+      .card h2 {
+        margin: 0 0 12px;
+        font-size: 14px;
+      }
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+        border-top: 1px solid var(--line);
+        font-size: 11px;
+      }
+      .summary-row strong.expense {
+        color: var(--red);
+      }
+      .summary-row strong.income {
+        color: var(--green);
+      }
+      .transaction {
+        padding: 12px 0;
+        border-top: 1px solid var(--line);
+      }
+      .transaction-main {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .transaction-title {
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .transaction-amount {
+        flex: none;
+        font-size: 12px;
+        font-weight: 750;
+      }
+      .transaction-amount.expense {
+        color: var(--red);
+      }
+      .transaction-amount.income {
+        color: var(--green);
+      }
+      .transaction-meta,
+      .empty {
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.5;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 13px;
+        margin-bottom: 20px;
+      }
+      .stat {
+        min-width: 0;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        background: var(--card);
+        box-shadow: 0 4px 15px #343b6810;
+      }
+      .stat-label {
+        color: var(--muted);
+        font-size: 10px;
+      }
+      .stat-value {
+        overflow: hidden;
+        margin-top: 7px;
+        font-size: clamp(14px, 1.8vw, 20px);
+        font-weight: 760;
+        letter-spacing: -0.04em;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .category-row {
+        display: grid;
+        grid-template-columns: minmax(100px, 160px) minmax(80px, 1fr) auto;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-top: 1px solid var(--line);
+        font-size: 11px;
+      }
+      .category-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .track {
+        height: 8px;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #f0f1f7;
+      }
+      .fill {
+        height: 100%;
+        border-radius: inherit;
+        background: var(--blue);
+      }
+      .category-amount {
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .message {
+        display: none;
+        margin-bottom: 14px;
+        padding: 11px 13px;
+        border: 1px solid #f2d5da;
+        border-radius: 10px;
+        color: var(--red);
+        background: var(--red-pale);
+        font-size: 12px;
+      }
+      .message.show {
+        display: block;
+      }
+      @media (max-width: 900px) {
+        .shell {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          position: static;
+          height: auto;
+        }
+        .side-bottom {
+          display: none;
+        }
+        .topbar {
+          grid-template-columns: 1fr auto;
+          gap: 10px;
+          padding: 0 14px;
+        }
+        .topbar-spacer {
+          display: none;
+        }
+        .switcher {
+          justify-self: start;
+        }
+        .content {
+          padding: 24px 14px 40px;
+        }
+        .stats {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 520px) {
+        .side-nav {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .topbar {
+          height: auto;
+          min-height: 62px;
+        }
+        .switcher a {
+          padding: 8px;
+          font-size: 10px;
+        }
+        .logout {
+          padding: 0 8px;
+        }
+        .toolbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        .controls {
+          width: 100%;
+          justify-content: space-between;
+        }
+        .day-cell {
+          min-height: 66px;
+          padding: 4px;
+        }
+        .day-total {
+          font-size: 7px;
+        }
+        .category-row {
+          grid-template-columns: minmax(72px, 100px) minmax(45px, 1fr) auto;
+          gap: 7px;
+        }
+      }
     </style>
-<link rel="stylesheet" href="/shared/user-menu.css">
-<link rel="stylesheet" href="/shared/app-shell.css?v=20261102-0070">
-</head>
-<body>
-<div class="shell">
-    <aside class="sidebar">
-        <a class="brand" href="/" aria-label="Dayflow - Trang chủ"><span class="brand-mark">✓</span><span>dayflow</span></a>
+    <link rel="stylesheet" href="/shared/user-menu.css" />
+    <link rel="stylesheet" href="/shared/app-shell.css?v=20261102-0072" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <a class="brand" href="/" aria-label="Dayflow - Trang chủ"
+          ><span class="brand-mark">✓</span><span>dayflow</span></a
+        >
         <div class="workspace-label">Không gian làm việc</div>
-        <div class="workspace"><span class="workspace-icon">✳</span><span><strong>Không gian của tôi</strong><small>Cá nhân · Gói miễn phí</small></span></div>
+        <div class="workspace">
+          <span class="workspace-icon">✳</span
+          ><span
+            ><strong>Không gian của tôi</strong
+            ><small>Cá nhân · Gói miễn phí</small></span
+          >
+        </div>
         <div class="nav-label">Điều hướng</div>
         <nav class="side-nav" aria-label="Điều hướng chi tiêu">
-            <a class="side-link" href="/expenses/expenses.html"><span>◉</span><span>Quản lí chi tiêu</span></a>
-            <a class="side-link" href="/expenses/goals.html"><span>◎</span><span>Mục tiêu tiết kiệm</span></a>
-            <a class="side-link" data-nav="calendar" href="/expenses/section.html?view=calendar"><span>▦</span><span>Lịch chi tiêu</span></a>
-            <a class="side-link" data-nav="stats" href="/expenses/section.html?view=stats"><span>↗</span><span>Thống kê</span></a>
-
+          <a class="side-link" href="/expenses/expenses.html"
+            ><span>◉</span><span>Quản lí chi tiêu</span></a
+          >
+          <a class="side-link" href="/expenses/goals.html"
+            ><span>◎</span><span>Mục tiêu tiết kiệm</span></a
+          >
+          <a
+            class="side-link"
+            data-nav="calendar"
+            href="/expenses/section.html?view=calendar"
+            ><span>▦</span><span>Lịch chi tiêu</span></a
+          >
+          <a
+            class="side-link"
+            data-nav="stats"
+            href="/expenses/section.html?view=stats"
+            ><span>↗</span><span>Thống kê</span></a
+          >
         </nav>
-        <div class="side-spacer"></div><div class="workspace-label">Không gian</div>
-        <nav class="side-nav"><a class="side-link" href="/"><span>⌂</span><span>Trang giới thiệu</span></a></nav>
-        <div class="side-bottom"><strong>Quản lí tài chính ✨</strong><p>Theo dõi thu chi để từng mục tiêu tài chính rõ ràng hơn.</p></div>
-    </aside>
-    <main class="main">
-        <header class="topbar"><div class="topbar-spacer" aria-hidden="true"></div><nav class="switcher" aria-label="Chọn ứng dụng"><a href="/todo/index.html">To-do list</a><a class="active" href="/expenses/expenses.html">Quản lí chi tiêu</a></nav><div class="user-actions"><div class="user-menu" id="user-menu"></div></div></header>
-        <div class="content"><div id="message" class="message" role="alert"></div><section id="page-content"></section></div>
-    </main>
-</div>
-<script>
-(async () => {
-    const response = await fetch('/api/auth/me', {credentials:'same-origin'});
-    if (!response.ok) { location.href=`/login/index.html?next=${encodeURIComponent(location.pathname+location.search)}`; return; }
-    const user = await response.json();
-    const views = {calendar:'Lịch sử chi tiêu',stats:'Thống kê chi tiêu'};
-    const requested = new URLSearchParams(location.search).get('view');
-    const view = views[requested] ? requested : 'calendar';
-    const content = document.getElementById('page-content');
-    const money = new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND',maximumFractionDigits:0});
-    const pad = value => String(value).padStart(2,'0');
-    const dateKey = date => `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
-    const monthKey = date => `${date.getFullYear()}-${pad(date.getMonth()+1)}`;
-    const escape = value => String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-    const now = new Date();
-    let cursor = new Date(now.getFullYear(),now.getMonth(),1), selected = dateKey(now), rows = [];
-    const heading = (label,title,subtitle) => `<section class="heading"><div><div class="eyebrow"><span class="dot"></span>${label}</div><h1>${title}</h1><p class="subtitle">${subtitle}</p></div></section>`;
-    const error = message => { const node=document.getElementById('message');node.textContent=message;node.classList.add('show'); };
-    async function get(path) {
-        const result=await fetch(path,{credentials:'same-origin'});
-        if(result.status===401){location.href=`/login/index.html?next=${encodeURIComponent(location.pathname+location.search)}`;throw new Error('Phiên đăng nhập đã hết hạn.');}
-        if(!result.ok)throw new Error(`Tải dữ liệu thất bại (${result.status}).`);
-        return result.json();
-    }
-    async function loadRows(){rows=await get(`/api/finance/transactions?userId=${user.id}&month=${monthKey(cursor)}`);}
-    function renderDetails(){
-        const date=new Date(`${selected}T00:00:00`);
-        document.getElementById('day-heading').textContent=new Intl.DateTimeFormat('vi-VN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(date);
-        const dayRows=rows.filter(item=>item.transactionDate.startsWith(selected));
-        const target=document.getElementById('day-transactions');
-        if(!dayRows.length){target.innerHTML='<div class="empty">Ngày này chưa có giao dịch.</div>';return;}
-        const expense=dayRows.filter(item=>item.type==='expense').reduce((sum,item)=>sum+Number(item.amount),0);
-        const income=dayRows.filter(item=>item.type==='income').reduce((sum,item)=>sum+Number(item.amount),0);
-        const totals=`<div class="summary-row"><span>Tổng chi</span><strong class="expense">−${money.format(expense)}</strong></div><div class="summary-row"><span>Tổng thu</span><strong class="income">+${money.format(income)}</strong></div>`;
-        target.innerHTML=totals+dayRows.map(item=>{
-            const isIncome=item.type==='income',time=item.transactionDate.split('T')[1]?.slice(0,5)||'--:--';
-            const label=item.note||item.categoryName||(isIncome?'Khoản thu':'Khoản chi');
-            return `<article class="transaction"><div class="transaction-main"><span class="transaction-title">${escape(label)}</span><span class="transaction-amount ${isIncome?'income':'expense'}">${isIncome?'+':'−'}${money.format(item.amount)}</span></div><div class="transaction-meta">${time} · ${escape(item.categoryName||'Chưa phân loại')} · Ví ${escape(item.walletName)}</div></article>`;
-        }).join('');
-    }
-    function drawCalendar(){
-        const weekday=(new Date(cursor.getFullYear(),cursor.getMonth(),1).getDay()+6)%7;
-        const days=new Date(cursor.getFullYear(),cursor.getMonth()+1,0).getDate();
-        const count=Math.ceil((weekday+days)/7)*7;
-        const cells=['T2','T3','T4','T5','T6','T7','CN'].map(day=>`<div class="weekday">${day}</div>`);
-        for(let index=0;index<count;index++){
-            const num=index-weekday+1,date=new Date(cursor.getFullYear(),cursor.getMonth(),num),key=dateKey(date),inside=num>0&&num<=days;
-            const dayRows=inside?rows.filter(item=>item.transactionDate.startsWith(key)):[];
-            const expense=dayRows.filter(item=>item.type==='expense').reduce((sum,item)=>sum+Number(item.amount),0);
-            const income=dayRows.filter(item=>item.type==='income').reduce((sum,item)=>sum+Number(item.amount),0);
-            const summary=expense?`<div class="day-total">Chi ${money.format(expense)}</div>`:income?`<div class="day-total income">Thu ${money.format(income)}</div>`:'';
-            cells.push(`<button type="button" class="day-cell${inside?'':' outside'}${key===dateKey(now)?' today':''}${key===selected?' selected':''}" data-date="${key}" ${inside?'':'disabled'}><span class="day-number">${date.getDate()}</span>${summary}</button>`);
+        <div class="side-spacer"></div>
+        <div class="workspace-label">Không gian</div>
+        <nav class="side-nav">
+          <a class="side-link" href="/"
+            ><span>⌂</span><span>Trang giới thiệu</span></a
+          >
+        </nav>
+        <div class="side-bottom">
+          <strong>Quản lí tài chính ✨</strong>
+          <p>Theo dõi thu chi để từng mục tiêu tài chính rõ ràng hơn.</p>
+        </div>
+      </aside>
+      <main class="main">
+        <header class="topbar">
+          <div class="topbar-spacer" aria-hidden="true"></div>
+          <nav class="switcher" aria-label="Chọn ứng dụng">
+            <a href="/todo/index.html">To-do list</a
+            ><a class="active" href="/expenses/expenses.html"
+              >Quản lí chi tiêu</a
+            >
+          </nav>
+          <div class="user-actions">
+            <div class="user-menu" id="user-menu"></div>
+          </div>
+        </header>
+        <div class="content">
+          <div id="message" class="message" role="alert"></div>
+          <section id="page-content"></section>
+        </div>
+      </main>
+    </div>
+    <script>
+      (async () => {
+        const response = await fetch("/api/auth/me", {
+          credentials: "same-origin",
+        });
+        if (!response.ok) {
+          location.href = `/login/index.html?next=${encodeURIComponent(location.pathname + location.search)}`;
+          return;
         }
-        document.getElementById('calendar-grid').innerHTML=cells.join('');
-        document.getElementById('calendar-title').textContent=new Intl.DateTimeFormat('vi-VN',{month:'long',year:'numeric'}).format(cursor);
-        document.getElementById('calendar-grid').querySelectorAll('[data-date]').forEach(button=>button.addEventListener('click',()=>{selected=button.dataset.date;drawCalendar();renderDetails();}));
-        renderDetails();
-    }
-    async function refreshCalendar(){
-        try{await loadRows();drawCalendar();}
-        catch(exception){error(`Không tải được lịch sử chi tiêu: ${exception.message}`);}
-    }
-    window.addEventListener('dayflow:expense-updated', refreshCalendar);
-    async function renderStats(){
-        content.innerHTML=heading('TÀI CHÍNH CỦA BẠN','Thống kê chi tiêu','Tổng quan thu, chi, ngân sách và phân bổ chi tiêu theo danh mục.')+
+        const user = await response.json();
+        const views = {
+          calendar: "Lịch sử chi tiêu",
+          stats: "Thống kê chi tiêu",
+        };
+        const requested = new URLSearchParams(location.search).get("view");
+        const view = views[requested] ? requested : "calendar";
+        const content = document.getElementById("page-content");
+        const money = new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+          maximumFractionDigits: 0,
+        });
+        const pad = (value) => String(value).padStart(2, "0");
+        const dateKey = (date) =>
+          `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+        const monthKey = (date) =>
+          `${date.getFullYear()}-${pad(date.getMonth() + 1)}`;
+        const escape = (value) =>
+          String(value ?? "").replace(
+            /[&<>"']/g,
+            (char) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+              })[char],
+          );
+        const now = new Date();
+        let cursor = new Date(now.getFullYear(), now.getMonth(), 1),
+          selected = dateKey(now),
+          rows = [];
+        const heading = (label, title, subtitle) =>
+          `<section class="heading"><div><div class="eyebrow"><span class="dot"></span>${label}</div><h1>${title}</h1><p class="subtitle">${subtitle}</p></div></section>`;
+        const error = (message) => {
+          const node = document.getElementById("message");
+          node.textContent = message;
+          node.classList.add("show");
+        };
+        async function get(path) {
+          const result = await fetch(path, { credentials: "same-origin" });
+          if (result.status === 401) {
+            location.href = `/login/index.html?next=${encodeURIComponent(location.pathname + location.search)}`;
+            throw new Error("Phiên đăng nhập đã hết hạn.");
+          }
+          if (!result.ok)
+            throw new Error(`Tải dữ liệu thất bại (${result.status}).`);
+          return result.json();
+        }
+        async function loadRows() {
+          rows = await get(
+            `/api/finance/transactions?userId=${user.id}&month=${monthKey(cursor)}`,
+          );
+        }
+        function renderDetails() {
+          const date = new Date(`${selected}T00:00:00`);
+          document.getElementById("day-heading").textContent =
+            new Intl.DateTimeFormat("vi-VN", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            }).format(date);
+          const dayRows = rows.filter((item) =>
+            item.transactionDate.startsWith(selected),
+          );
+          const target = document.getElementById("day-transactions");
+          if (!dayRows.length) {
+            target.innerHTML =
+              '<div class="empty">Ngày này chưa có giao dịch.</div>';
+            return;
+          }
+          const expense = dayRows
+            .filter((item) => item.type === "expense")
+            .reduce((sum, item) => sum + Number(item.amount), 0);
+          const income = dayRows
+            .filter((item) => item.type === "income")
+            .reduce((sum, item) => sum + Number(item.amount), 0);
+          const totals = `<div class="summary-row"><span>Tổng chi</span><strong class="expense">−${money.format(expense)}</strong></div><div class="summary-row"><span>Tổng thu</span><strong class="income">+${money.format(income)}</strong></div>`;
+          target.innerHTML =
+            totals +
+            dayRows
+              .map((item) => {
+                const isIncome = item.type === "income",
+                  time =
+                    item.transactionDate.split("T")[1]?.slice(0, 5) || "--:--";
+                const label =
+                  item.note ||
+                  item.categoryName ||
+                  (isIncome ? "Khoản thu" : "Khoản chi");
+                return `<article class="transaction"><div class="transaction-main"><span class="transaction-title">${escape(label)}</span><span class="transaction-amount ${isIncome ? "income" : "expense"}">${isIncome ? "+" : "−"}${money.format(item.amount)}</span></div><div class="transaction-meta">${time} · ${escape(item.categoryName || "Chưa phân loại")} · Ví ${escape(item.walletName)}</div></article>`;
+              })
+              .join("");
+        }
+        function drawCalendar() {
+          const weekday =
+            (new Date(cursor.getFullYear(), cursor.getMonth(), 1).getDay() +
+              6) %
+            7;
+          const days = new Date(
+            cursor.getFullYear(),
+            cursor.getMonth() + 1,
+            0,
+          ).getDate();
+          const count = Math.ceil((weekday + days) / 7) * 7;
+          const cells = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"].map(
+            (day) => `<div class="weekday">${day}</div>`,
+          );
+          for (let index = 0; index < count; index++) {
+            const num = index - weekday + 1,
+              date = new Date(cursor.getFullYear(), cursor.getMonth(), num),
+              key = dateKey(date),
+              inside = num > 0 && num <= days;
+            const dayRows = inside
+              ? rows.filter((item) => item.transactionDate.startsWith(key))
+              : [];
+            const expense = dayRows
+              .filter((item) => item.type === "expense")
+              .reduce((sum, item) => sum + Number(item.amount), 0);
+            const income = dayRows
+              .filter((item) => item.type === "income")
+              .reduce((sum, item) => sum + Number(item.amount), 0);
+            const summary = expense
+              ? `<div class="day-total">Chi ${money.format(expense)}</div>`
+              : income
+                ? `<div class="day-total income">Thu ${money.format(income)}</div>`
+                : "";
+            cells.push(
+              `<button type="button" class="day-cell${inside ? "" : " outside"}${key === dateKey(now) ? " today" : ""}${key === selected ? " selected" : ""}" data-date="${key}" ${inside ? "" : "disabled"}><span class="day-number">${date.getDate()}</span>${summary}</button>`,
+            );
+          }
+          document.getElementById("calendar-grid").innerHTML = cells.join("");
+          document.getElementById("calendar-title").textContent =
+            new Intl.DateTimeFormat("vi-VN", {
+              month: "long",
+              year: "numeric",
+            }).format(cursor);
+          document
+            .getElementById("calendar-grid")
+            .querySelectorAll("[data-date]")
+            .forEach((button) =>
+              button.addEventListener("click", () => {
+                selected = button.dataset.date;
+                drawCalendar();
+                renderDetails();
+              }),
+            );
+          renderDetails();
+        }
+        async function refreshCalendar() {
+          try {
+            await loadRows();
+            drawCalendar();
+          } catch (exception) {
+            error(`Không tải được lịch sử chi tiêu: ${exception.message}`);
+          }
+        }
+        window.addEventListener("dayflow:expense-updated", refreshCalendar);
+        async function renderStats() {
+          content.innerHTML =
+            heading(
+              "TÀI CHÍNH CỦA BẠN",
+              "Thống kê chi tiêu",
+              "Tổng quan thu, chi, ngân sách và phân bổ chi tiêu theo danh mục.",
+            ) +
             `<div class="toolbar"><strong>Tháng thống kê</strong><div class="controls"><button class="button" id="prev" type="button" aria-label="Tháng trước">‹</button><input id="month-picker" class="month-picker" type="month" value="${monthKey(cursor)}" aria-label="Chọn tháng"><button class="button" id="next" type="button" aria-label="Tháng sau">›</button></div></div><div class="stats" id="stats"></div><section class="card"><h2>Chi tiêu theo danh mục</h2><div id="categories"></div></section><section class="card"><h2>Biểu đồ thu chi</h2><div class="cashflow-chart" id="cashflow-chart"></div></section>`;
-        async function refresh(){
-            try{
-                await loadRows();
-                const summary=await get(`/api/finance/summary?userId=${user.id}&month=${monthKey(cursor)}`);
-                document.getElementById('stats').innerHTML=[['Tổng thu',summary.income],['Tổng chi',summary.expense],['Ngân sách',summary.budget],['Số dư các ví',summary.walletBalance]].map(([label,value])=>`<article class="stat"><div class="stat-label">${label}</div><div class="stat-value">${money.format(value)}</div></article>`).join('');
-                const income=Math.max(0,Number(summary.income)||0),expense=Math.max(0,Number(summary.expense)||0),cashflowTotal=income+expense;
-                const circumference=2*Math.PI*78,incomeLength=cashflowTotal?circumference*income/cashflowTotal:0,expenseLength=cashflowTotal?circumference*expense/cashflowTotal:0;
-                const labelAt=(value,startAngle,endAngle)=>{
-                    if(!cashflowTotal||value===0)return '';
-                    const angle=(startAngle+endAngle)/2*Math.PI/180,radius=112,x=140+radius*Math.cos(angle),y=140+radius*Math.sin(angle);
-                    return `<text class="cashflow-donut-label" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle">${Math.round(value/cashflowTotal*100)}%</text>`;
-                };
-                const incomeEnd=-90+(cashflowTotal?income/cashflowTotal*360:0),expenseEnd=incomeEnd+(cashflowTotal?expense/cashflowTotal*360:0);
-                document.getElementById('cashflow-chart').innerHTML=`<svg class="cashflow-donut" viewBox="0 0 280 280" role="img" aria-label="Biểu đồ donut: thu nhập ${money.format(income)}, chi tiêu ${money.format(expense)}">
+          async function refresh() {
+            try {
+              await loadRows();
+              const summary = await get(
+                `/api/finance/summary?userId=${user.id}&month=${monthKey(cursor)}`,
+              );
+              document.getElementById("stats").innerHTML = [
+                ["Tổng thu", summary.income],
+                ["Tổng chi", summary.expense],
+                ["Ngân sách", summary.budget],
+                ["Số dư các ví", summary.walletBalance],
+              ]
+                .map(
+                  ([label, value]) =>
+                    `<article class="stat"><div class="stat-label">${label}</div><div class="stat-value">${money.format(value)}</div></article>`,
+                )
+                .join("");
+              const income = Math.max(0, Number(summary.income) || 0),
+                expense = Math.max(0, Number(summary.expense) || 0),
+                cashflowTotal = income + expense;
+              const circumference = 2 * Math.PI * 78,
+                incomeLength = cashflowTotal
+                  ? (circumference * income) / cashflowTotal
+                  : 0,
+                expenseLength = cashflowTotal
+                  ? (circumference * expense) / cashflowTotal
+                  : 0;
+              const labelAt = (value, startAngle, endAngle) => {
+                if (!cashflowTotal || value === 0) return "";
+                const angle = (((startAngle + endAngle) / 2) * Math.PI) / 180,
+                  radius = 112,
+                  x = 140 + radius * Math.cos(angle),
+                  y = 140 + radius * Math.sin(angle);
+                return `<text class="cashflow-donut-label" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle">${Math.round((value / cashflowTotal) * 100)}%</text>`;
+              };
+              const incomeEnd =
+                  -90 + (cashflowTotal ? (income / cashflowTotal) * 360 : 0),
+                expenseEnd =
+                  incomeEnd +
+                  (cashflowTotal ? (expense / cashflowTotal) * 360 : 0);
+              document.getElementById("cashflow-chart").innerHTML =
+                `<svg class="cashflow-donut" viewBox="0 0 280 280" role="img" aria-label="Biểu đồ donut: thu nhập ${money.format(income)}, chi tiêu ${money.format(expense)}">
                     <circle cx="140" cy="140" r="78" fill="none" stroke="#f0f1f7" stroke-width="42"></circle>
-                    ${income?`<circle cx="140" cy="140" r="78" fill="none" stroke="var(--green)" stroke-width="42" stroke-dasharray="${incomeLength} ${circumference-incomeLength}" transform="rotate(-90 140 140)"></circle>`:''}
-                    ${expense?`<circle cx="140" cy="140" r="78" fill="none" stroke="var(--red)" stroke-width="42" stroke-dasharray="${expenseLength} ${circumference-expenseLength}" stroke-dashoffset="${-incomeLength}" transform="rotate(-90 140 140)"></circle>`:''}
-                    ${cashflowTotal?`${labelAt(income,-90,incomeEnd)}${labelAt(expense,incomeEnd,expenseEnd)}`:'<text class="cashflow-empty-label" x="140" y="140" text-anchor="middle" dominant-baseline="middle">Chưa có dữ liệu</text>'}
+                    ${income ? `<circle cx="140" cy="140" r="78" fill="none" stroke="var(--green)" stroke-width="42" stroke-dasharray="${incomeLength} ${circumference - incomeLength}" transform="rotate(-90 140 140)"></circle>` : ""}
+                    ${expense ? `<circle cx="140" cy="140" r="78" fill="none" stroke="var(--red)" stroke-width="42" stroke-dasharray="${expenseLength} ${circumference - expenseLength}" stroke-dashoffset="${-incomeLength}" transform="rotate(-90 140 140)"></circle>` : ""}
+                    ${cashflowTotal ? `${labelAt(income, -90, incomeEnd)}${labelAt(expense, incomeEnd, expenseEnd)}` : '<text class="cashflow-empty-label" x="140" y="140" text-anchor="middle" dominant-baseline="middle">Chưa có dữ liệu</text>'}
                 </svg><div class="cashflow-legend">
-                    <div class="cashflow-legend-item"><span class="cashflow-swatch income"></span><span class="cashflow-legend-name">Tổng thu</span><strong class="cashflow-legend-value">${money.format(income)}</strong><span class="cashflow-legend-percent">${cashflowTotal?Math.round(income/cashflowTotal*100):0}%</span></div>
-                    <div class="cashflow-legend-item"><span class="cashflow-swatch expense"></span><span class="cashflow-legend-name">Tổng chi</span><strong class="cashflow-legend-value">${money.format(expense)}</strong><span class="cashflow-legend-percent">${cashflowTotal?Math.round(expense/cashflowTotal*100):0}%</span></div>
+                    <div class="cashflow-legend-item"><span class="cashflow-swatch income"></span><span class="cashflow-legend-name">Tổng thu</span><strong class="cashflow-legend-value">${money.format(income)}</strong><span class="cashflow-legend-percent">${cashflowTotal ? Math.round((income / cashflowTotal) * 100) : 0}%</span></div>
+                    <div class="cashflow-legend-item"><span class="cashflow-swatch expense"></span><span class="cashflow-legend-name">Tổng chi</span><strong class="cashflow-legend-value">${money.format(expense)}</strong><span class="cashflow-legend-percent">${cashflowTotal ? Math.round((expense / cashflowTotal) * 100) : 0}%</span></div>
                 </div>`;
-                const totals=new Map();
-                rows.filter(item=>item.type==='expense').forEach(item=>{const name=item.categoryName||'Chưa phân loại';totals.set(name,(totals.get(name)||0)+Number(item.amount));});
-                const categories=[...totals.entries()].sort((a,b)=>b[1]-a[1]),max=Math.max(...categories.map(([,amount])=>amount),1);
-                document.getElementById('categories').innerHTML=categories.length?categories.map(([name,amount])=>`<div class="category-row"><span class="category-name" title="${escape(name)}">${escape(name)}</span><div class="track"><div class="fill" style="width:${Math.max(4,amount/max*100)}%"></div></div><span class="category-amount">${money.format(amount)}</span></div>`).join(''):'<div class="empty">Tháng này chưa có khoản chi nào.</div>';
-            }catch(exception){error(`Không tải được thống kê: ${exception.message}`);}
+              const totals = new Map();
+              rows
+                .filter((item) => item.type === "expense")
+                .forEach((item) => {
+                  const name = item.categoryName || "Chưa phân loại";
+                  totals.set(
+                    name,
+                    (totals.get(name) || 0) + Number(item.amount),
+                  );
+                });
+              const categories = [...totals.entries()].sort(
+                  (a, b) => b[1] - a[1],
+                ),
+                max = Math.max(...categories.map(([, amount]) => amount), 1);
+              document.getElementById("categories").innerHTML =
+                categories.length
+                  ? categories
+                      .map(
+                        ([name, amount]) =>
+                          `<div class="category-row"><span class="category-name" title="${escape(name)}">${escape(name)}</span><div class="track"><div class="fill" style="width:${Math.max(4, (amount / max) * 100)}%"></div></div><span class="category-amount">${money.format(amount)}</span></div>`,
+                      )
+                      .join("")
+                  : '<div class="empty">Tháng này chưa có khoản chi nào.</div>';
+            } catch (exception) {
+              error(`Không tải được thống kê: ${exception.message}`);
+            }
+          }
+          document.getElementById("prev").addEventListener("click", () => {
+            cursor = new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1);
+            document.getElementById("month-picker").value = monthKey(cursor);
+            refresh();
+          });
+          document.getElementById("next").addEventListener("click", () => {
+            cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+            document.getElementById("month-picker").value = monthKey(cursor);
+            refresh();
+          });
+          document
+            .getElementById("month-picker")
+            .addEventListener("change", (event) => {
+              if (!event.target.value) return;
+              const [year, month] = event.target.value.split("-").map(Number);
+              cursor = new Date(year, month - 1, 1);
+              refresh();
+            });
+          await refresh();
         }
-        document.getElementById('prev').addEventListener('click',()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);document.getElementById('month-picker').value=monthKey(cursor);refresh();});
-        document.getElementById('next').addEventListener('click',()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);document.getElementById('month-picker').value=monthKey(cursor);refresh();});
-        document.getElementById('month-picker').addEventListener('change',event=>{if(!event.target.value)return;const [year,month]=event.target.value.split('-').map(Number);cursor=new Date(year,month-1,1);refresh();});
-        await refresh();
-    }
-    document.querySelector(`[data-nav="${view}"]`).classList.add('active');
-    document.title=`${views[view]} — Dayflow`;
-    if(view==='stats')await renderStats();
-    else{
-        content.innerHTML=heading('TÀI CHÍNH CỦA BẠN','Lịch sử chi tiêu','Chọn một ngày để xem khoản thu, chi cùng thời gian và chi tiết giao dịch.')+
+        document.querySelector(`[data-nav="${view}"]`).classList.add("active");
+        document.title = `${views[view]} — Dayflow`;
+        if (view === "stats") await renderStats();
+        else {
+          content.innerHTML =
+            heading(
+              "TÀI CHÍNH CỦA BẠN",
+              "Lịch sử chi tiêu",
+              "Chọn một ngày để xem khoản thu, chi cùng thời gian và chi tiết giao dịch.",
+            ) +
             `<div class="toolbar"><strong>Lịch giao dịch</strong><div class="controls"><button class="button" id="prev" type="button" aria-label="Tháng trước">‹</button><span id="calendar-title"></span><button class="button" id="next" type="button" aria-label="Tháng sau">›</button><input id="month-picker" class="month-picker" type="month" value="${monthKey(cursor)}" aria-label="Chọn tháng"></div></div><div id="calendar-grid" class="calendar-grid"></div><section class="card"><h2 id="day-heading">Chi tiết trong ngày</h2><div id="day-transactions"><div class="empty">Chọn một ngày để xem chi tiết.</div></div></section>`;
-        document.getElementById('prev').addEventListener('click',()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);selected=dateKey(cursor);document.getElementById('month-picker').value=monthKey(cursor);refreshCalendar();});
-        document.getElementById('next').addEventListener('click',()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);selected=dateKey(cursor);document.getElementById('month-picker').value=monthKey(cursor);refreshCalendar();});
-        document.getElementById('month-picker').addEventListener('change',event=>{if(!event.target.value)return;const [year,month]=event.target.value.split('-').map(Number);cursor=new Date(year,month-1,1);selected=dateKey(cursor);refreshCalendar();});
-        await refreshCalendar();
-    }
-})().catch(exception=>{const node=document.getElementById('message');if(node){node.textContent=`Không tải được trang: ${exception.message}`;node.classList.add('show');}console.error('Không thể tải trang chi tiêu:',exception);});
-</script>
-<script src="/shared/user-menu.js" defer></script>
-<script src="/assistant/assistant.js?v=20261102-0092" defer></script>
-<script src="/shared/app-shell.js?v=20261101-2200" defer></script>
-</body>
+          document.getElementById("prev").addEventListener("click", () => {
+            cursor = new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1);
+            selected = dateKey(cursor);
+            document.getElementById("month-picker").value = monthKey(cursor);
+            refreshCalendar();
+          });
+          document.getElementById("next").addEventListener("click", () => {
+            cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+            selected = dateKey(cursor);
+            document.getElementById("month-picker").value = monthKey(cursor);
+            refreshCalendar();
+          });
+          document
+            .getElementById("month-picker")
+            .addEventListener("change", (event) => {
+              if (!event.target.value) return;
+              const [year, month] = event.target.value.split("-").map(Number);
+              cursor = new Date(year, month - 1, 1);
+              selected = dateKey(cursor);
+              refreshCalendar();
+            });
+          await refreshCalendar();
+        }
+      })().catch((exception) => {
+        const node = document.getElementById("message");
+        if (node) {
+          node.textContent = `Không tải được trang: ${exception.message}`;
+          node.classList.add("show");
+        }
+        console.error("Không thể tải trang chi tiêu:", exception);
+      });
+    </script>
+    <script src="/shared/user-menu.js" defer></script>
+    <script src="/assistant/assistant.js?v=20261102-0092" defer></script>
+    <script src="/shared/app-shell.js?v=20261102-2201" defer></script>
+  </body>
 </html>

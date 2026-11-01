@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class UserService {
     private final UserRepository userRepo;
     private final SkinRepository skinRepo;
     private final PasswordEncoder passwordEncoder;
+    private final JdbcTemplate jdbc;
 
     public UserResponse create(UserRequest req) {
         if (req.password() == null || req.password().isBlank()) {
@@ -96,6 +98,20 @@ public class UserService {
         return toResponse(userRepo.save(user));
     }
 
+    public UserResponse changeActiveStatus(Long id, boolean active, Long currentUserId) {
+        User user = find(id);
+        boolean currentActive = isActive(id);
+        if (!active && currentUserId != null && currentUserId.equals(id)) {
+            throw new BusinessException("Không thể tự vô hiệu hóa tài khoản đang đăng nhập");
+        }
+        if (!active && currentActive && user.getRole() == UserRole.ADMIN
+                && jdbc.queryForObject("SELECT COUNT(*) FROM users WHERE role = 'ADMIN' AND is_active = 1", Integer.class) <= 1) {
+            throw new BusinessException("Không thể vô hiệu hóa quản trị viên cuối cùng đang hoạt động");
+        }
+        jdbc.update("UPDATE users SET is_active = ? WHERE id = ?", active, id);
+        return toResponse(find(id));
+    }
+
     @Transactional(readOnly = true)
     public Skin getSkin(Long userId) {
         User user = find(userId);
@@ -124,6 +140,11 @@ public class UserService {
 
     private UserResponse toResponse(User user) {
         return new UserResponse(user.getId(), user.getEmail(), user.getFullName(), user.getAvatarUrl(),
-                user.getCurrencyDefault(), user.getTimezone(), user.getCreatedAt(), user.getRole().name());
+                user.getCurrencyDefault(), user.getTimezone(), user.getCreatedAt(), user.getRole().name(), isActive(user.getId()));
+    }
+
+    private boolean isActive(Long userId) {
+        Boolean active = jdbc.queryForObject("SELECT is_active = 1 FROM users WHERE id = ?", Boolean.class, userId);
+        return Boolean.TRUE.equals(active);
     }
 }

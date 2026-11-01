@@ -70,14 +70,37 @@
         setOpen(false);
         const action = item.dataset.action;
         if (action === 'logout') logout();
-        else if (action === 'profile') openDialog('Hồ sơ', 'Thông tin tài khoản của bạn.',
-            row('Họ và tên', user?.fullName) + row('Email', user?.email) + row('Vai trò', roleLabel(user?.role)));
+        else if (action === 'profile') {
+            if (activeView === 'admin') {
+                document.dispatchEvent(new CustomEvent('admin-profile-request', {detail:{userId:user?.id}}));
+            } else {
+                openDialog('Hồ sơ', 'Thông tin tài khoản của bạn.',
+                    row('Họ và tên', user?.fullName) + row('Email', user?.email) + row('Vai trò', roleLabel(user?.role)));
+            }
+        }
         else if (action === 'settings') openDialog('Cài đặt', 'Tuỳ chọn tài khoản.',
             row('Giao diện', 'Đổi trong mục Chủ đề') + row('Gói dịch vụ', 'Xem trong mục Gói nạp'));
     });
 
-    fetch('/api/auth/me', {credentials:'same-origin'}).then(r => r.ok ? r.json() : null).then(u => {
+    document.addEventListener('admin-profile-updated', event => {
+        const profile = event.detail;
+        if (activeView !== 'admin' || !profile || String(profile.id) !== String(user?.id)) return;
+        user = profile;
+        trigger.textContent = initials(profile.fullName);
+        host.querySelector('#um-big').textContent = initials(profile.fullName);
+        host.querySelector('#um-name').textContent = profile.fullName || '';
+        host.querySelector('#um-email').textContent = profile.email || '';
+        trigger.title = profile.email || '';
+    });
+
+    fetch('/api/auth/me', {credentials:'same-origin'}).then(r => r.ok ? r.json() : null).then(async u => {
         if (!u) return;
+        if (activeView === 'admin') {
+            try {
+                const profileResponse = await fetch(`/api/users/${u.id}`, {credentials:'same-origin'});
+                if (profileResponse.ok) u = await profileResponse.json();
+            } catch {}
+        }
         user = u;
         const ini = initials(u.fullName);
         trigger.textContent = ini;

@@ -45,6 +45,28 @@ trang này. Admin vào `/admin/index.html`; trang quản trị cho phép đổi 
 người dùng. Không thể tự hạ quyền/xóa tài khoản Admin đang đăng nhập hoặc xóa
 quản trị viên cuối cùng.
 
+## Nhắc công việc qua email
+
+Ứng dụng kiểm tra công việc chưa hoàn thành mỗi 30 giây và gửi email đến địa chỉ
+tài khoản khoảng một giờ trước hạn, theo múi giờ đã lưu của người dùng. Cần cấu
+hình SMTP trước khi chạy ứng dụng; không lưu mật khẩu SMTP trong source code.
+
+Ví dụ cấu hình bằng biến môi trường trong PowerShell:
+
+```powershell
+$env:MAIL_HOST = "smtp.gmail.com"
+$env:MAIL_PORT = "587"
+$env:MAIL_USERNAME = "dayflow@example.com"
+$env:MAIL_PASSWORD = "mat-khau-ung-dung-smtp"
+$env:MAIL_FROM = "dayflow@example.com"
+$env:MAIL_SMTP_AUTH = "true"
+$env:MAIL_SMTP_STARTTLS = "true"
+```
+
+Nếu chưa cấu hình SMTP, ứng dụng vẫn chạy nhưng không gửi email. Dấu nhắc đã
+gửi được lưu trong bảng `task_email_reminders` để tránh gửi lặp cho cùng một
+công việc và thời hạn.
+
 API xác thực: `POST /api/auth/register`, `POST /api/auth/login`,
 `GET /api/auth/me` và `POST /api/auth/logout`. Các request ghi cần gửi CSRF token
 trong header `X-XSRF-TOKEN`; lấy token trước bằng `GET /api/auth/csrf`.
