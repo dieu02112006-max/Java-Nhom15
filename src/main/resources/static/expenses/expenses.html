@@ -226,74 +226,53 @@
         }
     </style>
     <link rel="stylesheet" href="/shared/user-menu.css">
-    <link rel="stylesheet" href="/shared/app-shell.css?v=20261102-0071">
+    <link rel="stylesheet" href="/shared/app-shell.css?v=20261105-0012">
 </head>
 <body>
-<div class="shell">
+<div class="shell finance-shell">
     <aside class="sidebar">
-        <a class="brand" href="/" aria-label="Dayflow - Trang chủ"><span class="brand-mark">✓</span><span>dayflow</span></a>
+        <a class="brand" href="/" aria-label="Dayflow - Trang chủ"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.3 4.2L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2.8a9.2 9.2 0 1 0 9.2 9.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="brand-name">dayflow</span></a>
         <div class="workspace-label">Không gian làm việc</div>
         <div class="workspace"><span class="workspace-icon">✳</span><span><strong>Không gian của tôi</strong><small>Cá nhân · Gói miễn phí</small></span></div>
         <div class="side-label">Điều hướng</div>
         <nav class="side-nav" aria-label="Điều hướng chi tiêu">
-            <a class="side-link active" href="/expenses/expenses.html" aria-current="page"><span>◉</span><span>Quản lí chi tiêu</span></a>
-            <a class="side-link" href="/expenses/goals.html"><span>◎</span><span>Mục tiêu tiết kiệm</span></a>
-            <a class="side-link" data-nav="calendar" href="/expenses/section.html?view=calendar"><span>▦</span><span>Lịch chi tiêu</span></a>
-            <a class="side-link" data-nav="stats" href="/expenses/section.html?view=stats"><span>↗</span><span>Thống kê</span></a>
+            <a class="side-link active" href="/expenses/expenses.html" aria-current="page"><span class="nav-icon">◉</span><span>Quản lí chi tiêu</span></a>
+            <a class="side-link" href="/expenses/goals.html"><span class="nav-icon">◎</span><span>Mục tiêu tiết kiệm</span></a>
+            <a class="side-link" data-nav="calendar" href="/expenses/section.html?view=calendar"><span class="nav-icon">▦</span><span>Lịch chi tiêu</span></a>
+            <a class="side-link" data-nav="stats" href="/expenses/section.html?view=stats"><span class="nav-icon">↗</span><span>Thống kê</span></a>
         </nav>
         <div class="side-spacer"></div>
         <div class="workspace-label">Không gian</div>
         <nav class="side-nav" aria-label="Điều hướng không gian">
-            <a class="side-link" href="/"><span>⌂</span><span>Trang giới thiệu</span></a>
+            <a class="side-link" href="/"><span class="nav-icon">⌂</span><span>Trang giới thiệu</span></a>
         </nav>
         <div class="side-bottom"><strong>Quản lí tài chính ✨</strong><p>Chia mục tiêu thành từng khoản tiết kiệm nhỏ và theo dõi tiến độ.</p></div>
     </aside>
     <main class="main">
         <header class="topbar">
             <div class="topbar-spacer" aria-hidden="true"></div>
-            <nav class="switcher" aria-label="Chọn ứng dụng">
+            <nav class="switcher app-switcher" aria-label="Chọn ứng dụng">
                 <a href="/todo/index.html">To-do list</a>
                 <a class="active" href="/expenses/expenses.html" aria-current="page">Quản lí chi tiêu</a>
             </nav>
-            <div class="user-actions"><div class="user-menu" id="user-menu"></div></div>
+            <div class="user-actions"><button class="icon-button" type="button" aria-label="Thông báo"><svg viewBox="0 0 24 24" fill="none"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="user-menu" id="user-menu"></div></div>
         </header>
         <div class="content">
             <div class="state" id="error-state" role="alert"></div>
             <div class="state" id="loading-state" aria-live="polite">Đang tải dữ liệu...</div>
-            <section class="heading">
-                <div>
-                    <div class="eyebrow"><span class="dot"></span> Kế hoạch tài chính</div>
-                    <h1>Quản lí chi tiêu</h1>
-                    <p class="subtitle" id="month-label"></p>
+            <section class="finance-week-calendar" aria-label="Lịch giao dịch trong tuần">
+                <div class="finance-week-heading">
+                    <div><h2>Tuần này</h2><p>Chọn một ngày để lọc giao dịch</p></div>
+                    <div class="finance-week-controls">
+                        <button class="finance-week-today" id="finance-week-today" type="button">Hôm nay</button>
+                    </div>
                 </div>
-                <div class="heading-actions">
-                    <input class="month-picker" id="month-picker" type="month" aria-label="Chọn tháng">
-                </div>
+                <div class="finance-week-days" id="finance-week-days"></div>
             </section>
             <section class="stats" aria-label="Tổng quan tài chính">
                 <article class="stat"><div class="stat-label">TỔNG THU</div><div class="stat-value" id="stat-income">—</div></article>
                 <article class="stat"><div class="stat-label">TỔNG CHI</div><div class="stat-value" id="stat-expense">—</div></article>
                 <article class="stat"><div class="stat-label">SỐ DƯ VÍ</div><div class="stat-value" id="stat-balance">—</div></article>
-                <article class="stat"><div class="stat-label">NGÂN SÁCH THÁNG</div><div class="stat-value" id="stat-budget">—</div></article>
-            </section>
-            <section class="dashboard-grid" aria-label="Phân tích chi tiêu">
-                <article class="card">
-                    <div class="budget-head">
-                        <div>
-                            <h2>Ngân sách đã sử dụng</h2>
-                            <p class="card-caption" id="budget-percent">Chưa đặt ngân sách</p>
-                        </div>
-                        <strong id="budget-spent">—</strong>
-                    </div>
-                    <div class="budget-track" role="progressbar" aria-label="Ngân sách đã sử dụng">
-                        <div class="budget-fill" id="budget-fill" style="width: 0%"></div>
-                    </div>
-                    <p class="budget-caption" id="budget-caption"></p>
-                </article>
-                <article class="card">
-                    <h2>Chi tiêu theo danh mục</h2>
-                    <div class="category-list" id="category-list"></div>
-                </article>
             </section>
             <section class="card transaction-card">
                 <div class="transaction-header">
@@ -312,6 +291,25 @@
                 </div>
                 <div id="transaction-list" aria-live="polite"></div>
                 <div class="empty" id="empty-state">Không có giao dịch phù hợp.</div>
+            </section>
+            <section class="dashboard-grid" aria-label="Phân tích chi tiêu">
+                <article class="card">
+                    <div class="budget-head">
+                        <div>
+                            <h2>Ngân sách đã sử dụng</h2>
+                            <p class="card-caption" id="budget-percent">Chưa đặt ngân sách</p>
+                        </div>
+                        <div class="budget-totals"><strong id="budget-spent">—</strong><span>đã chi</span><strong id="stat-budget">—</strong><span>ngân sách</span></div>
+                    </div>
+                    <div class="budget-track" role="progressbar" aria-label="Ngân sách đã sử dụng">
+                        <div class="budget-fill" id="budget-fill" style="width: 0%"></div>
+                    </div>
+                    <p class="budget-caption" id="budget-caption"></p>
+                </article>
+                <article class="card">
+                    <h2>Chi tiêu theo danh mục</h2>
+                    <div class="category-list" id="category-list"></div>
+                </article>
             </section>
         </div>
     </main>
@@ -376,9 +374,10 @@
 <script>
 (() => {
     let USER_ID;
-    const monthPicker = document.getElementById('month-picker');
     const list = document.getElementById('transaction-list');
     const search = document.getElementById('search');
+    const financeWeekDays = document.getElementById('finance-week-days');
+    const financeWeekToday = document.getElementById('finance-week-today');
     const dialog = document.getElementById('transaction-dialog');
     const form = document.getElementById('transaction-form');
     const typeSelect = document.getElementById('transaction-type');
@@ -387,6 +386,7 @@
     let transactions = [];
     let categories = [];
     let currentFilter = 'all';
+    let selectedTransactionDate = '';
     const money = new Intl.NumberFormat('vi-VN', {
         style: 'currency',
         currency: 'VND',
@@ -401,7 +401,35 @@
         "'": '&#39;'
     })[character]);
 
-    const selectedMonth = () => monthPicker.value;
+    let dashboardMonth;
+    const selectedMonth = () => dashboardMonth;
+
+    function financeDateKey(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '';
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function renderFinanceWeek() {
+        const [year, month] = selectedMonth().split('-').map(Number);
+        const today = new Date();
+        const anchor = year === today.getFullYear() && month === today.getMonth() + 1
+            ? today
+            : new Date(year, month - 1, 1);
+        const weekStart = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate());
+        weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
+        const labels = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+        financeWeekDays.innerHTML = Array.from({length: 7}, (_, index) => {
+            const day = new Date(weekStart);
+            day.setDate(weekStart.getDate() + index);
+            const key = financeDateKey(day);
+            const count = transactions.filter(transaction => financeDateKey(transaction.transactionDate) === key).length;
+            const active = selectedTransactionDate ? selectedTransactionDate === key : key === financeDateKey(today);
+            return `<button type="button" class="finance-week-day${active ? ' active' : ''}" data-date="${key}" aria-pressed="${active}">
+                <span>${labels[day.getDay()]}</span><strong>${day.getDate()}</strong><small>${count} giao dịch</small>
+            </button>`;
+        }).join('');
+    }
 
     function setMessage(id, message, visible) {
         const element = document.getElementById(id);
@@ -472,7 +500,9 @@
         const filtered = transactions.filter(transaction => {
             const text = `${transaction.note || ''} ${transaction.categoryName} ${transaction.walletName}`
                 .toLocaleLowerCase('vi');
-            return (currentFilter === 'all' || transaction.type === currentFilter) && text.includes(query);
+            return (currentFilter === 'all' || transaction.type === currentFilter)
+                && (!selectedTransactionDate || financeDateKey(transaction.transactionDate) === selectedTransactionDate)
+                && text.includes(query);
         });
 
         list.innerHTML = filtered.map(transaction => {
@@ -537,6 +567,7 @@
                 api(`/api/finance/transactions?${query}`)
             ]);
             transactions = rows;
+            renderFinanceWeek();
             document.getElementById('stat-income').textContent = money.format(summary.income);
             document.getElementById('stat-expense').textContent = money.format(summary.expense);
             document.getElementById('stat-balance').textContent = money.format(summary.walletBalance);
@@ -657,24 +688,24 @@
     });
 
     search.addEventListener('input', renderTransactions);
+    financeWeekDays.addEventListener('click', event => {
+        const day = event.target.closest('[data-date]');
+        if (!day) return;
+        selectedTransactionDate = selectedTransactionDate === day.dataset.date ? '' : day.dataset.date;
+        renderFinanceWeek();
+        renderTransactions();
+    });
+    financeWeekToday.addEventListener('click', () => {
+        const today = new Date();
+        selectedTransactionDate = financeDateKey(today);
+        renderFinanceWeek();
+        renderTransactions();
+    });
     window.addEventListener('dayflow:expense-updated', () => {
         if (USER_ID) loadDashboard();
     });
-    monthPicker.addEventListener('change', () => {
-        const [year, month] = selectedMonth().split('-').map(Number);
-        document.getElementById('month-label').textContent = new Intl.DateTimeFormat('vi-VN', {
-            month: 'long',
-            year: 'numeric'
-        }).format(new Date(year, month - 1, 1)) + ' · Theo dõi dòng tiền của bạn.';
-        loadDashboard();
-    });
-
     const currentMonth = new Date();
-    monthPicker.value = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`;
-    document.getElementById('month-label').textContent = new Intl.DateTimeFormat('vi-VN', {
-        month: 'long',
-        year: 'numeric'
-    }).format(currentMonth) + ' · Theo dõi dòng tiền của bạn.';
+    dashboardMonth = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`;
 
     api('/api/auth/me').then(user => {
         USER_ID = user.id;
@@ -686,9 +717,7 @@
 </script>
 
 <script src="/shared/user-menu.js" defer></script>
-
-<script src="/assistant/assistant.js?v=20261102-0092" defer></script>
-
-<script src="/shared/app-shell.js?v=20261102-2202" defer></script>
+<script src="/assistant/assistant.js?v=20261105-0001" defer></script>
+<script src="/shared/app-shell.js?v=20261105-0001" defer></script>
 </body>
 </html>

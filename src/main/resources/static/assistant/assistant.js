@@ -16,7 +16,8 @@
             <div class="assistant-hint">Ví dụ: “Tạo mục tiêu tập thể dục”</div>
         </section>
         <div class="assistant-toast" role="status" aria-live="polite"></div>`;
-    document.body.appendChild(shell);
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.appendChild(shell);
 
     const pet = shell.querySelector('.assistant-pet');
     const windowEl = shell.querySelector('.assistant-window');
@@ -43,7 +44,7 @@
     }
     function showToast(text) {
         if(deadlineReminderText)return;
-        toast.textContent = text;
+        toast.textContent = shortenNotice(text);
         toast.dataset.kind='temporary';
         toast.classList.add('show');
         clearTimeout(toastTimer);
@@ -57,9 +58,15 @@
         clearTimeout(toastTimer);
         clearTimeout(reminderPetTimer);
         toast.dataset.kind='deadline';
-        toast.textContent=text;
+        toast.textContent=shortenNotice(text);
         toast.classList.add('show');
         shell.classList.add('reminder-active');
+    }
+    function shortenNotice(text) {
+        const task = text.match(/Công việc “(.+?)”/);
+        if (/quá hạn/i.test(text)) return task ? `“${task[1]}” đã quá hạn` : 'Có công việc đã quá hạn';
+        if (/sắp đến hạn/i.test(text)) return task ? `“${task[1]}” sắp đến hạn` : 'Có công việc sắp đến hạn';
+        return text.length > 72 ? `${text.slice(0, 69).trimEnd()}…` : text;
     }
     function clearDeadlineReminder() {
         deadlineReminderText='';
@@ -142,8 +149,18 @@
         if(!explicitDate&&time&&date<=now)date.setDate(date.getDate()+1);
         return `${dateKey(date)}T${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}:00`;
     }
+    function extractLocation(text) {
+        const match=String(text||'').match(/(?:^|\s)(?:ở|tại|địa điểm(?:\s+là)?)\s+(.+)$/i);
+        if(!match)return null;
+        const location=match[1]
+            .replace(/\b(?:lúc|vào lúc)\s*\d{1,2}\s*(?:h|:|giờ)\s*\d{0,2}\s*(?:sáng|chiều|tối)?/gi,' ')
+            .replace(/\b(?:hôm nay|ngày mai|ngày kia|sáng nay|chiều nay|tối nay|mai|cuối tuần|tuần sau|thứ\s*[2-7]|chủ nhật)\b/gi,' ')
+            .replace(/[,.!?;]+$/,'').replace(/\s+/g,' ').trim();
+        return location||null;
+    }
     function extractTitle(text,isGoal=false) {
         let title=String(text||'');
+        title=title.replace(/\s+(?:ở|tại|địa điểm(?:\s+là)?)\s+.+$/i,' ');
         title=title.replace(/(?:ngày\s*)?\d{1,2}[\/.-]\d{1,2}(?:[\/.-]\d{2,4})?/gi,' ');
         title=title.replace(/\b(?:lúc|vào lúc)\s*\d{1,2}\s*(?:h|:|giờ)\s*\d{0,2}\s*(?:sáng|chiều|tối)?/gi,' ');
         title=title.replace(/\b\d{1,2}\s*(?:h|:|giờ)\s*\d{0,2}\s*(?:sáng|chiều|tối)?\b/gi,' ');
@@ -310,16 +327,17 @@
             const title=extractTitle(raw);
             if(!title||/^\d{1,2}(?:h\d{1,2}|:\d{2})?$/i.test(title))return 'Mình chưa xác định được tên công việc nên chưa lưu. Bạn cho mình biết cần làm việc gì nhé.';
             const dueDate=dueDateFrom(raw);
+            const location=extractLocation(raw);
             const listsResponse=await fetch('/api/todo/task-lists',{credentials:'same-origin'});
             if(!listsResponse.ok)throw new Error('Mình chưa tải được danh sách công việc.');
             const lists=await listsResponse.json();
             const saved=await postJson('/api/todo/tasks',{
                 listId:lists[0]?.id??null,parentTaskId:null,goalId:null,title,
-                description:null,category:'Cá nhân',location:null,status:'todo',priority:'medium',
+                description:null,category:'Cá nhân',location,status:'todo',priority:'medium',
                 dueDate,completedAt:null,estimatedCost:null,recurrenceRule:null,position:0
             });
             window.dispatchEvent(new CustomEvent('dayflow:task-created',{detail:saved}));
-            return `Mình đã thêm công việc “${title}”${dueDate?' với hạn '+new Intl.DateTimeFormat('vi-VN',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}).format(new Date(dueDate)):''}.`;
+            return `Mình đã thêm công việc “${title}”${dueDate?' với hạn '+new Intl.DateTimeFormat('vi-VN',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}).format(new Date(dueDate)):''}${location?` tại ${location}`:''}.`;
         }
         if(/\b(chao|xin chao|hello|hi|cam on)\b/.test(plain))return 'Chào bạn! Mình có thể thêm công việc, tạo mục tiêu hoặc nhắc bạn về hạn hoàn thành.';
         return 'Mình có thể giúp thêm công việc hoặc tạo mục tiêu. Ví dụ: “Hôm nay tôi phải đi học lúc 13h30” hoặc “Tạo mục tiêu tập thể dục”.';
@@ -365,7 +383,7 @@
                 let due=new Date(raw.length===10?`${raw}T23:59:00`:raw);
                 if (Number.isNaN(due.getTime())) return;
                 const remaining=due-now;
-                if (remaining>24*60*60*1000) return;
+                if (remaining>60*60*1000) return;
                 upcoming.push({task,raw,remaining});
             });
             if(!upcoming.length){clearDeadlineReminder();return;}
@@ -390,7 +408,7 @@
     function reminderMessage({task,remaining}) {
         return remaining<0
             ? `Công việc “${task.title}” đã quá hạn. Đánh dấu hoàn thành để Chibi dừng nhắc nhé.`
-            : `Công việc “${task.title}” sắp đến hạn${remaining<60*60*1000?' trong vòng một giờ':' trong 24 giờ tới'}. Chibi sẽ nhắc lại sau 5 phút nếu việc chưa hoàn thành.`;
+            : `Công việc “${task.title}” sắp đến hạn trong vòng một giờ. Chibi sẽ nhắc lại sau 5 phút nếu việc chưa hoàn thành.`;
     }
     window.addEventListener('dayflow:task-created',checkUpcomingTasks);
     window.addEventListener('dayflow:task-updated',checkUpcomingTasks);

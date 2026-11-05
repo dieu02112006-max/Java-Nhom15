@@ -336,8 +336,7 @@
         align-items: center;
         gap: 8px;
       }
-      .button,
-      .month-picker {
+      .button {
         min-height: 36px;
         padding: 0 10px;
         border: 1px solid var(--line);
@@ -352,9 +351,6 @@
       .button:hover {
         border-color: #cdd5f5;
         background: var(--blue-pale);
-      }
-      .month-picker {
-        padding: 0 8px;
       }
       .calendar-grid {
         display: grid;
@@ -613,12 +609,12 @@
       }
     </style>
 <link rel="stylesheet" href="/shared/user-menu.css">
-<link rel="stylesheet" href="/shared/app-shell.css?v=20261102-0071">
+<link rel="stylesheet" href="/shared/app-shell.css?v=20261105-0012">
 </head>
 <body>
-<div class="shell">
+<div class="shell finance-shell">
     <aside class="sidebar">
-        <a class="brand" href="/" aria-label="Dayflow - Trang chủ"><span class="brand-mark">✓</span><span>dayflow</span></a>
+        <a class="brand" href="/" aria-label="Dayflow - Trang chủ"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.3 4.2L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2.8a9.2 9.2 0 1 0 9.2 9.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="brand-name">dayflow</span></a>
         <div class="workspace-label">Không gian làm việc</div>
         <div class="workspace">
           <span class="workspace-icon">✳</span
@@ -627,32 +623,32 @@
             ><small>Cá nhân · Gói miễn phí</small></span
           >
         </div>
-        <div class="nav-label">Điều hướng</div>
+        <div class="nav-label side-label">Điều hướng</div>
         <nav class="side-nav" aria-label="Điều hướng chi tiêu">
           <a class="side-link" href="/expenses/expenses.html"
-            ><span>◉</span><span>Quản lí chi tiêu</span></a
+            ><span class="nav-icon">◉</span><span>Quản lí chi tiêu</span></a
           >
           <a class="side-link" href="/expenses/goals.html"
-            ><span>◎</span><span>Mục tiêu tiết kiệm</span></a
+            ><span class="nav-icon">◎</span><span>Mục tiêu tiết kiệm</span></a
           >
           <a
             class="side-link"
             data-nav="calendar"
             href="/expenses/section.html?view=calendar"
-            ><span>▦</span><span>Lịch chi tiêu</span></a
+            ><span class="nav-icon">▦</span><span>Lịch chi tiêu</span></a
           >
           <a
             class="side-link"
             data-nav="stats"
             href="/expenses/section.html?view=stats"
-            ><span>↗</span><span>Thống kê</span></a
+            ><span class="nav-icon">↗</span><span>Thống kê</span></a
           >
         </nav>
         <div class="side-spacer"></div>
         <div class="workspace-label">Không gian</div>
-        <nav class="side-nav">
+        <nav class="side-nav" aria-label="Điều hướng không gian">
           <a class="side-link" href="/"
-            ><span>⌂</span><span>Trang giới thiệu</span></a
+            ><span class="nav-icon">⌂</span><span>Trang giới thiệu</span></a
           >
         </nav>
         <div class="side-bottom">
@@ -663,13 +659,14 @@
       <main class="main">
         <header class="topbar">
           <div class="topbar-spacer" aria-hidden="true"></div>
-          <nav class="switcher" aria-label="Chọn ứng dụng">
+          <nav class="switcher app-switcher" aria-label="Chọn ứng dụng">
             <a href="/todo/index.html">To-do list</a
             ><a class="active" href="/expenses/expenses.html"
               >Quản lí chi tiêu</a
             >
           </nav>
           <div class="user-actions">
+            <button class="icon-button" type="button" aria-label="Thông báo"><svg viewBox="0 0 24 24" fill="none"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             <div class="user-menu" id="user-menu"></div>
           </div>
         </header>
@@ -724,8 +721,8 @@
         let cursor = new Date(now.getFullYear(), now.getMonth(), 1),
           selected = dateKey(now),
           rows = [];
-        const heading = (label, title, subtitle) =>
-          `<section class="heading"><div><div class="eyebrow"><span class="dot"></span>${label}</div><h1>${title}</h1><p class="subtitle">${subtitle}</p></div></section>`;
+        const heading = (title, subtitle) =>
+          `<section class="heading"><div><h1>${title}</h1><p class="subtitle">${subtitle}</p></div></section>`;
         const error = (message) => {
           const node = document.getElementById("message");
           node.textContent = message;
@@ -853,14 +850,14 @@
         async function renderStats() {
           content.innerHTML =
             heading(
-              "TÀI CHÍNH CỦA BẠN",
               "Thống kê chi tiêu",
               "Tổng quan thu, chi, ngân sách và phân bổ chi tiêu theo danh mục.",
             ) +
-            `<div class="toolbar"><strong>Tháng thống kê</strong><div class="controls"><button class="button" id="prev" type="button" aria-label="Tháng trước">‹</button><input id="month-picker" class="month-picker" type="month" value="${monthKey(cursor)}" aria-label="Chọn tháng"><button class="button" id="next" type="button" aria-label="Tháng sau">›</button></div></div><div class="stats" id="stats"></div><section class="card"><h2>Chi tiêu theo danh mục</h2><div id="categories"></div></section><section class="card"><h2>Biểu đồ thu chi</h2><div class="cashflow-chart" id="cashflow-chart"></div></section>`;
+            `<div class="toolbar"><strong id="stats-month-title"></strong><div class="controls"><button class="button" id="prev" type="button" aria-label="Tháng trước">‹</button><button class="button" id="next" type="button" aria-label="Tháng sau">›</button></div></div><div class="stats" id="stats"></div><section class="card"><h2>Chi tiêu theo danh mục</h2><div id="categories"></div></section><section class="card"><h2>Biểu đồ thu chi</h2><div class="cashflow-chart" id="cashflow-chart"></div></section>`;
           async function refresh() {
             try {
               await loadRows();
+              document.getElementById("stats-month-title").textContent = new Intl.DateTimeFormat("vi-VN", { month: "long", year: "numeric" }).format(cursor);
               const summary = await get(
                 `/api/finance/summary?userId=${user.id}&month=${monthKey(cursor)}`,
               );
@@ -937,22 +934,12 @@
           }
           document.getElementById("prev").addEventListener("click", () => {
             cursor = new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1);
-            document.getElementById("month-picker").value = monthKey(cursor);
             refresh();
           });
           document.getElementById("next").addEventListener("click", () => {
             cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
-            document.getElementById("month-picker").value = monthKey(cursor);
             refresh();
           });
-          document
-            .getElementById("month-picker")
-            .addEventListener("change", (event) => {
-              if (!event.target.value) return;
-              const [year, month] = event.target.value.split("-").map(Number);
-              cursor = new Date(year, month - 1, 1);
-              refresh();
-            });
           await refresh();
         }
         document.querySelector(`[data-nav="${view}"]`).classList.add("active");
@@ -961,23 +948,19 @@
         else {
           content.innerHTML =
             heading(
-              "TÀI CHÍNH CỦA BẠN",
               "Lịch sử chi tiêu",
               "Chọn một ngày để xem khoản thu, chi cùng thời gian và chi tiết giao dịch.",
             ) +
-            `<div class="toolbar"><strong>Lịch giao dịch</strong><div class="controls"><button class="button" id="prev" type="button" aria-label="Tháng trước">‹</button><span id="calendar-title"></span><button class="button" id="next" type="button" aria-label="Tháng sau">›</button><input id="month-picker" class="month-picker" type="month" value="${monthKey(cursor)}" aria-label="Chọn tháng"></div></div><div id="calendar-grid" class="calendar-grid"></div><section class="card"><h2 id="day-heading">Chi tiết trong ngày</h2><div id="day-transactions"><div class="empty">Chọn một ngày để xem chi tiết.</div></div></section>`;
-        document.getElementById('prev').addEventListener('click',()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);selected=dateKey(cursor);document.getElementById('month-picker').value=monthKey(cursor);refreshCalendar();});
-        document.getElementById('next').addEventListener('click',()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);selected=dateKey(cursor);document.getElementById('month-picker').value=monthKey(cursor);refreshCalendar();});
-        document.getElementById('month-picker').addEventListener('change',event=>{if(!event.target.value)return;const [year,month]=event.target.value.split('-').map(Number);cursor=new Date(year,month-1,1);selected=dateKey(cursor);refreshCalendar();});
+            `<div class="toolbar"><strong>Lịch giao dịch</strong><div class="controls"><button class="button" id="prev" type="button" aria-label="Tháng trước">‹</button><span id="calendar-title"></span><button class="button" id="next" type="button" aria-label="Tháng sau">›</button></div></div><div id="calendar-grid" class="calendar-grid"></div><section class="card"><h2 id="day-heading">Chi tiết trong ngày</h2><div id="day-transactions"><div class="empty">Chọn một ngày để xem chi tiết.</div></div></section>`;
+        document.getElementById('prev').addEventListener('click',()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);selected=dateKey(cursor);refreshCalendar();});
+        document.getElementById('next').addEventListener('click',()=>{cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);selected=dateKey(cursor);refreshCalendar();});
         await refreshCalendar();
     }
 })().catch(exception=>{const node=document.getElementById('message');if(node){node.textContent=`Không tải được trang: ${exception.message}`;node.classList.add('show');}console.error('Không thể tải trang chi tiêu:',exception);});
 </script>
 
 <script src="/shared/user-menu.js" defer></script>
-
-<script src="/assistant/assistant.js?v=20261102-0092" defer></script>
-
-<script src="/shared/app-shell.js?v=20261102-2202" defer></script>
+<script src="/assistant/assistant.js?v=20261105-0001" defer></script>
+<script src="/shared/app-shell.js?v=20261105-0001" defer></script>
 </body>
 </html>
