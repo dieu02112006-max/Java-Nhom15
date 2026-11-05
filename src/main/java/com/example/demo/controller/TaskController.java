@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.example.demo.security.AppUserPrincipal;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -50,20 +52,32 @@ public class TaskController {
 
     @PostMapping
     @PreAuthorize("@authz.canAccessUser(#task.userId)")
-    public ResponseEntity<Task> create(@RequestBody Task task) {
+    public ResponseEntity<Task> create(@RequestBody Task task, @AuthenticationPrincipal AppUserPrincipal principal) {
+        if ("blocked".equals(task.getStatus()) && principal.role() != com.example.demo.entity.enums.UserRole.ADMIN) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.FORBIDDEN, "Chỉ quản trị viên mới được chặn công việc");
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(task));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("@authz.canAccessUser(#task.userId)")
-    public Task update(@PathVariable Long id, @RequestBody Task task) {
-        authorization.requireUserAccess(service.findById(id).getUserId());
+    public Task update(@PathVariable Long id, @RequestBody Task task, @AuthenticationPrincipal AppUserPrincipal principal) {
+        Task existing = service.findById(id);
+        authorization.requireUserAccess(existing.getUserId());
+        if (principal.role() != com.example.demo.entity.enums.UserRole.ADMIN
+                && ("blocked".equals(existing.getStatus()) || "blocked".equals(task.getStatus()))) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.FORBIDDEN, "Chỉ quản trị viên mới được quản lý công việc bị chặn");
+        }
         return service.update(id, task);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        authorization.requireUserAccess(service.findById(id).getUserId());
+    public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal AppUserPrincipal principal) {
+        Task task = service.findById(id);
+        authorization.requireUserAccess(task.getUserId());
+        if ("blocked".equals(task.getStatus()) && principal.role() != com.example.demo.entity.enums.UserRole.ADMIN) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.FORBIDDEN, "Chỉ quản trị viên mới được xóa công việc bị chặn");
+        }
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

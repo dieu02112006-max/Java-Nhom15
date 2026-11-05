@@ -118,6 +118,7 @@
         .status-pill,.priority-pill { display:inline-flex; align-items:center; padding:6px 8px; border-radius:7px; background:var(--blue-pale); color:var(--blue-dark); font-size:12px; white-space:nowrap; }
         .status-pill.in_progress { background:#fff5e7; color:#99723f; }
         .status-pill.done { background:#eaf7f2; color:#36836e; }
+        .status-pill.blocked { background:#fff0f1; color:#b34f59; }
         .priority-pill.high { background:#fff0f2; color:#b95368; }
         .priority-pill.low { background:#f0f5eb; color:#708267; }
         .row-menu { width:28px; height:28px; display:grid; place-items:center; border:0; border-radius:8px; color:#a1a3b0; background:transparent; cursor:pointer; opacity:.72; }

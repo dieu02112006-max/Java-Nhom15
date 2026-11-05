@@ -93,14 +93,8 @@
         trigger.title = profile.email || '';
     });
 
-    fetch('/api/auth/me', {credentials:'same-origin'}).then(r => r.ok ? r.json() : null).then(async u => {
+    fetch('/api/auth/me', {credentials:'same-origin'}).then(r => r.ok ? r.json() : null).then(u => {
         if (!u) return;
-        if (activeView === 'admin') {
-            try {
-                const profileResponse = await fetch(`/api/users/${u.id}`, {credentials:'same-origin'});
-                if (profileResponse.ok) u = await profileResponse.json();
-            } catch {}
-        }
         user = u;
         const ini = initials(u.fullName);
         trigger.textContent = ini;

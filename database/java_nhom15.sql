@@ -262,7 +262,7 @@ CREATE TABLE `tasks` (
   `description` text,
   `category` varchar(80) NOT NULL DEFAULT 'Cá nhân',
   `location` varchar(500) DEFAULT NULL,
-  `status` enum('todo','in_progress','done') NOT NULL DEFAULT 'todo',
+  `status` enum('todo','in_progress','done','blocked') NOT NULL DEFAULT 'todo',
   `priority` enum('low','medium','high') NOT NULL DEFAULT 'medium',
   `due_date` datetime DEFAULT NULL,
   `completed_at` datetime DEFAULT NULL,

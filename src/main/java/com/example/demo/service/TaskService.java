@@ -15,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class TaskService {
 
-    private static final Set<String> STATUSES = Set.of("todo", "in_progress", "done");
+    private static final Set<String> STATUSES = Set.of("todo", "in_progress", "done", "blocked");
     private static final Set<String> PRIORITIES = Set.of("low", "medium", "high");
 
     private final TaskRepository repository;
@@ -74,7 +74,7 @@ public class TaskService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId, listId and title are required");
         }
         if (task.getStatus() == null || !STATUSES.contains(task.getStatus())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status must be todo, in_progress or done");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status must be todo, in_progress, done or blocked");
         }
         if (task.getPriority() == null || !PRIORITIES.contains(task.getPriority())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "priority must be low, medium or high");
