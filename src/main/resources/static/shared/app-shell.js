@@ -1,6 +1,6 @@
 /* Khung giao diện dùng chung cho To-do list, Quản lí chi tiêu và trang giới thiệu:
    - Bỏ thanh nav phía trên (CSS ẩn .topbar).
-   - Chuông thông báo + profile/đăng xuất chuyển xuống đáy sidebar.
+   - Profile/đăng xuất chuyển xuống đáy sidebar.
    - Bộ chọn ứng dụng nằm ở cạnh phải và gồm To-do, Chi tiêu, Trang giới thiệu.
    Chỉ di chuyển các node có sẵn nên mọi sự kiện/ID của từng trang vẫn hoạt động. */
 (() => {
@@ -25,10 +25,11 @@
     const sidebar = document.querySelector('.sidebar');
     if (!topbar || !sidebar || document.querySelector('.side-account')) return;
 
-    /* ---------- 1. Chuông + profile xuống đáy sidebar ---------- */
+    /* ---------- 1. Profile + đăng xuất xuống đáy sidebar ---------- */
+    topbar.querySelectorAll('.icon-button').forEach(node => node.remove());
     const account = document.createElement('div');
     account.className = 'side-account';
-    topbar.querySelectorAll('.icon-button, #user-menu, .logout-button, #logout-button, #logout, .profile, .avatar')
+    topbar.querySelectorAll('#user-menu, .logout-button, #logout-button, #logout, .profile, .avatar')
         .forEach(node => account.appendChild(node));      // giữ nguyên thứ tự gốc
     if (account.children.length) sidebar.appendChild(account);
 

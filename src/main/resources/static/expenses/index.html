@@ -719,10 +719,34 @@
             }
         }
     </style>
-<link rel="stylesheet" href="/shared/app-shell.css?v=20261102-0072">
+<link rel="stylesheet" href="/shared/app-shell.css?v=20261105-0012">
+<style>
+    /* Match the To-do page's shared sidebar and compact mobile navigation. */
+    @media (min-width: 621px) and (max-width: 850px) {
+        .app-shell.shell { grid-template-columns: 70px minmax(0, 1fr); }
+        .app-shell .sidebar { padding: 20px 9px; }
+        .app-shell .brand { justify-content: center; margin: 0 0 24px; }
+        .app-shell .brand-name, .app-shell .workspace-label, .app-shell .workspace,
+        .app-shell .side-label, .app-shell .side-link span:not(.nav-icon),
+        .app-shell .side-bottom, .app-shell .side-spacer { display: none; }
+        .app-shell .sidebar-nav { justify-items: center; }
+        .app-shell .side-link { justify-content: center; width: 48px; padding: 11px; }
+    }
+    @media (max-width: 620px) {
+        .app-shell.shell { display: block; }
+        .app-shell .sidebar { position: fixed; top: auto; right: 0; bottom: 0; left: 0; z-index: 30; width: 100%; height: 67px; display: flex; align-items: center; padding: 0 8px; border-top: 1px solid var(--line); border-right: 0; }
+        .app-shell .brand, .app-shell .workspace, .app-shell .workspace-label,
+        .app-shell .side-label, .app-shell .side-spacer, .app-shell .side-bottom,
+        .app-shell .sidebar-nav[aria-label="Điều hướng không gian"] { display: none; }
+        .app-shell .sidebar-nav { width: 100%; display: flex; gap: 2px; overflow-x: auto; }
+        .app-shell .side-link { flex: 1 0 auto; flex-direction: column; gap: 3px; min-height: 54px; padding: 6px 8px; font-size: 10px; }
+        .app-shell .side-link span:not(.nav-icon) { display: block; }
+        .app-shell .main { padding-bottom: 70px; }
+    }
+</style>
 </head>
 <body>
-    <div class="app-shell">
+    <div class="app-shell shell finance-shell">
         <aside class="sidebar">
             <a class="brand" href="/" aria-label="Dayflow - Trang chủ">
                 <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.3 4.2L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2.8a9.2 9.2 0 1 0 9.2 9.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
@@ -731,15 +755,16 @@
             <div class="workspace-label">Không gian làm việc</div>
             <div class="workspace"><span class="workspace-icon">✳</span><span class="workspace-copy"><span class="workspace-name">Không gian của tôi</span><br><span class="workspace-sub">Cá nhân · Gói miễn phí</span></span></div>
             <div class="side-label">Điều hướng</div>
-            <nav class="sidebar-nav" aria-label="Điều hướng chính">
-                <a class="nav-item" href="/expenses/goals.html"><span class="nav-icon">◎</span><span>Mục tiêu tiết kiệm</span></a>
-                <a class="nav-item" id="calendar-nav" href="/expenses/section.html?view=calendar"><span class="nav-icon">▦</span><span>Lịch sử chi tiêu</span></a>
-                <a class="nav-item active" id="expenses-nav" href="/expenses/index.html" aria-current="page"><span class="nav-icon">◉</span><span>Quản lí chi tiêu</span></a>
-                <a class="nav-item" href="/expenses/section.html?view=stats"><span class="nav-icon">↗</span><span>Thống kê</span></a>
+            <nav class="sidebar-nav side-nav" aria-label="Điều hướng chính">
+                <a class="nav-item side-link" href="/expenses/goals.html"><span class="nav-icon">◎</span><span>Mục tiêu tiết kiệm</span></a>
+                <a class="nav-item side-link" id="calendar-nav" href="/expenses/section.html?view=calendar"><span class="nav-icon">▦</span><span>Lịch sử chi tiêu</span></a>
+                <a class="nav-item side-link active" id="expenses-nav" href="/expenses/index.html" aria-current="page"><span class="nav-icon">◉</span><span>Quản lí chi tiêu</span></a>
+                <a class="nav-item side-link" href="/expenses/section.html?view=stats"><span class="nav-icon">↗</span><span>Thống kê</span></a>
             </nav>
+            <div class="side-spacer"></div>
             <div class="workspace-label">Không gian</div>
-            <nav class="sidebar-nav" aria-label="Điều hướng không gian">
-                <a class="nav-item" href="/"><span class="nav-icon">⌂</span><span>Trang giới thiệu</span></a>
+            <nav class="sidebar-nav side-nav" aria-label="Điều hướng không gian">
+                <a class="nav-item side-link" href="/"><span class="nav-icon">⌂</span><span>Trang giới thiệu</span></a>
             </nav>
             <div class="side-bottom"><div class="side-bottom-title">Quản lí tài chính ✨</div><div class="side-bottom-copy">Theo dõi thu chi để từng mục tiêu tài chính rõ ràng hơn.</div></div>
         </aside>
@@ -833,7 +858,6 @@
                             <h1>Lịch sử chi tiêu</h1>
                             <div class="calendar-controls">
                                 <button type="button" id="previous-month" aria-label="Tháng trước">‹</button>
-                                <input type="month" id="calendar-month" aria-label="Chọn tháng" />
                                 <button type="button" id="next-month" aria-label="Tháng sau">›</button>
                             </div>
                         </div>
@@ -858,7 +882,6 @@
         const segments = document.querySelectorAll('.segment');
         const chip = document.querySelector('.chip');
         const calendarGrid = document.getElementById('calendar-grid');
-        const calendarMonthInput = document.getElementById('calendar-month');
         const calendarTransactions = [];
         let currentUserId;
         let currentCalendarMonth;
@@ -1066,7 +1089,6 @@ async function loadWallets() {
 
         function renderCalendar() {
             if (!currentCalendarMonth) return;
-            calendarMonthInput.value = monthString(currentCalendarMonth);
             const year = currentCalendarMonth.getFullYear();
             const month = currentCalendarMonth.getMonth();
             const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
@@ -1103,7 +1125,6 @@ async function loadWallets() {
 
         async function showCalendarMonth(date) {
             currentCalendarMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-            calendarMonthInput.value = monthString(currentCalendarMonth);
             selectedCalendarDate = null;
             calendarGrid.innerHTML = '<div class="day-empty">Đang tải dữ liệu giao dịch...</div>';
             try {
@@ -1136,12 +1157,6 @@ async function loadWallets() {
         document.getElementById('next-month').addEventListener('click', () => {
             if (currentCalendarMonth) showCalendarMonth(new Date(currentCalendarMonth.getFullYear(), currentCalendarMonth.getMonth() + 1, 1));
         });
-        calendarMonthInput.addEventListener('change', () => {
-            if (!calendarMonthInput.value) return;
-            const [year, month] = calendarMonthInput.value.split('-').map(Number);
-            showCalendarMonth(new Date(year, month - 1, 1));
-        });
-
         document.getElementById('logout-button').addEventListener('click', async () => {
             try {
                 await api('/api/auth/logout', { method: 'POST' });
@@ -1167,7 +1182,7 @@ async function loadWallets() {
             }
         })();
     </script>
-<script src="/assistant/assistant.js?v=20261102-0092" defer></script>
-<script src="/shared/app-shell.js?v=20261102-2201" defer></script>
+<script src="/assistant/assistant.js?v=20261105-0001" defer></script>
+<script src="/shared/app-shell.js?v=20261105-0001" defer></script>
 </body>
 </html>
