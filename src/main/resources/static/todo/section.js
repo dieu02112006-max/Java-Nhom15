@@ -1,15 +1,21 @@
 (async () => {
     const response = await fetch('/api/auth/me', {credentials:'same-origin'});
     if (!response.ok) { location.href = `/login/index.html?next=${encodeURIComponent(location.pathname + location.search)}`; return; }
-    const user = await response.json();
-    const userId = user.id;
-    const [skinListResponse,currentSkinResponse]=await Promise.all([
+    const [skinListResponse,currentSkinResponse,packageResponse]=await Promise.all([
         fetch('/api/skins',{credentials:'same-origin'}),
-        fetch('/api/auth/me/skin',{credentials:'same-origin'})
+        fetch('/api/auth/me/skin',{credentials:'same-origin'}),
+        fetch('/api/packages/me',{credentials:'same-origin'})
     ]);
-    if(!skinListResponse.ok||!currentSkinResponse.ok){location.href='/todo/index.html';return;}
+    if(!skinListResponse.ok||!currentSkinResponse.ok||!packageResponse.ok){location.href='/todo/index.html';return;}
     const skins=(await skinListResponse.json()).filter(skin=>skin.isActive);
     let currentSkin=await currentSkinResponse.json();
+    const currentPackage=await packageResponse.json();
+    const packageRank=Number(currentPackage.rank||1);
+    if(packageRank<2&&localStorage.getItem('dayflow-topic-background')){
+        localStorage.removeItem('dayflow-topic-background');
+        delete document.documentElement.dataset.topicBackground;
+        document.documentElement.style.removeProperty('--topic-background-image');
+    }
     const pad = value => String(value).padStart(2,'0');
     const dateKey = date => `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
     const today = new Date();
@@ -124,9 +130,11 @@
             {id:'ocean',name:'Đại dương',image:'/home/topics/ocean.png'}
         ];
         const selectedTopic=topicPackages.find(topic=>topic.id===localStorage.getItem('dayflow-topic-background'));
+        const locked=packageRank<2;
         content.innerHTML=heading('CÁ NHÂN HÓA','Chủ đề','Chọn một gói chủ đề để thay đổi hình nền hoặc chọn bảng màu hiển thị.')+
-            `<section class="theme-section"><h2>Gói chủ đề</h2><p class="subtitle">Hình nền được lấy từ bộ ảnh chủ đề và áp dụng cho các trang trong ứng dụng.</p><div class="theme-grid">${topicPackages.map(topic=>`<button class="card theme-card ${selectedTopic?.id===topic.id?'selected':''}" data-topic-id="${topic.id}" type="button" aria-pressed="${selectedTopic?.id===topic.id}"><div class="theme-preview topic-preview"><img class="topic-preview-image" src="${safe(topic.image)}" alt="Ảnh xem trước chủ đề ${safe(topic.name)}"></div><div class="theme-info"><span><strong>${safe(topic.name)}</strong><br><small>Gói chủ đề</small></span><small>${selectedTopic?.id===topic.id?'Đang dùng':'Chọn chủ đề'}</small></div></button>`).join('')}</div></section>`+
-            `<section class="theme-section"><h2>Bảng màu</h2><div class="theme-grid">${skins.map(skin=>`<button class="card theme-card ${currentSkin.id===skin.id?'selected':''}" data-theme-id="${skin.id}" type="button"><div class="theme-preview" style="--preview-bg:${safe(skin.backgroundColor)};--preview-primary:${safe(skin.primaryColor)};--preview-secondary:${safe(skin.secondaryColor)};--preview-accent:${safe(skin.secondaryColor)};--preview-image:${safeImageUrl(skin.previewUrl||skin.backgroundImageUrl)}"><div class="preview-bar"></div><div class="preview-line"></div><div class="preview-line short"></div><div class="preview-chip"></div></div><div class="theme-info"><span><strong>${safe(skin.name)}${skin.isDefault?' · Mặc định':''}</strong><br><small>${safe(skin.code)}</small></span><small>${currentSkin.id===skin.id?'Đang dùng':'Chọn chủ đề'}</small></div></button>`).join('')}</div></section>`;
+            (locked?'<div class="package-note"><strong>Chủ đề dành cho gói Chủ đề hoặc Toàn diện.</strong> Nâng cấp gói để mở khóa hình nền và bảng màu.</div>':'')+
+            `<section class="theme-section"><h2>Gói chủ đề</h2><p class="subtitle">Hình nền được lấy từ bộ ảnh chủ đề và áp dụng cho các trang trong ứng dụng.</p><div class="theme-grid">${topicPackages.map(topic=>`<button class="card theme-card ${selectedTopic?.id===topic.id?'selected':''}" data-topic-id="${topic.id}" type="button" ${locked?'disabled':''} aria-pressed="${selectedTopic?.id===topic.id}"><div class="theme-preview topic-preview"><img class="topic-preview-image" src="${safe(topic.image)}" alt="Ảnh xem trước chủ đề ${safe(topic.name)}"></div><div class="theme-info"><span><strong>${safe(topic.name)}</strong><br><small>Gói chủ đề</small></span><small>${locked?'Cần nâng cấp':selectedTopic?.id===topic.id?'Đang dùng':'Chọn chủ đề'}</small></div></button>`).join('')}</div></section>`+
+            `<section class="theme-section"><h2>Bảng màu</h2><div class="theme-grid">${skins.map(skin=>`<button class="card theme-card ${currentSkin.id===skin.id?'selected':''}" data-theme-id="${skin.id}" type="button" ${locked?'disabled':''}><div class="theme-preview" style="--preview-bg:${safe(skin.backgroundColor)};--preview-primary:${safe(skin.primaryColor)};--preview-secondary:${safe(skin.secondaryColor)};--preview-accent:${safe(skin.secondaryColor)};--preview-image:${safeImageUrl(skin.previewUrl||skin.backgroundImageUrl)}"><div class="preview-bar"></div><div class="preview-line"></div><div class="preview-line short"></div><div class="preview-chip"></div></div><div class="theme-info"><span><strong>${safe(skin.name)}${skin.isDefault?' · Mặc định':''}</strong><br><small>${safe(skin.code)}</small></span><small>${locked?'Cần nâng cấp':currentSkin.id===skin.id?'Đang dùng':'Chọn chủ đề'}</small></div></button>`).join('')}</div></section>`;
         document.querySelectorAll('[data-topic-id]').forEach(button=>button.addEventListener('click',()=>{
             const topic=topicPackages.find(item=>item.id===button.dataset.topicId);
             if(!topic)return;
@@ -154,18 +162,70 @@
         }));
     }
     async function renderPackages() {
-        content.innerHTML=heading('SỐ DƯ TÀI KHOẢN','Ví của bạn','Số dư và danh sách ví được tải trực tiếp từ cơ sở dữ liệu.')+'<div class="card panel">Đang tải dữ liệu ví…</div>';
+        content.innerHTML=heading('GÓI NẠP','Chọn gói phù hợp','Mở khóa thêm chức năng cho tài khoản Dayflow của bạn.')+'<div class="card panel">Đang tải danh sách gói…</div>';
         try {
-            const [walletResponse,summaryResponse]=await Promise.all([
-                fetch(`/api/finance/wallets?userId=${encodeURIComponent(userId)}`,{credentials:'same-origin'}),
-                fetch(`/api/finance/summary?userId=${encodeURIComponent(userId)}`,{credentials:'same-origin'})
-            ]);
-            if(!walletResponse.ok||!summaryResponse.ok)throw new Error('Không thể tải dữ liệu ví từ máy chủ.');
-            const [wallets,summary]=await Promise.all([walletResponse.json(),summaryResponse.json()]);
+            const response=await fetch('/api/packages',{credentials:'same-origin'});
+            if(!response.ok)throw new Error('Không thể tải danh sách gói từ máy chủ.');
+            const overview=await response.json();
             const money=value=>`${Number(value||0).toLocaleString('vi-VN')} ₫`;
-            content.innerHTML=heading('SỐ DƯ TÀI KHOẢN','Ví của bạn','Số dư và danh sách ví được tải trực tiếp từ cơ sở dữ liệu.')+
-                `<div class="stats-grid"><article class="card stat-card"><div class="stat-label">Tổng số dư</div><div class="stat-value">${money(summary.walletBalance)}</div></article></div><div class="package-note"><strong>Gói nạp chưa khả dụng.</strong> Ứng dụng hiện chưa có danh mục gói nạp hoặc kết nối thanh toán. Số liệu bên dưới là số dư thật trong các ví của bạn.</div><div class="package-grid">${wallets.length?wallets.map(wallet=>`<article class="card package-card"><h2>${safe(wallet.name)}</h2><div class="package-description">Số dư hiện tại</div><div class="package-credits">${money(wallet.balance)}</div></article>`).join(''):'<div class="card package-card">Chưa có ví đang hoạt động trong tài khoản.</div>'}</div>`;
-        } catch(error) { content.innerHTML=heading('SỐ DƯ TÀI KHOẢN','Ví của bạn','Không tải được dữ liệu ví.')+`<div class="card package-note">${safe(error.message)}</div>`; }
+            const active=overview.currentPlan;
+            content.innerHTML=heading('GÓI NẠP','Chọn gói phù hợp','Mở khóa thêm chức năng cho tài khoản Dayflow của bạn.')+
+                `<div class="package-note"><strong>Gói hiện tại: ${safe(active.name)}.</strong> Quét mã QR để thanh toán. Khi email được cấu hình, yêu cầu xác nhận sẽ gửi tới Gmail và gói mở sau khi xác nhận đã nhận tiền.</div><div class="package-grid">${overview.packages.map((plan,index)=>{const owned=plan.rank<=active.rank;const label=owned?(plan.rank===active.rank&&plan.priceVnd===0?'Đang sử dụng':'Đã mua'):'Mua gói';return `<article class="card package-card ${index===2?'featured':''}" ${plan.code===active.code?'aria-current="true"':''}>${index===2?'<span class="package-badge">Đầy đủ tính năng</span>':''}<h2>${safe(plan.name)}</h2><div class="package-description">${safe(plan.features.join(' · '))}</div><div class="package-credits">${plan.priceVnd===0?'Miễn phí':money(plan.priceVnd)}</div><div class="package-price">${plan.priceVnd===0?'Không mất phí':'Thanh toán một lần · QR ngân hàng/MoMo'}</div><ul>${plan.features.map(feature=>`<li>${safe(feature)}</li>`).join('')}</ul><button class="button ${owned?'':'primary'}" type="button" data-buy-package="${safe(plan.code)}" ${owned?'disabled':''}>${label}</button></article>`}).join('')}</div>`;
+            content.querySelectorAll('[data-buy-package]').forEach(button=>button.addEventListener('click',async()=>{
+                const plan=overview.packages.find(item=>item.code===button.dataset.buyPackage);
+                if(!plan)return;
+                button.disabled=true;
+                button.textContent='Đang xử lý…';
+                showMessage('Đang tạo yêu cầu thanh toán…');
+                try {
+                    const headers=await csrfHeaders();
+                    const result=await fetch(plan.priceVnd===0?'/api/packages/purchase':'/api/packages/checkout',{method:'POST',credentials:'same-origin',headers,body:JSON.stringify({planCode:plan.code})});
+                    if(!result.ok){
+                        if(result.status===401)throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại rồi thử mua gói.');
+                        if(result.status===403)throw new Error('Phiên bảo mật đã hết hạn. Tải lại trang rồi thử mua gói.');
+                        const problem=await result.json().catch(()=>null);
+                        throw new Error(problem?.message||problem?.detail||'Không thể tạo yêu cầu mua gói. Vui lòng thử lại.');
+                    }
+                    if(plan.priceVnd>0){showPackagePayment(await result.json(),button);return;}
+                    showMessage(`Đã kích hoạt gói ${plan.name} cho tài khoản của bạn.`);
+                    window.setTimeout(()=>location.reload(),700);
+                } catch(error) { showMessage(error.message);button.disabled=false;button.textContent='Mua gói'; }
+            }));
+        } catch(error) { content.innerHTML=heading('GÓI NẠP','Chọn gói phù hợp','Không tải được danh sách gói.')+`<div class="card package-note">${safe(error.message)}</div>`; }
+    }
+    function showPackagePayment(checkout, buyButton) {
+        const dialog=document.createElement('dialog');
+        dialog.className='package-payment-dialog';
+        const emailMessage=checkout.emailSent
+            ?'Yêu cầu xác nhận đã được gửi tới Gmail dieu02112006@gmail.com. Gói sẽ mở sau khi xác nhận đã nhận tiền.'
+            :'Chưa gửi được email xác nhận. Mã QR vẫn dùng để thanh toán; cần cấu hình Gmail SMTP để nhận yêu cầu xác nhận và mở gói.';
+        dialog.innerHTML=`<div class="package-payment-content"><button class="package-payment-close" type="button" aria-label="Đóng">×</button><h2>Thanh toán gói ${safe(checkout.planName)}</h2><p>Quét mã bằng ứng dụng ngân hàng hoặc MoMo và chuyển đúng số tiền bên dưới.</p><img class="package-payment-qr" src="${safe(checkout.qrImageUrl)}" alt="Mã QR thanh toán gói Dayflow"><strong class="package-payment-amount">${Number(checkout.amountVnd||0).toLocaleString('vi-VN')} ₫</strong><p class="package-payment-hint">Nội dung chuyển khoản: <strong>DAYFLOW ${safe(checkout.transactionRef)}</strong><br>${safe(emailMessage)}</p><div class="package-payment-status" role="status" aria-live="polite">Đang chờ xác nhận thanh toán…</div></div>`;
+        document.body.appendChild(dialog);
+        dialog.showModal();
+        const statusNode=dialog.querySelector('.package-payment-status');
+        let checking=false;
+        const check=async()=>{
+            if(checking||!dialog.open)return;
+            checking=true;
+            try{
+                const response=await fetch(`/api/packages/orders/${encodeURIComponent(checkout.transactionRef)}`,{credentials:'same-origin'});
+                if(!response.ok)return;
+                const payment=await response.json();
+                if(payment.status==='PAID'){
+                    statusNode.textContent='Thanh toán thành công — gói đã được mở!';
+                    window.clearInterval(timer);
+                    window.setTimeout(()=>location.reload(),1100);
+                }else if(payment.status==='FAILED'){
+                    statusNode.textContent='Thanh toán thất bại — gói chưa được mở.';
+                    window.clearInterval(timer);
+                }
+            }catch(_){/* kiểm tra lại ở lần tiếp theo */}
+            finally{checking=false;}
+        };
+        const timer=window.setInterval(check,2500);
+        dialog.addEventListener('close',()=>{window.clearInterval(timer);dialog.remove();buyButton.disabled=false;buyButton.textContent='Mua gói';});
+        dialog.querySelector('.package-payment-close').addEventListener('click',()=>dialog.close());
+        check();
     }
     window.addEventListener('dayflow:task-created',event=>{
         const saved=event.detail;

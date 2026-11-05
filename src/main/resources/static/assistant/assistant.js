@@ -1,5 +1,10 @@
-(() => {
-    if (!document.querySelector('.sidebar') || document.querySelector('.dayflow-assistant')) return;
+(async () => {
+    const sidebar = document.querySelector('.sidebar');
+    if (!sidebar || document.querySelector('.dayflow-assistant')) return;
+    try {
+        const packageResponse = await fetch('/api/packages/me', {credentials:'same-origin'});
+        if (!packageResponse.ok || Number((await packageResponse.json()).rank) < 3) return;
+    } catch (_) { return; }
 
     const shell = document.createElement('section');
     shell.className = 'dayflow-assistant';
@@ -16,7 +21,6 @@
             <div class="assistant-hint">Ví dụ: “Tạo mục tiêu tập thể dục”</div>
         </section>
         <div class="assistant-toast" role="status" aria-live="polite"></div>`;
-    const sidebar = document.querySelector('.sidebar');
     sidebar.appendChild(shell);
 
     const pet = shell.querySelector('.assistant-pet');

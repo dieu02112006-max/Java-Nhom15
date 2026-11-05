@@ -26,6 +26,7 @@ public class UserService {
     private final SkinRepository skinRepo;
     private final PasswordEncoder passwordEncoder;
     private final JdbcTemplate jdbc;
+    private final PackageService packageService;
 
     public UserResponse create(UserRequest req) {
         if (req.password() == null || req.password().isBlank()) {
@@ -125,6 +126,7 @@ public class UserService {
     }
 
     public Skin selectSkin(Long userId, Long skinId) {
+        packageService.requireThemeAccess(userId);
         Skin skin = skinRepo.findById(skinId)
                 .orElseThrow(() -> new ResourceNotFoundException("Skin", skinId));
         if (!skin.isActive()) throw new BusinessException("Chủ đề này hiện không khả dụng");
