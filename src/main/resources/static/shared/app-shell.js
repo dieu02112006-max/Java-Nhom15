@@ -1,6 +1,6 @@
 /* Khung giao diện dùng chung cho To-do list, Quản lí chi tiêu và trang giới thiệu:
    - Bỏ thanh nav phía trên (CSS ẩn .topbar).
-   - Profile/đăng xuất chuyển xuống đáy sidebar.
+   - Chuông thông báo + profile/đăng xuất chuyển xuống đáy sidebar.
    - Bộ chọn ứng dụng nằm ở cạnh phải và gồm To-do, Chi tiêu, Trang giới thiệu.
    Chỉ di chuyển các node có sẵn nên mọi sự kiện/ID của từng trang vẫn hoạt động. */
 (() => {
@@ -21,15 +21,29 @@
         localStorage.removeItem('dayflow-topic-background');
     }
 
+    fetch('/api/packages/me', {credentials:'same-origin'})
+        .then(response => response.ok ? response.json() : null)
+        .then(plan => {
+            if (!plan?.name) return;
+            if (Number(plan.rank) < 2 && localStorage.getItem('dayflow-topic-background')) {
+                localStorage.removeItem('dayflow-topic-background');
+                delete root.dataset.topicBackground;
+                root.style.removeProperty('--topic-background-image');
+            }
+            document.querySelectorAll('.workspace small, .workspace-sub').forEach(node => {
+                if (node.closest('.workspace')) node.textContent = `Cá nhân · Gói ${plan.name}`;
+            });
+        })
+        .catch(() => {});
+
     const topbar = document.querySelector('.topbar');
     const sidebar = document.querySelector('.sidebar');
     if (!topbar || !sidebar || document.querySelector('.side-account')) return;
 
-    /* ---------- 1. Profile + đăng xuất xuống đáy sidebar ---------- */
-    topbar.querySelectorAll('.icon-button').forEach(node => node.remove());
+    /* ---------- 1. Chuông + profile xuống đáy sidebar ---------- */
     const account = document.createElement('div');
     account.className = 'side-account';
-    topbar.querySelectorAll('#user-menu, .logout-button, #logout-button, #logout, .profile, .avatar')
+    topbar.querySelectorAll('.icon-button, #user-menu, .logout-button, #logout-button, #logout, .profile, .avatar')
         .forEach(node => account.appendChild(node));      // giữ nguyên thứ tự gốc
     if (account.children.length) sidebar.appendChild(account);
 
