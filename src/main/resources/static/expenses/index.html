@@ -848,7 +848,9 @@
         </main>
     </div>
 
-    <script>
+
+<script src="/shared/auth-context.js"></script>
+<script>
         const form = document.getElementById('expenseForm');
         const amountInput = document.getElementById('expenseAmount');
         const dateInput = document.getElementById('expenseDate');
@@ -931,7 +933,7 @@
                 categories.map(category => `<option value="${category.id}">${escapeHtml(category.name)}</option>`).join('');
         }
 
-        
+
 async function loadWallets() {
     walletSelect.disabled = true;
     walletSelect.innerHTML = '<option value="">Đang tải ví...</option>';
@@ -1167,7 +1169,9 @@ async function loadWallets() {
             }
         })();
     </script>
+
 <script src="/assistant/assistant.js?v=20261102-0092" defer></script>
+
 <script src="/shared/app-shell.js?v=20261102-2201" defer></script>
 </body>
 </html>

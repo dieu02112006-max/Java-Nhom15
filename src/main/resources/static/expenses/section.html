@@ -679,7 +679,9 @@
         </div>
       </main>
     </div>
-    <script>
+
+<script src="/shared/auth-context.js"></script>
+<script>
       (async () => {
         const response = await fetch("/api/auth/me", {
           credentials: "same-origin",
@@ -971,8 +973,11 @@
     }
 })().catch(exception=>{const node=document.getElementById('message');if(node){node.textContent=`Không tải được trang: ${exception.message}`;node.classList.add('show');}console.error('Không thể tải trang chi tiêu:',exception);});
 </script>
+
 <script src="/shared/user-menu.js" defer></script>
+
 <script src="/assistant/assistant.js?v=20261102-0092" defer></script>
+
 <script src="/shared/app-shell.js?v=20261102-2202" defer></script>
 </body>
 </html>

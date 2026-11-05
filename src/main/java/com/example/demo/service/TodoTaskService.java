@@ -123,6 +123,14 @@ public class TodoTaskService {
     }
 
     public TodoTaskResponse update(Long userId, Long id, TodoTaskRequest request) {
+        String currentStatus = jdbc.query("SELECT status FROM tasks WHERE id = ? AND user_id = ?",
+                rs -> rs.next() ? rs.getString(1) : null, id, userId);
+        if (currentStatus == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy công việc");
+        }
+        if ("blocked".equals(currentStatus)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Công việc này đã bị quản trị viên chặn");
+        }
         String status = normalizeStatus(request.status());
         String priority = normalizePriority(request.priority());
         Long listId = request.listId() == null ? requireExistingListId(userId, id) : requireList(userId, request.listId());
@@ -143,6 +151,14 @@ public class TodoTaskService {
     }
 
     public void delete(Long userId, Long id) {
+        String currentStatus = jdbc.query("SELECT status FROM tasks WHERE id = ? AND user_id = ?",
+                rs -> rs.next() ? rs.getString(1) : null, id, userId);
+        if (currentStatus == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy công việc");
+        }
+        if ("blocked".equals(currentStatus)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Công việc này đã bị quản trị viên chặn");
+        }
         if (jdbc.update("DELETE FROM tasks WHERE id = ? AND user_id = ?", id, userId) == 0) {
             throw notFound();
         }

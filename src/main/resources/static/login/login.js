@@ -132,14 +132,4 @@
         }
     });
 
-    // Đã đăng nhập sẵn thì vào thẳng
-    (async () => {
-        try {
-            const response = await fetch('/api/auth/me');
-            if (response.ok) {
-                const user = await response.json();
-                location.replace(destination(user.role));
-            }
-        } catch {}
-    })();
 })();
