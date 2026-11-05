@@ -31,7 +31,7 @@ public class ActiveAccountInterceptor implements HandlerInterceptor {
         SecurityContextHolder.clearContext();
         HttpSession session = request.getSession(false);
         if (session != null) session.invalidate();
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Tài khoản đã bị vô hiệu hóa");
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Tài khoản đã bị tạm dừng");
         return false;
     }
 }

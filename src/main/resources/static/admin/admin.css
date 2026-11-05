@@ -215,3 +215,14 @@ tbody tr:hover{background:rgb(238 237 247 / 72%)}
 #task-modal .modal-actions .button.secondary{border:1px solid #dfe3ef;background:#fff;color:#68718a}
 @media(max-width:760px){#task-modal{padding:10px}#task-modal .modal{width:100%;max-height:calc(100vh - 20px);padding:22px 18px;border-radius:20px}#task-modal .modal-head{margin-bottom:20px}#task-modal .task-modal-mark{width:46px;height:46px;flex-basis:46px;border-radius:15px;font-size:21px}#task-modal .modal-head h2{font-size:21px}#task-modal .modal-head p{max-width:230px;line-height:1.45}#task-modal .form-grid{grid-template-columns:1fr;gap:14px}#task-modal .field.full{grid-column:auto}#task-modal .modal-actions{margin-top:20px}}
 
+.status.blocked{color:#b34f59;background:#fff0f1}
+.icon-action:disabled{opacity:.4;cursor:not-allowed}
+.details-dialog{width:min(520px,calc(100vw - 32px));padding:0;border:0;border-radius:18px;background:transparent;box-shadow:0 25px 80px #17211f30}
+.details-dialog::backdrop{background:#17211f66;backdrop-filter:blur(3px)}
+.details-card{padding:23px;border:1px solid #fff;border-radius:18px;background:#fff}
+.details-card .modal-head{align-items:center;margin-bottom:14px}
+.details-list{display:grid;gap:0;margin:0}
+.detail-row{display:grid;grid-template-columns:minmax(120px,.8fr) 1.2fr;gap:16px;padding:11px 0;border-top:1px solid #f0f1f5;font-size:12px}
+.detail-row dt{color:var(--muted)}
+.detail-row dd{margin:0;color:var(--ink);font-weight:650;overflow-wrap:anywhere}
+

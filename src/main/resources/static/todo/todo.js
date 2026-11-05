@@ -102,7 +102,7 @@
             const matchFilter = selectedDay ? taskDay === selectedDay : currentFilter === 'all' || (currentFilter === 'today' && taskDay === dateKey(new Date()) && task.status !== 'done') || (currentFilter === 'upcoming' && taskDay > dateKey(new Date()) && task.status !== 'done') || (currentFilter === 'completed' && task.status === 'done');
             return matchText && matchFilter;
         });
-        const statusLabels={todo:'Cần làm',in_progress:'Đang làm',done:'Hoàn thành'};
+        const statusLabels={todo:'Cần làm',in_progress:'Đang làm',done:'Hoàn thành',blocked:'Đã chặn'};
         const priorityLabels={low:'Thấp',medium:'Trung bình',high:'Cao'};
         const showDate=value=>value?escapeHtml(value.replace('T',' ').slice(0,19)):'—';
         list.innerHTML = filtered.map(task => {
