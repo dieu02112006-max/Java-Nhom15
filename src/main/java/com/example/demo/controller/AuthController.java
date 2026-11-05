@@ -6,6 +6,7 @@ import com.example.demo.dto.request.SkinSelectionRequest;
 import com.example.demo.dto.response.AuthResponse;
 import com.example.demo.entity.User;
 import com.example.demo.security.AppUserPrincipal;
+import com.example.demo.security.TabAuthenticationStore;
 import com.example.demo.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -41,6 +43,7 @@ public class AuthController {
     private final SecurityContextRepository securityContextRepository;
     private final AuthService authService;
     private final UserService userService;
+    private final TabAuthenticationStore tabAuthenticationStore;
 
     @GetMapping("/csrf")
     public CsrfResponse csrf(CsrfToken token) {
@@ -63,6 +66,8 @@ public class AuthController {
             authentication = authenticationManager.authenticate(
                     UsernamePasswordAuthenticationToken.unauthenticated(
                             request.email().trim().toLowerCase(), request.password()));
+        } catch (DisabledException exception) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản đã bị tạm dừng");
         } catch (AuthenticationException exception) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email hoặc mật khẩu không đúng");
         }
@@ -73,7 +78,8 @@ public class AuthController {
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
         securityContextRepository.saveContext(context, httpRequest, httpResponse);
-        return toResponse((AppUserPrincipal) authentication.getPrincipal());
+        AuthResponse user = toResponse((AppUserPrincipal) authentication.getPrincipal());
+        return new AuthResponse(user.id(), user.email(), user.fullName(), user.role(), tabAuthenticationStore.create(authentication));
     }
 
     @GetMapping("/me")
@@ -95,12 +101,15 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+        String authorization = request.getHeader("Authorization");
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            tabAuthenticationStore.remove(authorization.substring(7));
+        }
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
         SecurityContextHolder.clearContext();
-        response.addHeader("Clear-Site-Data", "\"cache\"");
         return ResponseEntity.noContent().build();
     }
 
